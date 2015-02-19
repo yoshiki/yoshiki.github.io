@@ -1,0 +1,65 @@
+---
+layout: post
+title: 今さらだけどAmazon EC2をさわってみた
+mt_id: 1059
+date: 2008-08-26 18:47:58.000000000 +09:00
+author: clouder
+category: Webservice
+---
+Amazon EC2をちょっとさわってみました。<br /><br />
+
+ずっとさわれずにいたのですが最近yusukebeが例のサイトで使ってるとかいう話を聞いたり、会社の背向いにいるshebangことikebeさんがさわってるのを見て、無性にさわりたくなったので契約して使ってみました。<br /><br />
+
+使い方に関しては以下を参考にしました。<br />
+<a href="http://docs.amazonwebservices.com/AWSEC2/2008-05-05/GettingStartedGuide/">http://docs.amazonwebservices.com/AWSEC2/2008-05-05/GettingStartedGuide/</a><br />
+<span style="font-weight: bold;">公式サイトのGetting Started Guide</span><br />
+<a href="http://gihyo.jp/dev/serial/01/amazon_ec2">http://gihyo.jp/dev/serial/01/amazon_ec2</a><br />
+<span style="font-weight: bold;">技評の増井さんの説明</span><br /><br />
+
+ちょー簡単にAmazon EC2を説明すると以下のようになります。<br />
+＃言葉的に間違ってる部分があるかもしれませんが、あくまでイメージとして読んでください。<br /><br />
+
+<ul>
+  <li><span style="font-weight: bold;">Amazon EC2の簡単な説明</span>
+  <ul>
+    <li>Amazon EC2とは、何台でも簡単にサーバ数を増減させることができるレンタルサーバみたいなもの</li>
+    <li>増減させるサーバは、起動している状態のものを1つのファイルとして保存しておける</li>
+    <li>その保存したファイルをイメージと呼ぶ</li>
+    <li>イメージはAmazonで提供しているものもあるし、自分でそれを拡張したりして保存しておける</li>
+    <li>サーバを起動したり、停止したり、イメージを作ったりの操作は基本的にはAmazonから提供されるコマンドで行なう</li>
+    <li>基本的にはと書いたのは、その他にもFirefoxの拡張に同じことができるものがあるから</li>
+    <li>コマンドはだいたい「ec2-hogehoge」っていう名前</li>
+    <li>Amazon EC2を使う前の準備としては「契約」「鍵の作成」「シェルでのいくつか設定」が必要</li>
+    <li>契約と鍵の作成はWebからできる</li>
+    <li>シェルの設定は前述のサイトを見てね。</li>
+  </ul></li>
+  <li><span style="font-weight: bold;">ちょー簡単なコマンド説明</span>
+  <ul>
+    <li>インスタンス(サーバ)に入るための鍵の作成<br />
+      &#37; ec2-add-keypair hoge | sed -e "1d" > hoge.keypair</li>
+    <li>公開されてるAmzon製のイメージの一覧を見る<br />
+      &#37; ec2-describe-images -o amazon</li>
+    <li>インスタンスの起動<br />
+      &#37; ec2-run-instances ami-hoge -k hoge<br />
+      ami-hogeは起動するイメージの名前、ec2-describe-imagesで見られます。amiはAmazon Machine Imageの略ぽ。hogeは作成したキーの名前。ここから費用が1時間単位で発生するので注意。1分だけ起動しても1時間分の費用が発生します。</li>
+    <li>インスタンスへのssh接続<br />
+      &#37; ssh -i hoge.keypair hoge.amazonaws.com<br />
+      hoge.amazonaws.comはec2-run-instancesしたときに表示されたFQDN。</li>
+    <li>起動したインスタンスの状態確認<br />
+      &#37; ec2-describe-instances</li>
+    <li>インスタンスの停止<br />
+      &#37; ec2-terminate-instances i-huga<br />
+      i-hugaは起動したときやec2-describe-instancesの時にi-なんちゃらってのが表示されます。</li>
+  </ul>
+  </li>
+</ul>
+
+<br />
+とりあえず、まだこのくらいしかやってません。<br />
+イメージ作ったり、Amazon S3に保存したりはまたあとでやってみたいと思います。<br /><br />
+
+ちょっといじった感想ですが、sshでつなぐとやはりもっさりしててネットワークが遅い感じです。あと、起動までの操作がちょっと面倒に感じました。まぁスクリプトとかにしちゃえば別にいいんですけどね。これって、USだとサクサクなのかな？<br /><br />
+
+あとインスタンスの配置する地域を指定できるっぽいんだけど、現状だとus-east(アメリカの東海岸？)にしかないっぽい。今後日本とかにできるといいのになぁと思いました。<br /><br />
+
+ 

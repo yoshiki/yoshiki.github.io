@@ -1,0 +1,52 @@
+---
+layout: post
+title: riyaのように顔認識をするためのライブラリ
+mt_id: 730
+date: 2006-12-16 01:16:40.000000000 +09:00
+author: clouder
+category: Software
+---
+ご存知の方も多いと思いますが、<a href="http://www.riya.com/">riya</a>というサービスではアップロードした写真の中に顔があるとそれを認識して視覚化したり、物があるとそれを認識してその物に似た商品(場合によってはそのもの)をみつけてくれるという機能があります。一見すごい技術に見えるのですが、実はあるライブラリを使えばこれを簡単に実現することができます。
+
+事の発端は単純に自分が顔認識をやってみたいと思ったからで、そのためのライブラリやソフトウェアがないのかなぁとネットをさまよっていたらこのライブラリに行き着いたというわけです。
+
+そのライブラリは<a href="http://opencvlibrary.sourceforge.net/">「opencv」</a>といいます。
+
+このopencvは、Intelが開発を行っているものでSourceforgeにてプロジェクトが進められています。このopencvというのは、別に顔認識に特化したライブラリではなく、「OpenCV (Open Source Computer Vision) is a library of programming functions mainly aimed at real time computer vision.」、つまりリアルタイムにコンピュータの画像、映像を扱うためのライブラリで、顔認識はその中の1つの機能となっています。
+
+コンパイルは、Windows・Mac OS X・Linuxのそれぞれで可能となっているようで、自分はdebian上でコンパイルしました。WindowsとMac OS XですとWebCamなどとの連動も簡単に行なうことができるようなので、リアルタイムに顔を認識させるサンプルを見ることもできそうです(未確認)。ちなみにdebian上でのコンパイルは、普通に ./configure && make && sudo make install であっさりいけました。
+
+ソースの中にはサンプルプログラムもありますので、それを参考に顔認識を行なってみたのが以下の写真です。
+ 
+↓元画像
+<img alt="opencv_faces01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/opencv_faces01.jpg" width="500" height="375" class="photo" />
+<a href="http://flickr.com/photos/sweemenghacker/241686411/" target="_blank">&copy; sweemenghacker 2006</a>
+
+↓顔を認識して自動で○を付加
+<img alt="opencv_faces02.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/opencv_faces02.jpg" width="500" height="375" class="photo" />
+
+このようにかなりの精度で顔を認識させることができます。
+
+このopencvのこの技術は、別に顔だけを認識させるための機能ではなく、元となるデータがあれば顔以外のものも認識させることができるような仕組みになっています。具体的には、<a href="http://alereimondo.no-ip.org/OpenCV/34">ここ</a>や<a href="http://face.urtho.net/">ここ</a>にあるような、haar cascadesと呼ばれるXMLなどで表現されるデータを与えてやることによって、そのデータで表現されているオブジェクトを認識させることが可能となります。
+
+<a href="http://lab.cntl.kyutech.ac.jp/~kobalab/nishida/opencv/01.html">このページ</a>では、ペットボトルのデータを作成することでペットボトルの認識に成功しています。面白い。
+
+元のデータを作るには多くのサンプルデータが必要となるのですが、その辺の使い方などに関しては、<a href="http://www.intel.com/technology/itj/2005/volume09issue02/art03_learning_vision/p04_face_detection.htm">こちらのIntelのページ</a>に詳しくでています。
+
+ちなみに、この顔認識などは別に画像だけではなく、最初に説明した通りリアルタイムな画像でも顔認識をさせることもできるのですが、手元にその環境をまだ作っていないため試せていませんが、あとで試せたらご紹介しようかと思います。
+
+このライブラリは現在Pythonでのバインディングのみ提供されていますが、近い将来に<a href="http://d.hatena.ne.jp/spiritloose/20061213/1166022070">id:spiritlooseさんがCPANモジュールを作ってくれる</a>と信じています。(たまたまこのライブラリをいじっていたら、id:spiritlooseさんがCPANモジュールを作ってるという記事を書いててビックリしました)
+
+ということで遊びで、鎌倉の大仏でも認識するんだろうかと思ってやってみたのが以下です。
+
+↓大仏
+<img alt="opencv_daibutsu01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/opencv_daibutsu01.jpg" width="375" height="500" class="photo" />
+
+↓認識してくれた！すげー。
+<img alt="opencv_daibutsu02.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/opencv_daibutsu02.jpg" width="375" height="500" class="photo" />
+
+ちなみに、最近眼の認識をさせようとしているのですがどうも眼だけの認識になると顔に比べて情報量が少ないため誤認識が多くなってしまうようです。両目でのデータを使えば精度が上りそうな気もしますが。その辺も今後見ていければと思っています。
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/B0000ALX27/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/B0000ALX27.09.MZZZZZZZ.jpg" alt="Creative WebCam Notebook(WCAMNB)" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/B0000ALX27/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Creative WebCam Notebook(WCAMNB)</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/B0000ALX27/clouder-22" title="Creative WebCam Notebook(WCAMNB)" target="_blank">amazlet</a> on 06.12.16</div></div><div class="amazlet-detail">クリエイティブ・メディア (2003/08/01)<br />売り上げランキング: 25995<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/B0000ALX27/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4789837076/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4789837076.09.MZZZZZZZ.jpg" alt="ディジタル画像処理の基礎と応用―基本概念から顔画像認識まで" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4789837076/clouder-22/ref=nosim/" name="amazletlink" target="_blank">ディジタル画像処理の基礎と応用―基本概念から顔画像認識まで</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4789837076/clouder-22" title="ディジタル画像処理の基礎と応用―基本概念から顔画像認識まで" target="_blank">amazlet</a> on 06.12.16</div></div><div class="amazlet-detail">酒井 幸市 <br />CQ出版 <br />売り上げランキング: 4119<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4789837076/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>

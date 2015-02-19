@@ -1,0 +1,71 @@
+---
+layout: post
+title: 窓使いの憂鬱ver3.30リリース
+mt_id: 383
+date: 2005-04-20 12:03:41.000000000 +09:00
+author: clouder
+category: Software
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000379.html" target="_blank">前書きました</a>が、mayu-3.30がリリースしています。
+<a href="http://sourceforge.net/project/showfiles.php?group_id=5403&package_id=5448&release_id=321252" target="_blank">sourceforge.netのDownloadページ</a>からダウンロードできます。
+主な機能追加等は下記になっています。
+
+<blockquote>
+モディファイヤ
+・カナロックを表すモディファイヤ KL- を追加。
+  オプション (KL-) の説明をよく読むこと。
+・モディファイヤ MAX-, MIN-, MMAX-, MMIN- を追加。
+  (Thanks to 小林)
+・Java アプリケーションなどで IL- が検出されないことがあるバグを修正。
+・キーリピート有 One Shot (!!!) のキーリピートが始まるまでの時間を
+  オプション (delay-of !!!) で指定できるようにした。
+
+FUNCTION
+・FUNCTION &LoadSetting などで、設定ファイルをロードした時に、
+  ログにロードしたことが表示されるようにした。
+・FUNCTION &Prefix の説明を正しく修正。
+・FUNCTION &SetImeStatus を追加。(Thanks to 小林)
+・FUNCTION &SetImeString を追加。(Thanks to 小林)
+・FUNCTION &ShellExecute が失敗した時のエラーメッセージが
+  表示されないことがあるバグを修正。
+・FUNCTION &VK で入力できるマウスボタンに XBUTTON1 と XBUTTON2 を追加。
+  他、さまざまな仮想キーを追加。
+・FUNCTION &WindowMonitor を追加。(Thanks to Hosaka Yuji)
+・FUNCTION &WindowMonitorTo を追加。(Thanks to Hosaka Yuji)
+・FUNCTION の引数置換機能を追加。(Thanks to 小林)
+・既存 FUNCTION のマルチモニタ対応。(Thanks to Hosaka Yuji)
+
+マニュアル
+・acknowledgements 更新。
+・related work を更新。
+・references を更新。
+
+ビルド
+・Windows9x/Me/NT4.0 非対応になりました。
+・Borland C++ 5.5.1 でビルド不可能になりました。
+・Visual C++ Toolkit 2003 でビルドするための様々な注意事項を記載。
+  (Thanks to 小林)
+
+ドライバ
+・2000/XP 用ドライバの SMP/HT 対応。(Thanks to 小林)
+・2000/XP 用ドライバの PS/2 専用版と USB 対応版のバイナリ統合。
+  (Thanks to 小林)
+・復旧用ドライバを追加。(Thanks to 小林)
+
+ その他
+・WindowsXP の「ユーザーの切り替え」機能に対応。
+・ごくたまに、タスクトレイのアイコンが表示されない問題を修正したつもり。
+  また、表示されていないときに、もう一度起動すれば
+  アイコンがタスクレイに表示されるようにした。
+  (「既に窓使いの憂鬱は動作中です」というダイアログボックスが
+  出ると同時にアイコンが表示されます)
+・ログを消去した時刻をログ表示するようにした。
+・109.mayu に MultiMedia Keyboard 用の特殊キーなどを追加。
+・スナップショット版で「↑↓←→」という文字がキー名として
+  使用できなくなっていたバグの修正。
+</blockquote>
+
+まだ使ってないので、あとでレビューできたらします。
+そしてMLではなにやら<a href="http://clouder.jp/yoshiki/mt/archives/000362.html" target="_blank">前紹介した</a>、<a href="http://synergy2.sourceforge.net/"l target="_blank">Synergy</a>とMayuの話とかになってたりします。ちょっと気になるな、今後が。
+
+2005-04-20 19:43追記：今のところ特に問題なく使えています。自分はXPを使ってるのですが、前のバージョンではXPには無理矢理ドライバを変えたりして使ってた記憶があるので、今回はファイル名からもわかるようにもとからXP対応ということで、簡単に入った。あとは追加された設定項目をなにか便利に使う方法があればいいのだが、特に思い浮ばず…。 

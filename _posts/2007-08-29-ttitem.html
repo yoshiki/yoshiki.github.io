@@ -1,0 +1,29 @@
+---
+layout: post
+title: TTの.item()の挙動について調べてみた
+mt_id: 991
+date: 2007-08-29 17:42:19.000000000 +09:00
+author: clouder
+category: Perl
+---
+naoyaさんが書いてる<a href="http://naoya.g.hatena.ne.jp/naoya/20070828/1188305840">TTのこの問題</a>。ちょっと調べてみた。
+
+とりあえず.item() がどこなのかを探してみたら、2.15 あたりで Template::Stash で定義されていたのが2.19だと Template::VMethods にうつっているようですね。
+
+で、ロジックをみてみる。
+2.15 だと Template::Stash の $HASH_OPTS->{item} の CODEREF が .item() の実体なのですが、この CODEREF 内ではプライベート変数判定用の正規表現が入ってる $PRIVATE がちゃんと参照できるため、プライベート判定できます。
+
+でも、2.19 だと Template::VMethods の hash_item() が .item() の実体になっていて、しかもその中での $PRIVATE が undef になってる(参照できない)ために hash_item() でのプライベート判定でスルーされちゃうようです。
+
+ちなみに、この $PRIVATE は Template::VMethods の最初の方で
+
+<pre class="code">our $PRIVATE = $Template::Stash::PRIVATE;</pre>
+
+と定義されてますが、これがなぜ機能していないのかというと、たぶん Template::Stash より Template::VMethods の方が先に読み込まれるというロードの順番が問題だと思います。それ以上は深追いしてません。。。
+
+たぶん 2.15 の挙動が正しいんじゃないかと思います。
+2.19で.item()でプライベート変数が取れるのはバグなような気がします…。
+
+まぁ、もともと _ つきの変数はプライベート変数なので表示されるべきではないような気もしますが。どうなんですかね。でも別で取れるAPIがあってもいいような気もする。
+
+＃TTのソースを見るのは疲れる…。 

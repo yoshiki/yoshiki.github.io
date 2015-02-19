@@ -1,0 +1,57 @@
+---
+layout: post
+title: Text::QRCodeっての作ってみた
+mt_id: 1067
+date: 2008-10-31 12:20:10.000000000 +09:00
+author: clouder
+category: Perl
+---
+Text::QRCodeっての作ってみた。まだCPANには上げてない。<br />
+＃いや、むしろ上げるべきじゃないような。<br /><br />
+
+<a href="http://coderepos.org/share/browser/lang/perl/Text-QRCode/trunk">http://coderepos.org/share/browser/lang/perl/Text-QRCode/trunk</a><br /><br />
+
+なにができるって、<a href="http://search.cpan.org/perldoc?Imager::QRCode">Imager::QRCode</a>みたいに文字列を渡すとスペースとアスタリスク<br />
+の2次元配列のarrayrefを返してくれるだけです。<br /><br />
+
+これだけだと端末では認識しないし、なーんも意味ないんですけどね…。<br /><br />
+
+<pre class="command">&#37; perl -MText::QRCode -e '$map = Text::QRCode->new->plot("I love qrcode."); print join "\n", map { join "", @$_ } @$map'
+*******   * * *******
+*     * * * * *     *
+* *** * * **  * *** *
+* *** *     * * *** *
+* *** * *** * * *** *
+*     * ***   *     *
+******* * * * *******
+        *  **        
+** *  **  *   *** ** 
+** *** *   ***  ** **
+    *** * * * **  ***
+  ** *  ** *  ** *  *
+* **  *** ****  *    
+        *  **  *  *  
+******* *   * * **** 
+*     *  * *       **
+* *** *  ***** *     
+* *** * *   *********
+* *** *  * *** ***  *
+*     * * * ** *     
+******* * *   ***  * </pre>
+
+<br />
+なんか<a href="http://blog.livedoor.jp/nipotan/">にぽたん</a>に<a href="http://twitter.com/nipotan/status/983235962">いろいろいじってもらって</a>わかったんだけど、<br />
+周りに余白がないと端末では読み込めないかもしれない。<br /><br />
+
+追記: <br />
+とおもったらにぽたんが<a href="http://twitter.com/nipotan/status/983246036">こんなこと</a>してました。<br />
+これで端末で読めるようになりますね。<br />
+余白は必要ということですな。<br /><br />
+
+でもデータ的には余白はなくてもいいような気がするのでとりあえずコードは<br />
+このままにしておきます。<br /><br />
+
+追記2: <br />
+<a href="http://search.cpan.org/perldoc?Text::QRCode">CPANに上げちゃった。</a><br />
+そのうちインデックスされると思う。<br /><br />
+

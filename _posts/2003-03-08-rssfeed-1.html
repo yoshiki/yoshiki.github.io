@@ -1,0 +1,25 @@
+---
+layout: post
+title: rssfeedを分離した
+mt_id: 75
+date: 2003-03-08 01:26:38.000000000 +09:00
+author: clouder
+category: MovableType
+---
+いいかげんrssで参照しているサイトが多くなってきたので、コメントを登録するときに異常に時間がかかってきたので、rssfeedを分離することにした。
+ 
+やりかたですが、まず管理画面の 「Templateの編集」 で適当な名前のテンプレートを作る。
+たとえば、 news rss って名前で、news_rss.html ってファイル名にして、中身は、
+今まで Main Index のテンプレートでやっていた rssfeed  の部分をそのままもってくる。
+
+で、それを保存して、リビルドすると news_rss.html ってファイルができるはず。
+それを、Main Index から読み込めばよい。今まで rssfeed のやつを書いていた部分を
+
+<$MTInclude file="news_rss.html"$>
+
+って変えてやるだけで、news_rss.html を読み込んでくれる。
+あとは、cron などで定期的に、news_rss.html を更新してやればよい。ちなみにそのやりかたは、
+
+0 */1 * * * /path/to/mt/mt-rebuild-index.pl -blog_id=1 -template="news rss"
+
+こんな感じ。

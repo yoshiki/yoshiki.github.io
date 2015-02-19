@@ -1,0 +1,30 @@
+---
+layout: post
+title: Pound導入
+mt_id: 171
+date: 2004-04-17 02:35:05.000000000 +09:00
+author: clouder
+category: Unix
+---
+うちのサーバにリバースプロキシやロードバランサの<a href="http://www.apsis.ch/pound/" target="_blank">Pound</a>を導入してみた。
+設定は下記のようにしてみた。
+
+<blockquote class="quote">
+User www
+Group www
+
+ListenHTTP *,80
+
+Client 100
+Server 1000
+Alive 10
+
+WebDAV 1
+
+UrlGroup ".*"
+BackEnd 127.0.0.1,8080,1
+EndGroup
+</blockquote>
+
+やってる途中でわかったのだが、<a href="http://www.apsis.ch/pound/" target="_blank">Pound</a>使うにはバックエンドにイメージサーバとかアプリサーバとかが2台以上ないと意味ないじゃん…。キャッシュとかではないしな。
+ 

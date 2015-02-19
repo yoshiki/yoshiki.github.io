@@ -1,0 +1,19 @@
+---
+layout: post
+title: ブログのURLを変えてみた
+mt_id: 1029
+date: 2008-02-24 19:24:56.000000000 +09:00
+author: clouder
+category: Diary
+---
+突然ですがブログのURLを変えました。<br />
+今まで「http://clouder.jp/yoshiki/mt/*」だったのを「http://blog.clouder.jp/*」に変更してみました。<br /><br />
+
+すべてのリソースは旧URLから新URLに301リダイレクトするように設定していますので、RSSリーダーなどで購読している方は、<span style="font-weight: bold;">なにも修正する必要はありません。</span>そのままで購読を続けることができるはずです。<br /><br />
+
+
+ちなみにこの変更において行った作業は、mod_rewriteで以下のように設定したのとMTのブログのベースURLを変更しただけです。(本当はもうちょっとごにょごにょしてるけど、おおむねこんな感じ)<br />
+
+<pre class="code">RewriteRule 旧URL 新URL [L,R=301]</pre>
+
+ 

@@ -1,0 +1,83 @@
+---
+layout: post
+title: The gawk program encodes a binary file to base64 format
+mt_id: 677
+date: 2006-05-07 01:14:15.000000000 +09:00
+author: clouder
+category: Unix
+---
+<a href="http://widgets.yahoo.com/">Yahoo! Widget</a> の Widget を作っていたときのことです。
+
+バイナリファイルを Base64 にエンコードする必要があったのですが Yahoo! Widget の Windows 版に付属する <a href="http://unxutils.sourceforge.net/">UnixUtils</a> のコマンドでは今のところそういったコマンドが用意されていません。Mac OS X の Yahoo! Widget ならば Perl とかを使ってゴニョゴニョできるのですが、Windows 環境だとどうすることもできないのということで、Windows の Yahoo! Widget にも付属している gawk を使って変換するスクリプトを作りました。<br /><br />
+
+オリジナルのコードは<a href="http://www.turtle.dds.nl/b64enc.awk">こちら</a>にあるもので、これを改造しました。<br />
+結構高速化をしてみたのですが、それでもWindows 環境で実行するとちょっと遅いですね。。。でもこれを使えば Windows 環境の Yahoo! Widget でもバイナリファイルを Base64 エンコードすることができるようになります！
+
+<pre class="code">BEGIN {
+    if (ARGC &lt; 2) {
+        print &quot;\nEncode an file to BASE64.&quot;;
+        print &quot;\nUsage: b64enc.awk &lt;filename&gt;\n&quot;;
+        exit;
+    }
+    else ARGC = 1;
+
+    BASE64 = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/&quot;
+    result = &quot;&quot;
+
+    for (i = 0; i &lt; 256; i++){
+        asc[sprintf(&quot;&#37;c&quot;, i)] = i
+    }
+
+    RS = &quot;&quot;
+
+    while (getline &lt; ARGV[1])
+        data = data $0
+
+    while (length(data) &gt; 0) {
+        # Specify byte values
+        if (length(data) == 1){
+            byte1 = asc[substr(data, 1, 1)]
+            byte2 = 0
+            byte3 = 0
+        }
+        if (length(data) == 2){
+            byte1 = asc[substr(data, 1, 1)]
+            byte2 = asc[substr(data, 2, 1)]
+            byte3 = 0
+        }
+        if (length(data) &gt;= 3){
+            byte1 = asc[substr(data, 1, 1)]
+            byte2 = asc[substr(data, 2, 1)]
+            byte3 = asc[substr(data, 3, 1)]
+        }
+
+        # Create BASE64 values
+        base1 = rshift(byte1, 2)
+        base2 = lshift(and(byte1, 3), 4) + rshift(and(byte2, 240), 4)
+        base3 = lshift(and(byte2, 15), 2) + rshift(and(byte3, 192), 6)
+        base4 = and(byte3, 63)
+
+        # Compose BASE64 string
+        if (length(data) == 1){
+            result = result substr(BASE64, base1 + 1, 1)
+            result = result substr(BASE64, base2 + 1, 1)
+            result = result &quot;==&quot;
+            data = &quot;&quot;
+        }
+        if (length(data) == 2){
+            result = result substr(BASE64, base1 + 1, 1)
+            result = result substr(BASE64, base2 + 1, 1)
+            result = result substr(BASE64, base3 + 1, 1)
+            result = result &quot;=&quot;
+            data = &quot;&quot;
+        }
+        if (length(data) &gt;= 3){
+            result = result substr(BASE64, base1 + 1, 1)
+            result = result substr(BASE64, base2 + 1, 1)
+            result = result substr(BASE64, base3 + 1, 1)
+            result = result substr(BASE64, base4 + 1, 1)
+            data = substr(data, 4)
+        }
+    }
+    print result
+}</pre> 

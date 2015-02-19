@@ -1,0 +1,33 @@
+---
+layout: post
+title: Tigerでのfinkのアップデート
+mt_id: 399
+date: 2005-05-11 02:54:12.000000000 +09:00
+author: clouder
+category: Mac
+---
+Tigerを買ったのでいろいろ試してるのだが、早速finkでインストールしたemacsが動かなくなった。ライブラリの関係だと思うのだけども。なのでとりあえずfinkをアップグレードしてみた。
+
+ 
+自分の環境ではもともとfinkが入っていたので
+
+<pre class="code">&#37; fink selfupdate-cvs</pre>
+
+としたらfinkが0.24.5にバージョンアップされたので、その後
+
+<pre class="code">&#37; fink reinstall fink
+&#37; fink selfupdate</pre>
+
+をするといくつかのパッケージのインストールでコケたりしたので、もしかしたらライブラリとかの関係で変なものがあったりする可能性もあります。そのときは
+
+<pre class="code">&#37; fink purge packagename</pre>
+
+とか
+
+<pre class="code">&#37; fink remove packagename</pre>
+
+とかしてから再度fink reinstall finkとfink selfupdateをしてみましょう。そして最後に
+
+<pre class="code">&#37; fink update-all</pre>
+
+で、更新が完了できるはずです。とりあえず、仕事に支障がでるemacsとか動かなくなっていたのが動くようになったので一安心。あとでX11とかのも色々試してレビューしてみたいと思います。

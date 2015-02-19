@@ -1,0 +1,19 @@
+---
+layout: post
+title: HTTP::MobileAgentにuser_id()を追加してもいいですか
+mt_id: 1042
+date: 2008-03-31 19:31:44.000000000 +09:00
+author: clouder
+category: Perl
+---
+今日から<a href="http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html#imodeid">iモードIDが取得できる</a>ようになりましたが、いかがお過しでしょうか。<br /><br />
+
+HTTP::MobileAgentにも,これを取得できるようにするAPIを作ろうと思ったのですが、せっかくなのでそれ以外のキャリアのものも同じAPIで取得できた方がいいだろうと思い、DoCoMoならX-DCMGUID、KDDIならX-UP-SUBNO、SoftBankならX-JPHONE-UIDを取れるようにしてみました(まだCPANにはアップしてません)。<br /><br />
+
+いまのところ関数名をuser_id()にしているのですが、<a href="http://search.cpan.org/perldoc?HTTP::MobileUserID">HTTP::MobileUserID</a>とだだかぶりしてます！<br />
+なにか他に良い関数名の案がありましたら教えてください！<br /><br />
+
+この機能を実装しているブランチはこちら↓です。<br />
+<a href="http://coderepos.org/share/browser/lang/perl/HTTP-MobileAgent/branches/feature-mobileid">http://coderepos.org/share/browser/lang/perl/HTTP-MobileAgent/branches/feature-mobileid</a><br /><br />
+
+ 

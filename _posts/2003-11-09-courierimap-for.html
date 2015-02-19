@@ -1,0 +1,33 @@
+---
+layout: post
+title: courier-imap for Mac OS X
+mt_id: 144
+date: 2003-11-09 07:35:04.000000000 +09:00
+author: clouder
+category: Mac
+---
+ちょっと前まで、Mac OS Xで受信したメールは、自宅で立ち上げた IMAPサーバを使って読んでいたのですが、Pantherにしてから突然読めなくなってしまいました。
+
+/var/log/mail.log に以下のエラーがでるようになってしまいました。
+
+Oct 30 03:28:35 juice imapd: chdir: No such file or directory
+
+このログを元に色々と検索した結果、courier-imapのバージョンが新しいと上手く動かないらしく、とりあえず courier-imap 1.7.3 を make したら使えるようになりました。このバージョンで機能的にも全然問題ない感じです。
+
+configureのオプションは以下で make して install しました。
+
+&#37; ./configure --prefix=/usr/local/courier-imap --without-authpgsql --without-authmysql --without-authvchkpw --without-authldap --with-authpwd
+&#37; make
+&#37; sudo make install
+
+あとはホームディレクトリに、Maildir を作ります。作り方は
+
+&#37; /usr/local/courier-imap/bin/maildirmake ~/Maildir
+
+んで起動は、
+
+&#37; sudo /usr/local/courier-imap/libexec/imapd.rc start
+
+だけでオッケイ。実アカウントでメールが読めるようになります。
+お困りの方はぜひお試しください。
+ 

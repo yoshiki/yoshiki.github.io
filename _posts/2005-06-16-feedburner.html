@@ -1,0 +1,15 @@
+---
+layout: post
+title: FeedBurnerがコケてました
+mt_id: 445
+date: 2005-06-16 13:27:32.000000000 +09:00
+author: clouder
+category: Webservice
+---
+このブログはRSSの配信をFeedBurner経由で行なっているのですが、昨日からそれがコケてた模様。
+原因は、ドイツ語のサイトを引用したことによるものっぽい。と最初思っていたのだが、どうやら&amp;#65533;という実体参照とドイツ語(？)があったためだというのが判明しました。
+
+実体参照について調べてみると、これはucs-2で最近認められた文字のようです。(参考：<a href="http://www.asahi-net.or.jp/~bd9y-ktu/html4rec_f/sgml/entities.html" target="_blank">http://www.asahi-net.or.jp/~bd9y-ktu/html4rec_f/sgml/entities.html</a>)
+でも自分でFirefoxやIEで見てみましたが、表示されませんでした。ドイツ語に関してはわからずじまい…。
+
+英語以外のサイトを引用するときは気を付けないとですね…。 

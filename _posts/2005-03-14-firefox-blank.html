@@ -1,0 +1,23 @@
+---
+layout: post
+title: Firefoxの_blank等でのフリーズ問題解決(?)
+mt_id: 357
+date: 2005-03-14 18:11:25.000000000 +09:00
+author: clouder
+category: Software
+---
+<blockquote><a title="Extension Room :: SwitchProxy" href="http://extensionroom.mozdev.org/more-info/switchproxy">Extension Room :: SwitchProxy</a>
+
+To avoid a long freeze on the startup of firefox, try to add
+
+user_pref("switchproxy.update.notify", false);
+
+into your prefs.js</blockquote>Firefoxをつかっててなにがイヤって、_blankで新しいウィンドウを開くときにやけに待たされたり、固まったりすることだ。
+
+いいかげん遅いよ！と思っていたら、これを改善する方法を発見。これをやることで改善された(ような気がする…)。どうやら、原因はswitchproxyというExtensionらしい。このソフトの実装で、毎回ウィンドウが起動する毎に作者のページへアップデートチェックをしていってるらしいのだが、そのサイトがないんだか落ちているんだかでそのレスポンスを待つかららしい…。
+
+これを回避するやりかたは、Firefoxの設定ファイルのあるディレクトリの prefs.js の中にある「switchproxy.update.notify」の設定の部分を下記のようにすればいいみたい。
+
+user_pref("switchproxy.update.notify", false);
+
+追記：ちなみに上記の設定は、prefs.jsを直接編集しなくても以前も書きましたが、locationのところで「about:config」と入力したところの設定画面でも編集することができます。上記のprefs.jsを直で編集するときには。Firefoxを落した状態じゃないと、prefs.jsが上書きされますので落してからやりましょう。「about:config」は落さなくても設定変更できます。 

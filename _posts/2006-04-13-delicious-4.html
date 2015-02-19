@@ -1,0 +1,14 @@
+---
+layout: post
+title: del.icio.usに好きなタグを付けて一発ブックマークするブックマークレット
+mt_id: 665
+date: 2006-04-13 01:52:05.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<a href="http://la.ma.la/blog/diary_200604122345.htm">まららんのやつ</a>を見てて、最初に設定されてるやつに追加で他のタグも入力したいなぁと思ったのでプロンプトを出してタグを入力できるようにしたブックマークレット。
+ほぼパクりです(ｵｲ
+
+<a href='javascript:(function(){var t=prompt("tags","toread");var u="USERNAME";var q=location.href;var e = "" + (window.getSelection ? window.getSelection() : document.getSelection?document.getSelection():document.selection.createRange().text);var p=document.title;var url="http://del.icio.us/"+u+"?jump=doclose&tags="+escape(t)+"&url="+escape(q)+"&description="+escape(p)+  "&extended=" + escape(e).replace(/ /g, "+");(new Image).src=url})();'>post toread</a>
+
+「USERNAME」のところだけ書き換えてご使用ください。またデフォルトのタグが toread になってますが、それも toread と書いてあるところを変えれば他のものにできます。ってまららんの作る奴に比べると不親切だな…。自分で変えろメソッド。 

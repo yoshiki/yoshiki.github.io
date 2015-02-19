@@ -1,0 +1,60 @@
+---
+layout: post
+title: 角丸作り放題なApacheモジュール
+mt_id: 1115
+date: 2009-08-26 19:31:19.000000000 +09:00
+author: clouder
+category: Apache
+---
+mod_rounded_cornersという角丸を生成するための<br />
+Apacheモジュール(Apache2系用)を作りました。<br /><br />
+
+というか会社のなんかのミーティングで誰かが<br />
+言ってたので勉強がてら作ってみた。<br /><br />
+
+<a href="http://github.com/yoshiki/mod_rounded_corners/tree/master">http://github.com/yoshiki/mod_rounded_corners/tree/master</a><br /><br />
+
+インストールは下記のようにすればOK。<br /><br />
+
+<pre class="command">&#37; autoconf
+&#37; ./configure
+&#37; make
+# make install</pre>
+<br />
+
+設定はhttpd.confに<br /><br />
+
+<pre class="code">&lt;VirtualHost *:80&gt;
+ServerName rounded-corners.example.com
+
+&lt;Loction /&gt;
+SetHandler rounded-corners
+&lt;/Location&gt;
+&lt;/VirtualHost&gt;</pre>
+<br />
+
+て感じで書けばOK。<br />
+今のところはLocationが「/」以外だとうまく動かないよ。<br /><br />
+
+で、Apacheを再起動したら<br /><br />
+
+http://rounded-corners.example.com/ffffff/000000/20.gif<br /><br />
+
+にアクセスすると、bgが黒(000000)でfgが白(ffffff)の<br />
+半径20pxのGIF画像が生成されるはず。<br /><br />
+
+これをCSS Spriteでごにょれば角丸なテーブルとかに<br />
+使えるような使えないような。<br /><br />
+
+あまり処理速度とか考えずに作ったんですが、<br />
+前段にプロキシとかかませてキャッシュしてやれば<br />
+ちょっとサイトでも使えなくもない。<br /><br />
+
+Apacheモジュールの練習で作った簡単な物なので<br />
+煮くなり焼くなり、ご自由にどうぞ。<br /><br />
+
+TODO:<br />
+・bgを透明化できるようにする<br />
+・「/」じゃなくても使えるようにする<br />
+・blah blah blah<br />
+<br /> 

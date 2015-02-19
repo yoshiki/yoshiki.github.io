@@ -1,0 +1,20 @@
+---
+layout: post
+title: ! 'Plack on SL4A in Yokohama.pm #8'
+mt_id: 1142
+date: 2011-11-21 11:42:30.000000000 +09:00
+author: clouder
+category: Perl
+---
+Yokohama.pm #8で「Plack on SL4A」というタイトルでLTしてきました。<br /><br />
+
+実はこの話は元ネタがあって、<a href="http://advent.perl.kr/2010-12-21.html">去年のperl.krのAdventカレンダーで紹介されていたもの</a>を実践してみたものになっています。<br /><br />
+
+本当は、これを元にAmon2などのフレームワークを動かしたかったのですが、XS依存の問題があってそのXSモジュールをインストールしようと頑張ったのですが、どうしてもインストールできなかったため今回のPlackのインストールまでの話になってしまいました。<br /><br />
+
+もうちょっとだけSL4AでXSを動かせるか試してみたいと思っていて、進捗があったらここでお知らせしたいと思います。<br /><br />
+
+ちなみにSL4AのXSのmakeできない問題は、すでに<a href="http://code.google.com/p/android-scripting/issues/detail?id=366">SL4AのIssueに上っていて</a>、このIssueの最後の方のポストで<a href="http://github.com/castaway/perl/tree/x-compile-android">githubのPerlのブランチ</a>を切って書き換えたやつでビルドできたという話が出ているのですが、ARMのクロスコンパイル環境を用意してやってみたもののうまくいなかいんですよねぇ...。
+
+<iframe width="360" height="228" src="http://www.ustream.tv/embed/recorded/18591399" scrolling="no" frameborder="0" style="border: 0px none transparent;">    </iframe>
+ 

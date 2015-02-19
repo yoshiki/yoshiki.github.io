@@ -1,0 +1,17 @@
+---
+layout: post
+title: libeay32.dllのエラーを直す方法
+mt_id: 708
+date: 2006-09-08 13:32:17.000000000 +09:00
+author: clouder
+category: Windows
+---
+<img alt="libeay32.dll.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/libeay32.dll.jpg" width="440" height="116" />
+
+なにをやったか忘れたんですが、突然このエラーが出てしまう現象にみまわれました。
+なんかすると「<strong>序数 2586 がダイナミックライブラリ LIBEAY32.dll から見つかりませんでした。</strong>」とアラートが出る。
+
+調べたら、OpenSSLにあるlibeay32.dllをインストールしなおせばいいということを発見しました。
+下記のURLからダウンロードしてインストールすれば直ります。
+
+<a href="http://www.slproweb.com/products/Win32OpenSSL.html">http://www.slproweb.com/products/Win32OpenSSL.html</a> 

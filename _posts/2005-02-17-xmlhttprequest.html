@@ -1,0 +1,51 @@
+---
+layout: post
+title: JavaScriptでXMLHttpRequest
+mt_id: 286
+date: 2005-02-17 12:07:55.000000000 +09:00
+author: clouder
+category: Language
+---
+<script language="javascript" src="/yoshiki/mt/archives/js/xmlhttprequest.js"></script>
+<script language="javascript">
+<!---
+function loadcode() {
+    var req = new XMLHttpRequest();
+    if (req) {
+        req.onreadystatechange = function(){
+            if (req.readyState == 4 && req.status == 200) {
+                removecode(); var demo = document.getElementById('demo');
+                demo.appendChild(document.createTextNode(req.responseText));
+            }
+        };
+        req.open('GET', 'http://clouder.jp/yoshiki/mt/archives/demo.js');
+        req.send(null);
+    }
+}
+function removecode() {
+    var demo = document.getElementById('demo');
+    while (demo.hasChildNodes()) {
+        demo.removeChild(demo.firstChild);
+    }
+}
+//--->
+</script>
+
+最近よく<a href="http://www.google.com/" target="_blank">google</a>の<a href="http://www.gmail.com/" target="_blank">gmail</a>とか<a href="http://maps.google.com/" target="_blank">google maps</a>、それに<a href="http://flickr.com/" target="_blank">flickr</a>で使われる技術。<br />
+javascriptで内部的にリクエストを送ってごにょごにょやるやつのソースが<br />
+下記のサイトに置いてあります。<br />
+
+このソースをロードしてやれば簡単に内部的リクエストが送れるようです。<br />
+(ちなみにこれは<a href="http://creativecommons.org/licenses/by-nc-sa/1.0/" target="_blank">Creative Commons License.</a>です。)<br />
+<br />
+<a href="http://www.scss.com.au/family/andrew/webdesign/xmlhttprequest/" target="_blank">http://www.scss.com.au/family/andrew/webdesign/xmlhttprequest/</a>
+<br />
+<br />
+<input type="button" name="load" value="Load Code" onClick="loadcode();"> <input type="button" name="remove" value="Remove Code" onClick="removecode();"><br />
+<pre class="code" id="demo"></pre><br />
+<br />
+上の例は、Load Codeボタンを押すとhttp://clouder.jp/yoshiki/mt/archives/demo.jsをGETしてきて、それをdemoとidの付けた部分に表示させるという単純なものです。<br />
+これをわずか数行でできるのがイケてる。しかも、IEとFirefoxをサポート。Operaもサポートしてるっぽい。<br />
+<br />
+これでなんか面白いこと出来そうだね。<br />
+<br /> 

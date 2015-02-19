@@ -1,0 +1,27 @@
+---
+layout: post
+title: hn.orgサービス停止を受けて
+mt_id: 625
+date: 2006-02-05 16:41:27.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<blockquote><a title="スラッシュドット ジャパン | DDNSサービス「hn.org」が2006/2/15でサービス停止" href="http://slashdot.jp/articles/06/02/04/0526229.shtml">スラッシュドット ジャパン | DDNSサービス「hn.org」が2006/2/15でサービス停止</a>
+
+S0R5曰く、"利用者宛に来たメールによると、Dynamic DNSサービスを提供するhn.orgが、2006/2/15をもってサービス停止するとのこと。Webサイトにもその旨の告知が掲載されている。とくにサービス停止の理由は載っていないようだ。私は気付いたらここのサービスを4年以上使っていたので、今まで無料で使わせていただき感謝したいと思う。さて、移転先はどうしようかな…。"</blockquote>昨日の <a href="http://hn.org/">hn.org</a> がサービスを停止するという報を受けて、clouder.jp が苦境にたたされました。なぜなら、なにを隠そう clouder.jp は hn.org の dynamic dns を使っていたからです。
+
+無料サービスだしこういう事態もある程度は想定していたものの、いざその場になるとDNSの移行はめんどいなぁと思ってしまいます。でもこのまま放っておいたら clouder.jp が見られなくなりますので、しかたなく重い腰を上げて移転先を探し始めました。
+
+そして、小一時間ネット上をさまよっていたら <a href="http://www.everydns.net/">EveryDNS</a> というよさげな dynamic dns サービスをみつけました。ちょっと使ってみたところ操作感とかもよさげだったので、これを使用することに決めました。
+
+移行の決め手となったのは「無料」「ワイルドカードが使用可」「登録時の入力項目が少ない」「MX、CNAME の設定ができる」でしたが、 EveryDNS はこれらをクリアしていました。
+
+登録方法等については、ネット上で他の方が詳しく解説しているのでそちらをご参照下さい。(※ちなみに解説見なくても設定できるぐらい簡単なインターフェイスになっているのも気に入りました)
+
+参考 URL：
+<a href="http://www.noiri.net/tech_every.html">EveryDNS 設定方法</a>
+<a href="http://www.miloweb.net/everydns.html">独自ドメインの設定( EveryDNS.net )</a>
+<a href="http://admin_linux.at.infoseek.co.jp/everydns/index.html">EveryDNS 設定 | リナックスでサーバ構築</a>
+
+問題がないかはこれから少し使ってみて見極めることにしたいと思います。
+ 

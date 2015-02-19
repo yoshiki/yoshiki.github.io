@@ -1,0 +1,25 @@
+---
+layout: post
+title: MTのファイルアップロードでサムネイル作成
+mt_id: 291
+date: 2005-02-23 14:37:24.000000000 +09:00
+author: clouder
+category: MovableType
+---
+昔MTでファイルをアップロードしていたときは、標準でファイルをアップロードするときに<br />
+サムネイルを作成するIFが付いてたけど今サーバを変えて運用してからそのIFがなくなってしまっていた。<br />
+なんでだろうと思ったら、Image::MagickかNetPBMが入ってないとだめなんですね。<br />
+＃よくできてんなMT…<br />
+<br />
+いつもならImage::Magickを入れるところだが、NetPBMってのがよくわかってなかったのでインストールしてみた。ppmtogifとかのツールは見たことあったんだけど、それはNetPBMのツールだったのか！知りませんでした。<br />
+<br />
+設定のしかたは、NetPBMをインストールしたら<br />
+
+mt.cfgの<br />
+<pre class="code">
+ImageDriver NetPBM<br />
+NetPBMPath /home/foo/netpbm/bin<br />
+</pre>
+ImageDriverは、NetPBM(Image::MagickならImageMagick)を設定。NetPBMPathは、NetPBMのツールの入っているディレクトリ。<br />
+この2つを設定するだけで、勝手にファイルアップロードでのサムネイル作成のIFが表れる。<br />
+<br /> 

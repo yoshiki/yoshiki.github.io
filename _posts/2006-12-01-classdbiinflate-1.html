@@ -1,0 +1,41 @@
+---
+layout: post
+title: Class::DBIのinflate、deflateについて
+mt_id: 727
+date: 2006-12-01 12:12:22.000000000 +09:00
+author: clouder
+category: Perl
+---
+今更DBICではなくCDBIの話なのですが、今までdeflateの使い方というか意味を激しく勘違いしてました。<br /><br />
+
+inflateは、引いてきたレコードのカラムの値をオブジェクトでラップするために使います。これは知っていたのですが、deflateは関数をなにも指定しないときに呼ばれる関数だと思っていました。(今思うとかなり恥しい…)しかし、実際のdeflateの意味はまったく違うというのがわかりました。<br /><br />
+
+結論から言うと、deflateはレコードをcreateするときに発動するもので、deflateを設定したカラムに あるオブジェクトを渡すとそのインスタンスに対してdeflateで指定した関数もしくはcoderefが呼ばれるという仕組みのようです。<br />
+つまり下記のようなhas_aを定義したFooというデータクラスがあったとして
+
+<pre class="code">__PACKAGE__->has_a(
+    dt => 'Time::Piece',
+    inflate => sub { Time::Piece->strptime(shift, '&#37;Y-&#37;m-&#37;d') },
+    deflate => 'ymd',
+);</pre>
+
+このデータクラスを使用したプログラムの中で
+
+<pre class="code">my $dt = Time::Piece->new;
+Foo->create({
+    dt => $dt,
+})</pre>
+
+とやると、createでdtに渡した、$dtに対してdeflateで指定したymd関数を使い、$dt->ymdの返り値がdtカラムに格納されるということです。<br /><br />
+
+Class::DBIやClass::DBI::Relationship::HasAを徘徊してみると、このdeflateはdeflate_for_createかdeflate_for_updateのときのトリガとして登録されるようで、しかもcreate時に渡された値(上記の場合の$dt)がオブジェクトなどのrefの評価がtrueになる場合のみ発動するもののようです。<br /><br />
+
+ちなみに、もしdeflateにcoderefが指定されていた場合には、そのcoderefに引数として$dtが渡ってきますので、そこでよしなに処理をしてreturnをしたものがINSERTされます。つまり、下記のようにすると先程のコードと同じ動作になります。
+
+<pre class="code">__PACKAGE__->has_a(
+    dt => 'Time::Piece',
+    inflate => sub { Time::Piece->strptime(shift, '&#37;Y-&#37;m-&#37;d') },
+    deflate => sub { shift->ymd },
+);</pre>
+
+ 

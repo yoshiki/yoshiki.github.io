@@ -1,0 +1,35 @@
+---
+layout: post
+title: mod_loadaverage_actionリリース
+mt_id: 722
+date: 2006-10-30 15:12:47.000000000 +09:00
+author: clouder
+category: Unix
+---
+※追記があります。最新バージョンは1.1です。<br /><br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/000720.html">先日作った mod_loadaverage_redirect </a>にもう少し機能を追加して mod_loadaverage_action という名前でリリースします。名前が変ったのでディレクティブ名もLoadAverageRedirect***からLoadAverageAction***に変わっているので注意してください。<br /><br />
+
+Source:<br />
+<a href="http://clouder.jp/yoshiki/mt/archives/apache/mod_loadaverage_action-1.0.tar.gz">mod_loadaverage_action-1.0.tar.gz</a><br />
+Repository<br />
+<a href="http://svn.clouder.jp/repos/public/mod_loadaverage_action/tags/REL-1.0/">http://svn.clouder.jp/repos/public/mod_loadaverage_action/tags/REL-1.0/</a><br /><br />
+
+追加された機能は、今までは一つのリダイレクト先しか指定できなかった(LoadAverageActionURL)のですが今回からは LoadAverageActionRule というのを指定すると mod_rewrite の RewriteRule みたいに正規表現でリダイレクト先を動的に変更できるようにしました。<br /><br />
+
+つまり、下記のように書くとサーバのload averageが1.00以上のときには、/foo/barというURLにアクセスした際に http://example.com/bar にリダイレクトをさせることができます。<br />
+ちなみにLoadAverageActionURLとLoadAverageActionRuleの両方が指定されていた場合には、LoadAverageActionRuleが優先されます。<br /><br />
+
+<pre class="code">LoadAverageAction On
+LoadAverageActionThreshold 1.00
+LoadAverageActionRule ^/foo/(.*)$ http://example.com/$1</pre>
+
+<br />
+これ以外にも、LoadAverageAction On としておくだけでも、SERVER_LOAD_AVERAGEという環境変数にload averageがセットされるようになっているので、それを見てrewriteでごにょごにょできるようにもしてみました(id:ikebe案)。<br /><br />
+
+ただ、今はこのRuleは1つしか指定できないので、今後は複数指定できるようにできたらいいなと考えちうです。<br /><br />
+
+<strong>追記</strong>(Mon Oct 30 19:17:33 2006)<br />
+はてブで弾さんがコメントしてた通り、getloadavg()を使うようにしてみた。これでBSDでも動くはず。<br />
+<a href="http://svn.clouder.jp/repos/public/mod_loadaverage_action/tags/REL-1.2/">http://svn.clouder.jp/repos/public/mod_loadaverage_action/tags/REL-1.2/</a>
+ 

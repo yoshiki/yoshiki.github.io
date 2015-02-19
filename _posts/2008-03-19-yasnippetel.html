@@ -1,0 +1,53 @@
+---
+layout: post
+title: yasnippet.elをインストールしてみた
+mt_id: 1037
+date: 2008-03-19 01:45:54.000000000 +09:00
+author: clouder
+category: Emacs
+---
+emacserの間で密かなブームとなっている<a href="http://code.google.com/p/yasnippet/">yasnippet.el</a>をインストールしてみました。<br />
+実はsnippet的なものを使うのは初めてだったので、ちょっと細かく覚える意味も含めてインストール方法から書いてみます。<br /><br />
+
+インストール方法は簡単で、2つ方法があります。横着は人は上記ページの「yasnippet-bundle-0.3.1.el.tgz」をダウンロードしてきて、解凍してできたyasnippet-bundle.elを適当なディレクトリ(例えば$HOME/.emacs.d/plugins/とか)に置いて、以下のように設定します。<br />
+
+<pre class="code">(add-to-list 'load-path "~/.emacs.d/plugins")
+(require 'yasnippet-bundle)</pre>
+
+このyasnippet-bundleってやつは、各種言語用(など)のsnippetの設定もlispの中に同梱しているようです。まさに横着用。でも自分で書き変えたりできない(まぁ、できるけど)。<br /><br />
+
+そこで、もう1つの方法があります。先程のページからyasnippet-0.3.1.tar.bz2ってのをダウンロードしてくるとyasnippet.elとsnippetsというディレクトリが解凍されます。このsnipettsというディレクトリに、yasnippet-bundle.elで同梱されていたsnippetの設定が入っています。<br /><br />
+
+でインストールですが、この場合もさきほどと同じようにyasnippet.elを$HOME/.emacs.d/plugins/に、snippetsディレクトリを例えば$HOME/.emacs.d/に置いておき、<br />
+
+<pre class="code">(add-to-list 'load-path "~/.emacs.d/plugins")
+(require 'yasnippet)
+(yas/initialize)
+(yas/load-directory "~/.emacs.d/snippets")</pre>
+
+こんな感じで設定してやると、yasnippetが動くようになります。<br /><br />
+
+とりあえずemacsを立ち上げて、おもむろにhoge.plを新規作成します。<br />
+そして「if」と書いた直後にTABキーを押してみましょう。<br />
+
+<pre class="code">if () {
+    
+}</pre>
+
+こんな感じに補完ができたら成功!ちょっと感動します。それ以外にもいろいろとできるようですが、どんな文字列で補完が効くかは、snippetsディレクトリの中のファイルを探してみてください。該当するメジャーモードの名前のディレクトリにあるファイル名が補完を発動する名前になってます。上記でifが補完されたのは、snippets/text-mode/perl-mode/if があるからですね。それ以外にもxifとかもありますね。これは、<br />
+
+<pre class="code">expression if condition</pre>
+
+って補完されますね。なるほど、なるほど。で、「expression」の「e」にカーソルがあるので、そこでなにかを書き初めると「expression」が消えてくれます。で書き終ったあとにTABキーを押すと、カーソルが「condition」の「c」に移動してくれます。ここでまたifの条件を書こうとすると「condition」が消えてくれます。なるほどぉ。こういうことか。<br /><br />
+
+でも1ついやんなところがあって、1つのsnippetを発動させるとそのsnippetのすべての入力欄をTABキーで移動して書き終わらないと次のsnippetが発動しないような挙動になってるようです。また、そのsnippetをすべて書き終わる前にその部分を消去してしまうと、それ以降のsnippetが発動しないっぽい。でもなにかの弾みで発動したり…。どんな条件でリセットされてるのかよくわかりませんでした。<br /><br />
+
+ということで、慣れればすごい使い易いんだろうなーと思いつつしばらく使い続けてみたいと思います。<br /><br />
+
+なお、<a href="http://coderepos.org/share/browser/config/yasnippet">Codereposでもsnippetの共有</a>が始まってますので興味のある方はそちらもご覧になってみてください。<br /><br />
+
+関連記事：<br />
+<a href="http://d.hatena.ne.jp/rubikitch/20080316/1205609867">http://d.hatena.ne.jp/rubikitch/20080316/1205609867</a><br />
+<a href="http://d.hatena.ne.jp/a666666/20080318/1205804830">http://d.hatena.ne.jp/a666666/20080318/1205804830</a><br />
+<a href="http://d.hatena.ne.jp/antipop/20080314/1205517419">http://d.hatena.ne.jp/antipop/20080314/1205517419</a><br />
+<br />

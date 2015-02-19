@@ -1,0 +1,15 @@
+---
+layout: post
+title: Class::DBIで永続化が切れなくてハマった
+mt_id: 699
+date: 2006-07-31 00:48:20.000000000 +09:00
+author: clouder
+category: Perl
+---
+WEB+DB PRESS vol33の「ライブドア構築ノウハウ大公開」でClass::DBIの永続化を切るには、Ima::DBIの内部でクロージャとして生成されるdb_Mainをオーバーライドすれば永続化を切ることができるという記述がありました。
+
+これなんですが、先日あるアプリを作成しているときに、db_Mainをオーバーライドしても永続化されてしまうという現象にあいました。
+
+いろいろ調べたり、にぽたんとかに聞いたりした結果、db_Mainをオーバーライドしているクラスで __PACKAGE__->set_db() もしくは __PACKAGE__->connection() をしていたのが悪かったということが判明しました。なぜなら __PACKAGE__->set_db() もしくは __PACKAGE__->connection() をすると、Ima::DBIではなくClass::DBIの内部でdb_Mainのクロージャが生成されてしまうためにdb_Mainをオーバーライドしている意味がなくなってしまうからなのです。
+
+ということで、db_Mainをオーバーライドしたクラスでは__PACKAGE__->set_db()をしないようにしましょう。 

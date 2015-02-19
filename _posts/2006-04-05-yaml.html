@@ -1,0 +1,24 @@
+---
+layout: post
+title: YAMLで改行を含む値を表現する方法
+mt_id: 659
+date: 2006-04-05 15:30:40.000000000 +09:00
+author: clouder
+category: Language
+---
+<pre class="code">
+key: |
+  this is example
+  this is example
+</pre>
+
+ってやるみたい。
+
+ちなみに今一番知りたいのは、YAMLファイルで上の方で定義した値を下の方で使いたい場合どうするか。教えてエロい人！
+
+<pre class="code">
+foo: 1
+bar: 2
+baz: ***←ここでfooとかbarの値を使いたい。例えば 123 を表現したいとか。「$foo _ $bar _ 3」とかできないのかなと
+</pre>
+ 

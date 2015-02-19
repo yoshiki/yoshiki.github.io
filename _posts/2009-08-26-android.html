@@ -1,0 +1,122 @@
+---
+layout: post
+title: 最速Android開発環境構築手順
+mt_id: 1114
+date: 2009-08-26 11:45:26.000000000 +09:00
+author: clouder
+category: Android
+---
+Androidの開発環境を構築して、HelloAndroidするまで。<br /><br />
+
+<ol>
+<li>
+  JDK 6、antをインストール<br /><br />
+  Mac OS XだとDeveloper Tools入れてると<br />
+  Javaとantは既にインストールされてるかも？<br /><br />
+  <ul>
+    <li>JDK6<br /><a href="http://developer.android.com/sdk/1.5_r3/index.html">http://developer.android.com/sdk/1.5_r3/index.html</a></li>
+    <li>ant<br /><a href="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</a></li>
+    <li>Android SDK<br /><a href="http://java.sun.com/javase/downloads/index.jsp">http://java.sun.com/javase/downloads/index.jsp</a></li>
+  </ul>
+  <br />
+</li>
+<li>
+  Android SDKをインストール(といっても解凍して適当な場所に置くだけ)<br /><br />
+
+  以下のようにtools/をPATHに追加(↓はtcsh用のもの)。<br />
+  .bashrcとか.tcshrcとかに書いとけばOK。<br />
+  あと場合によってはJava用にCLASSPATHの設定が必要かも。<br />
+  <pre class="command">&#37; setenv PATH ${PATH}:/path/to/android-sdk-linux_x86-1.5_r3/tools</pre>
+  <br />
+</li>
+<li>
+  avdを作成(なんかよくわからんけど、開発環境のプロファイルっぽい)<br /><br />
+
+  なんか聞かれるけど、とりあえずデフォルトの[no]のままでいいのでリターン<br />
+  <pre class="command">&#37; android create avd --target 2 --name my_avd
+Android 1.5 is a basic Android platform.
+Do you wish to create a custom hardware profile [no]
+Created AVD 'my_avd' based on Android 1.5</pre><br />
+  これで環境は整った。<br />
+  <br />
+</li>
+<li>
+  HelloAndroidプロジェクトを作成<br /><br />
+
+  <pre class="command">&#37; android create project --target 2 --path HelloAndroid --activity HelloAndroid --package com.example.helloandroid</pre>
+  <br />
+</li>
+<li>
+  なにもコードは付け加えないで、とりあえずantでビルド(デバッグモード)<br /><br />
+
+  <pre class="command">&#37; ant debug
+Buildfile: build.xml
+      [setup] Project Target: Android 1.5
+      [setup] API level: 3
+
+  dirs:
+       [echo] Creating output directories if needed...
+      [mkdir] Created dir: /path/to/HelloAndroid/bin/classes
+
+  resource-src:
+       [echo] Generating R.java / Manifest.java from the resources...
+
+  aidl:
+       [echo] Compiling aidl files into Java classes...
+
+  compile:
+      [javac] Compiling 2 source files to /path/to/HelloAndroid/bin/classes
+
+  dex:
+       [echo] Converting compiled files and external libraries into bin/classes.dex...
+
+  package-resources:
+       [echo] Packaging resources
+   [aaptexec] Creating full resource package...
+
+  debug:
+  [apkbuilder] Creating HelloAndroid-debug.apk and signing it with a debug key...
+  [apkbuilder] Using keystore: /home/username/.android/debug.keystore
+
+  BUILD SUCCESSFUL
+  Total time: 7 seconds</pre><br />
+  最近のマシンだったら数秒でビルドが完了するはず。<br />
+  <br />
+</li>
+<li>
+  エミュレーターを起動<br /><br />
+
+  <pre class="command">&#37; emulator -avd my_avd &</pre><br />
+  <pre>A N D R O I D _</pre>って画面に出る。<br /><br />
+
+  で、しばらくすると(だいぶ待ちます)、Androidが起動します。<br />
+  最終的にデスクトップっぽいのが表示されるまで待つ。<br />
+  (マシンによっては5分とかかかりますので辛抱強く待ちます…)<br /><br />
+
+  ちなみに自分はnetbookでやったんですが、ウィンドウの大きさがデカすぎて<br />
+  縦が画面から飛び出ちゃったのですが下記のように「-scale」って<br />
+  オプションを指定することでウィンドウの大きさを変えられます。<br />
+  <pre class="command">&#37; emulator -avd my_avd -scale 0.8 &</pre><br /><br />
+
+  起動するとアラートでるので「Force close」で無視する
+  <form mt:asset-id="15" class="mt-enclosure mt-enclosure-image" style="display: inline;"><img alt="android_sdk01.png" src="http://blog.clouder.jp/archives/images/android_sdk01.png" class="mt-image-none" style="" /></form><br /><br />
+</li>
+<li>
+  エミュレータ上のAndroidにHelloAndroidをインストール。<br /><br />
+
+  <pre class="command">&#37; adb install bin/HelloAndroid-debug.apk</pre><br /><br />
+
+  HelloAndroidがインストールされた
+  <form mt:asset-id="15" class="mt-enclosure mt-enclosure-image" style="display: inline;"><img alt="android_sdk02.png" src="http://blog.clouder.jp/archives/images/android_sdk02.png" class="mt-image-none" style="" /></form><br /><br />
+</li>
+<li>
+  あとはAndroid上でアプリ実行すると<br /><br />
+
+  文字が表示された
+  <form mt:asset-id="15" class="mt-enclosure mt-enclosure-image" style="display: inline;"><img alt="android_sdk03.png" src="http://blog.clouder.jp/archives/images/android_sdk03.png" class="mt-image-none" style="" /></form><br /><br />
+</li>
+</ol>
+
+エミュレータが激重以外はすんなりここまでできる。<br />
+エミュレータだけはどうにかして欲しいです。ほんとに。<br />
+ 

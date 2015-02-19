@@ -1,0 +1,31 @@
+---
+layout: post
+title: 「Subversionのsvn:externalsというプロパティ」の続き
+mt_id: 1062
+date: 2008-09-25 15:55:24.000000000 +09:00
+author: clouder
+category: Software
+---
+こないだ書いた「<a href="http://blog.clouder.jp/archives/001061.html">Subversionのsvn:externalsというプロパティ</a>」の続きです。<br /><br />
+
+先日あるプロジェクトにさっそくこのsvn:externalsを設定したてみたのですが、1つのディレクトリに他の2つのプロジェクトを設定しようとしてはまりました。<br /><br />
+
+先の記事ではコマンドラインベースの設定方法だったため、実は2つのプロジェクトを同時に設定することが出来ないということに気付きました(ごにょごにょやればできそうですが)。<br /><br />
+
+それでどうやるのかなぁと調べてみたら別に難しいことはなく、前回「svn propset」とやっていたところを以下のように「svn propedit」というコマンドにしてやることでプロパティを複数行編集できるようになります。<br />
+
+<pre class="command">&#37; svn propedit svn:externals extlib</pre>
+
+こうするとSVN_EDITOR、VISUAL、EDITORなどの環境変数で設定されたエディタが立ち上がるので、そこに<br />
+
+<pre class="code">otherproj01 http://svn.example.com/repos/otherproj01/trunk
+otherproj02 http://svn.example.com/repos/otherproj02/trunk</pre>
+
+などと書いて保存することで複数のプロジェクトを設定できるようになります。<br />
+上記の場合はotherproj01とotherproj02という2つのプロジェクトをsvn:externalsプロパティに設定することになります。<br /><br />
+
+なお、前回書くのを忘れたのですがsvn propsetやsvn propeditをした際は当然それをコミットする必要があります。<br />
+プロパティを設定したらsvn commitを忘れずに。<br /><br />
+
+今までは、あるプロジェクトで複数の外部モジュールを使っていたときは個別にsvn updateして更新を確かめたりと面倒な作業があったのですが、この設定を知ってからはそんなことをする必要もなくなり気苦労の1つが減った感じです。<br /><br />
+

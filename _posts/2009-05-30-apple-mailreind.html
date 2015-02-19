@@ -1,0 +1,25 @@
+---
+layout: post
+title: Apple MailもREINDEXでちょっとだけ速くなる
+mt_id: 1110
+date: 2009-05-30 00:32:01.000000000 +09:00
+author: clouder
+category: Mac
+---
+ちょっと前にFirefoxがSQL OptimizerでREINDEXして速くなったと書いたのですが、そういやApple Mailもsqliteだったのを思い出しました。<br /><br />
+
+以前Apple Mailも速度アップのためにVACUUMをしたことはあったのですが、REINDEXはしたことなかったのでさっそく試してみたら、なんか心なしかメールのリスト表示が速くなってる気がします。<br /><br />
+
+まぁ、ある程度のメール量がないと意味ないかもしれませんが。。。<br /><br />
+
+やり方は<br /><br />
+
+<pre class="command">&#37; cd ~/Library/Mail/
+&#37; sqlite3 Envelope\ Index
+sqlite> REINDEX subjects;</pre><br />
+
+こんな感じでVACUUMするときとほぼ同じ。<br /><br />
+
+自分はこれ以外にmessagesとaddressesもREINDEXしてみました。<br /><br />
+
+まぁ気休めぐらいにしかならないかもしれませんが、Apple Mailが遅くてかなわんというひとはやってみてはいかがでしょうか。 

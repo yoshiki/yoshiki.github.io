@@ -1,0 +1,24 @@
+---
+layout: post
+title: mod_perl化
+mt_id: 19
+date: 2002-12-13 20:15:48.000000000 +09:00
+author: clouder
+category: MovableType
+---
+MT を mod_perl で動かしてみる。
+今のところなんもしないでも動いている。
+それもどうかと思う(笑) 
+と思った矢先に、rssfeed が動いてない…。
+というか、plugins が動いてないんだな。
+
+Insecure dependency in require while running with -T switch at /Users/yoshiki/Sites/mt/lib/MT.pm line 101.
+
+だってさ。MT.pm の 99行目あたりの以下で taint check にひっかかってる。
+
+            $plugin = File::Spec->catfile($plugin_dir, $plugin);
+            eval { require $plugin };
+            warn($@), next if $@;
+
+ようは、$plugin が汚染されているからみたいです。
+PerlTaintCheck On という記述が、apache の設定ファイルにあるので、それをコメントアウトすればいいらしい。あとで PerlTaintCheck を調べてみよう。

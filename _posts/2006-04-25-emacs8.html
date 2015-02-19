@@ -1,0 +1,71 @@
+---
+layout: post
+title: emacsを快適に操作するための10の設定
+mt_id: 673
+date: 2006-04-25 16:37:21.000000000 +09:00
+author: clouder
+category: Emacs
+---
+私的なものばかりですが、いつも忘れていろんなサーバに探しに行くので、メモっておこうと思って書きました。
+他にお勧めがあったら教えてください。
+
+<ol>
+<li>同名のファイルを開いたとき Switch to buffer などでファイル名がわかりやすく見えるようになる設定</li>
+<pre class="code">(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)</pre>
+これを設定するとファイル名が同名だった場合にそのファイル名の後ろに file.txt&lt;foo&gt; file.txt&lt;bar&gt; といった感じで一階層上のディレクトリ名がでるようになります。もしその階層のディレクトリ名も同じだったら、もう一階層上のディレクトリ名も出て、違いがわかるまでディレクトリ名が出るようになります。<br /><br />
+
+<li>HTMLなどのコーディングで META タグにあるコーディングで保存されないようにする設定</li>
+<pre class="code">(delete 'sgml-html-meta-auto-coding-function auto-coding-functions)</pre>
+METAタグに charset="Shift_JIS"なんて書いてあったりすると、そのエンコーディングで保存しようとするんですが、それを無視する設定です。<font color="#ff0000">※環境によっては動かないという報告が…。</font><br /><br />
+
+<li>選択部分を一気にインデントにする indent-region のキーバインドの設定</li>
+<pre class="code">(global-set-key "\C-x\C-i" 'indent-region)</pre>
+<br />
+<li>find-fileのファイル名補完で大文字小文字を区別しない設定</li>
+<pre class="code">(setq completion-ignore-case t)</pre>
+<div style="color: #ff0000">追記</div>もしくは、
+<pre class="code">(setq read-file-name-completion-ignore-case t)</pre>
+<br />
+<li>shebangが付いているファイルのパーミッションを保存時に +x にしてくれる設定</li>
+<pre class="code">(add-hook 'after-save-hook 'my-chmod-script)
+(defun my-chmod-script() (interactive) (save-restriction (widen)
+ (let ((name (buffer-file-name)))
+  (if (and (not (string-match ":" name))
+           (not (string-match "/\\.[^/]+$" name))
+           (equal "#!" (buffer-substring 1 (min 3 (point-max)))))
+     (progn (set-file-modes name (logior (file-modes name) 73))
+            (message "Wrote &#37;s (chmod +x)" name)
+    ))
+)))</pre>
+<br />
+<li>画面上下の端の外にスクロールしたときの移動量を1にする設定</li>
+<pre class="code">(setq scroll-step 1)</pre>
+<br />
+<li>対応する括弧をハイライト表示させる設定</li>
+<pre class="code">(show-paren-mode t)</pre>
+<br />
+<li>選択されたリージョンを色付きにしてわかりやすくする設定</li>
+<pre class="code">(transient-mark-mode t)</pre>
+<br />
+<li>emacsのVCでバッファの履歴を引き継ぐための設定(→参考：<a href="http://d.hatena.ne.jp/higepon/20050904/1125840672">ひげぽんのブログ</a>で知って以来使ってる)</li>
+<pre class="code">;; checkin 後に実行される関数をフック
+(add-hook 'vc-checkin-hook
+          '(lambda ()
+              (setq buffer-undo-list higepon-san)))
+
+;; checkin 前に実行される関数をフック
+(add-hook 'vc-before-checkin-hook
+          '(lambda ()
+             (setq higepon-san buffer-undo-list)))</pre>
+<br />
+<li>pcl-cvsのcvs-examineを一発で呼出すキーバインドの設定</li>
+<pre>(global-set-key "\C-xe" 'cvs-examine)</pre>
+</ol>
+
+<hr size="1"><br />
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900931/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4900900931.09.MZZZZZZZ.jpg" alt="GNU Emacsデスクトップリファレンス" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900931/clouder-22/ref=nosim/" name="amazletlink" target="_blank">GNU Emacsデスクトップリファレンス</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4900900931/clouder-22" title="GNU Emacsデスクトップリファレンス" target="_blank">amazlet</a> on 06.04.26</div></div><div class="amazlet-detail">デブラ キャメロン Debra Cameron 日本ルーセントテクノロジー <br />オライリー・ジャパン (1999/06)<br />売り上げランキング: 115,172<br /></div><div class="amazlet-review" style="margin-top:10px; margin-bottom:10px"><div class="amazlet-review-average" style="margin-bottom:5px">おすすめ度の平均: <img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-2-5.gif" alt="2.5" /></div><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-1-0.gif" alt="1" /> オンラインドキュメントがあれば十分<br /><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-4-0.gif" alt="4" /> GNU Emacsコマンドリファレンス<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900931/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+<br />
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900834/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4900900834.09.MZZZZZZZ.jpg" alt="入門GNU Emacs" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900834/clouder-22/ref=nosim/" name="amazletlink" target="_blank">入門GNU Emacs</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4900900834/clouder-22" title="入門GNU Emacs" target="_blank">amazlet</a> on 06.04.26</div></div><div class="amazlet-detail">デボラ キャメロン エリック レイモンド ビル ローゼンブラッド Debra Cameron Eric Raymond Bill Rosenblatt 福崎 俊博 <br />オライリー・ジャパン (1999/09)<br />売り上げランキング: 67,142<br /></div><div class="amazlet-review" style="margin-top:10px; margin-bottom:10px"><div class="amazlet-review-average" style="margin-bottom:5px">おすすめ度の平均: <img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5" /></div><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5" /> 明快な語り口調で・・・<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900834/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+ 

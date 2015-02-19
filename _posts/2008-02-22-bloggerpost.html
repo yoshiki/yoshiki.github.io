@@ -1,0 +1,60 @@
+---
+layout: post
+title: BloggerPostを使ってみた
+mt_id: 1020
+date: 2008-02-22 16:50:12.000000000 +09:00
+author: clouder
+category: Emacs
+---
+<p>以前<a href="http://clouder.jp/yoshiki/mt/archives/001012.html">mapaeを使って書いた記事</a>があったのですが、使い勝手などもろもろが自分のスタイルに合わず、結局使わなくなってしまってました。</p>
+
+<p>で、しばらく熱が冷めていたのですが、やっぱりemacsでブログ投稿したいなーと思い別のソフトを探していたら、先日<a href="http://bloggerpost.sourceforge.jp/">BloggerPost</a>という別のemacsフロントエンドをみつけたので、早速インストールして使ってみたらいいかんじなのでご紹介。</p>
+
+<p>このBloggerPostは、<a href="http://www.rubyist.net/~rubikitch/computer/el4r/">el4r</a>というRubyでelispを書いてしまおうというソフトを使ったソフト(？)で、AtompubとXML-RPCに対応しています。</p>
+
+<p>で、まず最初に言っておきたいのが、自分も勘違いしていたのはBloggerPostを導入する以前に書いた記事も読み込んで編集とかできるのかなーと思ってたのですが、それは現状できないようです。なので、このBloggperPost経由で書いた記事のみをローカルのディスクに保存して、それであれば編集などもできるという代物です。(最初これがわからず、なんで今まで書いた記事が読み込めねーんだよと小一時間悩みました)</p><p>ということで、インストール時のハマりポイントとかをいくつか書いておきます。</p>
+
+<ol>
+
+<li>ハマりポイントその1：関連するQDBMのrubyバインディングを忘れずにインストールしよう
+
+BloggerPostはQDBMでデータを保存しておくらしいのですが、そのrubyバインディングはQDBMを普通にインストールしても入りません。QDBMのソースのrubyディレクトリの中で./configure &amp;&amp; make &amp;&amp; make install をしましょう。</li>
+
+<li>ハマりポイントその2：<a href="http://raa.ruby-lang.org/list.rhtml?name=RDtool">rdtool</a>をインストールしよう
+
+自分の環境ではどうしても投稿ができなくて悩んでデバッグログ(M-x el4r-show-logで見られる)を見ていたらrd2コマンドがないよーって言ってたので気付きました。このrd2はrdtoolに含まれるコマンドのようです。</li>
+<li>ハマりポイントその3：設定ファイル
+
+BloggerPostのページだとあまり詳しくは書いてないところもあったりするので、試行錯誤で自分は以下のようにconfig.ymlを書いています。
+
+「account:」と「blog: -&gt; list:」の両方に「name:」ってのがあってこんがらがりそうなのですが、「account: -&gt; name:」は「blog: -&gt; list: -&gt; account:」に指定するためのもので、「blog: -&gt; list: -&gt; name:」は「blog: -&gt; default:」などで指定するために使うもののようです。あと、mtなどのXML-RPCの場合は「apiurl:」と「blogid:」が必要で、livedoor BlogのようなAtompubの場合は「posturl:」があればよいようです。このAtompubの「posturl:」はlivedoor Blogであれば、以下のような「http://cms.blog.livedoor.com/atom/blog_id=YOUR_BLOG_ID」でいいのですが、それ以外のサービスとかだと、自分でマニュアルを見るかエンドポイントを叩いて確認しなきゃならないかもしれません。
+
+<pre class="source">
+defaultstyle: bhtml
+account:
+  - name: mt_account
+    user: your_username
+    passwd: your_password
+  - name: livedoor_account
+    user: your_livedoor_id
+    passwd: your_livedoor_password
+blog:
+  default: mt
+  list:
+    - name: mt
+      title: "Your blog title"
+      url: http://blog.example.com/
+      service: mt
+      account: mt_account
+      apiurl: http://blog.example.com/mt-xmlrpc.cgi
+      blogid: 1
+    - name: livedoor
+      title: "Your livedoor blog title"
+      url: http://blog.livedoor.jp/your_livedoor_id/
+      service: livedoor
+      account: livedoor_account
+      posturl: http://cms.blog.livedoor.com/atom/blog_id=YOUR_BLOG_ID
+</pre>
+</li></ol>
+
+<p>という感じのことを乗り越えて、このエントリをポストしてます。上記以外のインストールについてはそれぞれのページの方法でいけると思います。</p><p>まだ、使い始めたばっかりなので使い倒してないのですが、使用感としてはおおむねよさげです。ちなみに機能としては普通にポストする以外にもflickrやAmazonと連携することもできるっぽいです。</p><p>あと最後に、el4rのエラーってmini bufferにちょろっと「Error raised in Ruby」とか出るだけなので最初どうやってデバッグするねんと悩んだのですが、途中にも書きましたが「M-x el4r-show-log」とすればバックトレースが見られるようですので、printデバッグもできます。</p> 

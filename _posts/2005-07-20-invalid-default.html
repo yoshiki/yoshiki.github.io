@@ -1,0 +1,19 @@
+---
+layout: post
+title: Invalid default value for 'id'
+mt_id: 483
+date: 2005-07-20 13:47:41.000000000 +09:00
+author: clouder
+category: Technique
+---
+<blockquote><a title="MySQL error 1067 (42000): Invalid default value for 'ban_id'" href="http://www.karakas-online.de/forum/viewtopic.php?t=2732">MySQL error 1067 (42000): Invalid default value for 'ban_id'</a>
+
+In the later versions of MySQL (maybe starting 5.x), you cannot set a default value to an "auto increment" field (if you think about it, it doesn't make much sense either).</blockquote>MySQLであるCREATE文を実行したら「Invalid default value for 'id'」なんてエラーが出た。使用しているMySQLのバージョンは4.1系で、なにか変ったのかな？と思って調べたら、4.1系以降だとauto_incrementのカラムにはdefault設定ができないらしい。知らなかった…。
+
+とりあえずメモとして。
+
+ちなみにファイルにFOREIGN KEYのあるCREATE文を書いていて、それをインポートするときには、制約を一時的に外すために下記のようにするとよい。
+
+<pre class="code">mysql&gt; SET FOREIGN_KEY_CHECKS = 0;
+mysql&gt; \. create.sql</pre>
+ 

@@ -1,0 +1,11 @@
+---
+layout: post
+title: mysql4.1系でのsessionテーブルのカラムの型
+mt_id: 398
+date: 2005-05-09 11:18:58.000000000 +09:00
+author: clouder
+category: Unix
+---
+<a href="http://myna2.mysql.gr.jp/mysqlml/mysql/msg/11364" target="_blank">http://myna2.mysql.gr.jp/mysqlml/mysql/msg/11364</a>
+
+上記のMySQL MLのスレッドにて語られていますが、Apache::Session等で使うsessionテーブルのa_sessionには通常Storableで加工した値を入れてますが、mysqlの4.1系からはtext型ではなく、blob型じゃないとだめになるらしい。これはまだ試してないのですが、 

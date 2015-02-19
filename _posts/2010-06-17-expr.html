@@ -1,0 +1,24 @@
+---
+layout: post
+title: シェルスクリプトでのexprの正規表現
+mt_id: 1128
+date: 2010-06-17 17:39:25.000000000 +09:00
+author: clouder
+category: Unix
+---
+シェルスクリプト書いてて調べるのに時間かかったのでメモしておく。
+
+<ul>
+        <li>exprの正規表現<br />
+$valにfooかbarかbazどれかが入ってるかどうかを調べるには。
+<pre class="code">expr $val : 'foo\|bar\|baz'</pre>
+でOK。
+
+でもMac OS X 10.6.3のexprはだめでした。方言があるっぽい。
+ちなみにifで使うとしたら
+<pre class="code">if [ expr $val : 'foo\|bar\|baz' ]
+then
+...
+fi</pre></li>
+</ul>
+ 

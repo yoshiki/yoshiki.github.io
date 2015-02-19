@@ -1,0 +1,25 @@
+---
+layout: post
+title: Google Mapsキター
+mt_id: 274
+date: 2005-02-09 00:31:45.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<a href="http://maps.google.com/" target="_blank">Google Maps</a>がベータリリース。
+今までのマップサイトみたいに、ぽちぽち地域を絞っていくのではなく、
+DHTMLでぐりぐりと移動できるのはなんか快感。
+そして、なんとマウスでドラッグして移動とかもできるし…すげー。
+
+ブラウザのステータスバーを見てると、マップを移動するとリクエストが発生するのがわかる。
+これもgoogleおとくいのJavaScriptでリクエストを飛しているのかなぁ。
+
+ソースとか見てたら、
+http://www.google.com/mapfiles/maps.1.js
+こんなんとか
+http://www.google.com/mapfiles/metapanel.xsl
+こんなんとかがある。
+
+maps.1.jsを見てみると、XMLHttpRequest()とかいう関数とかあって、
+地図情報はXMLでやりとりしているのだろうか。
+ 

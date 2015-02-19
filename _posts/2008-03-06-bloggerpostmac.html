@@ -1,0 +1,31 @@
+---
+layout: post
+title: Bloggerpostをmacにインストールする
+mt_id: 1031
+date: 2008-03-06 16:23:57.000000000 +09:00
+author: clouder
+category: Emacs
+---
+最近MacBook Airを購入しました。
+
+もともとマカーだったので懐しくもあるんですが、Tigerの初期ぐらいまでしか使ってなかったので、だいぶ浦島太郎状態なわけです。でもそれがまたよかったりもするんですが。
+
+で、今回の話は以前したBloggerpostをmacにいれる手順です。
+
+まずは、MacPorts。MacにはMacPortsっていうパッケージシステムがあって、昔自分が使ってたときはfinkってのを使ってたんですが、最近はMacPortsが流行りだと同僚に言われそれをインストールしました。
+そのあとに、おやくそくのRubyからemacsをごにょごにょできるel4rをインストール。
+次に、MacPortsでqdbmをインストール。で、BloggerpostではqdbmのRubyバインディングであるdepotを入れるのですが、普通にMacPortsで入れるとRubyが入ってしまうので、qdbmのライブラリだけ使ってdepotを入れなければなりませんでした。
+
+普通にldconfigみたいなのがあれば/opt/local/lib(MacPortsでは/opt以下にいろいろなものをインストールしてメインシステムへの汚染を避けている)を読み込ませればいいんですが、それがないのでどうしたものかと調べていたら、
+
+<pre class="command">&#37; setenv LIBRARY_PATH /opt/local/lib</pre>
+
+とやってから、./configure && make && make install したらmakeできました。
+
+あとは以前紹介した設定をすれば問題なくemacsからブログへ投稿ができるようになります。
+この記事もBloggerPostを使ってポストしている次第です。
+
+ところで最近のMacはPerlとかRubyとか標準で入ってるけどMacPortsでも入れられます。
+どっちを使ったらいいのか迷うところなんだけど、どっちがいいんですかね？
+
+ 

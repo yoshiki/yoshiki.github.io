@@ -1,0 +1,75 @@
+---
+layout: post
+title: QR Codeを作るならImager::QRCodeを使おう！
+mt_id: 759
+date: 2007-02-28 00:15:22.000000000 +09:00
+author: clouder
+category: Perl
+---
+今まで <a href="http://search.cpan.org/dist/GD-Barcode/">GD::Barcode::QRcode</a> の独壇場だった QR Codeを Perl で作るためのライブラリですが、ここで一つ対抗馬として、<a href="http://search.cpan.org/dist/Imager-QRCode/">Imager::QRCode</a>を作って、CPAN に上げてみました。<br /><br />
+
+G::B::QRcode と比べて良いところは以下。
+<ul>
+<li>出来上がったものはそのままImagerのオブジェクトになっているため、出来た画像に対していろいろできます。</li>
+<li>白黒の部分の色を Imager::Color で指定できるようになっていますので、白地に緑とか青とか赤とかの QR code ができちゃったりします。</li>
+<li>GDなどのインストールはいりません。<a href="http://megaui.net/fukuchi/works/qrencode/index.html">libqrencode</a>という小さなライブラリを入れるだけでさくっと動きます。</li>
+</ul>
+
+ただ、ぶっちゃけちゃうと GD::Barcode::QRcode よりも速度が若干遅いです。<br />
+以下ベンチマークになります(ベンチマークプログラムは最後に載せています)。
+
+<pre class="code">
+Benchmark: timing 100 iterations of G::B::QRcode, I::QRCode::plot, I::QRCode::plot_qrcode...
+G::B::QRcode:  1 wallclock secs ( 0.01 usr +  1.64 sys =  1.65 CPU) @ 60.61/s (n=100)
+I::QRCode::plot:  2 wallclock secs ( 0.67 usr  1.57 sys +  0.28 cusr  0.14 csys =  2.66 CPU) @ 44.64/s (n=100)
+I::QRCode::plot_qrcode:  3 wallclock secs ( 0.79 usr  1.35 sys +  0.33 cusr  0.15 csys =  2.62 CPU) @ 46.73/s (n=100)
+                         Rate I::QRCode::plot I::QRCode::plot_qrcode G::B::QRcode
+I::QRCode::plot        44.6/s              --                    -4&#37;         -26&#37;
+I::QRCode::plot_qrcode 46.7/s              5&#37;                     --         -23&#37;
+G::B::QRcode           60.6/s             36&#37;                    30&#37;           --
+</pre>
+
+G::B::QRcodeの 60&#37; ぐらいしか速度でませんが、QR Code の生成はそんな頻繁ではないと思うので速度は御勘弁を…。<br />
+といいつつ、もうちょっと早くならないか考え中です。<br /><br />
+ 
+<pre class="code">
+use strict;
+use GD::Barcode::QRcode;
+use Imager::QRCode;
+use Benchmark qw(timethese cmpthese);
+use Encode;
+
+my $count = 100;
+my $text = encode('cp932', decode('utf8', 'これはテストです'));
+cmpthese(timethese($count, {
+    'G::B::QRcode' =&gt; sub {
+        my $oGdBar = GD::Barcode::QRcode-&gt;new(
+            $text, {
+                Ecc        =&gt; 'L',
+                Version    =&gt; 2,
+                ModuleSize =&gt; 2,
+            }
+        );
+        open(my $fh, '&gt;', 'gd-barcode-qrcode.gif');
+        print $fh $oGdBar-&gt;plot-&gt;gif;
+        close($fh);
+    },
+    'I::QRCode::plot' =&gt; sub {
+        my $qrcode = Imager::QRCode-&gt;new(
+            level   =&gt; 'L',
+            version =&gt; 2,
+            size    =&gt; 2,
+        );
+        my $img = $qrcode-&gt;plot($text);
+        $img-&gt;write(file =&gt; 'imager-qrcode-plot.gif');
+    },
+    'I::QRCode::plot_qrcode' =&gt; sub {
+        my $img = Imager::QRCode::plot_qrcode($text, {
+            level   =&gt; 'L',
+            version =&gt; 2,
+            size    =&gt; 2,
+        });
+        $img-&gt;write(file =&gt; 'imager-qrcode-plot_qrcode.gif');
+    },
+}));
+</pre>

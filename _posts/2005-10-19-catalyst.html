@@ -1,0 +1,62 @@
+---
+layout: post
+title: Catalyst入門としてのお作法についてについて
+mt_id: 547
+date: 2005-10-19 11:56:58.000000000 +09:00
+author: clouder
+category: Perl
+---
+<blockquote><a title="ひげぽん OSとか作っちゃうかMona- - Catalyst入門 と お作法について" href="http://d.hatena.ne.jp/higepon/20051018/1129633423">ひげぽん OSとか作っちゃうかMona- - Catalyst入門 と お作法について</a><br />
+<br />
+templateの include<br />
+<br />
+rootからのパスを指定してやればよい<br />
+<br />
+[&#37; include templates/user/username.tt &#37;]</blockquote>はてなのひげぽんさんがCatalystについて書いていたのでそれを受けて書いてみます。上記のこれは、root/base/の中に読み込みたいincludeファイルを入れてやると、それがTTのINCLIDE_PATHに入っているので [&#37; include username.tt &#37;]で読み込めるようになります。Catalyst::View::TTの103行目付近にその記述があります。ちなみに、テンプレートの中にデフォルトで使えるようになってる変数はbase($c->req->base),
+c($c), name($c->config->{name})の3つのようですね。なので自分はProject.pmのsub end {}で、$c->stash->{session} = $c->sessionとやって、セッションをテンプレートで[&#37; session.foo &#37;]とできるようにしています。別にやらんでも[&#37; c.session.foo &#37;]で取れますけどね…。<br />
+<br />
+
+その他で自分がやってるのとしたら下記ですね。<br />
+<br />
+<ul>
+<li><strong>M(Model)などでconfigの値を取りたいとき</strong></li><br />
+
+下記のような感じで取れます。<br />
+<pre class="code">Project->config->{foo}</pre><br />
+<br />
+<li><strong>configはCatalyst::Plugin::Config::YAMLで</strong></li><br />
+
+Project.pmの中で<br />
+<br />
+<pre class="code">use Catalyst qw/Config::YAML/;
+Project->config(config_file => 'config.yml');</pre>
+<br />
+とすれば、configをconfig.ymlというファイル名にしてYAMLで設定を書くことができます。これ自分としては結構便利です。
+<br />
+<br />
+<li><strong>そのC(Controller)の中でグローバルに使いたい関数を定義するには</strong></li><br />
+
+作ってるアプリの中でグローバルに使いたいんだけどforwardしたくねーよというときには一番上のProject.pmに下記の要に書くとそれを$c->is_post_requestという感じで使うことができるようです。<br />
+<br />
+<pre class="code">sub Project::is_post_request { $_[0]->req->method eq 'POST' }</pre><br />
+<br />
+<li><strong>無理にMVCの中に入れることはない</strong></li><br />
+
+Catalystを使って自分でアプリを作っていたら、Utils.pmとConstants.pmがどうしてもMVCのどれかのディレクトリに入れることができず、結局Project::Utils、Project::Constantsという形にした。useするのがちょと面倒(ｵｲｵｲ)だけどしかたない｡<br />
+<br />
+<li><strong>出力されるログになにか処理を施したい</strong></li><br />
+
+アプリをUTF-8で作ってるけどターミナルはeucなんで、ログで出てくる文字が化けるよ！というときに下記のようにするとeucで出力できるようになる。<br />
+これを使えば、他にもいろいろな処理を挟むことができると思う。これは主に開発時用のTipsですね。
+<br />
+<pre class="code">sub Catalyst::Log::_log {
+      my $self    = shift;
+      my $level   = shift;
+      my $time    = localtime(time);
+      my $message = join( "\n", @_ );
+      printf( STDERR "[&#37;s] [catalyst] [&#37;s] &#37;s\n", $time, $level, Unicode::Japanese->new($message)->euc );
+}</pre><br />
+
+</ul>
+自分で気がついたのはこのくらいですけど、たぶん間違いとかこうやった方がよいというのが沢山ありそうなので、その際はご指摘お願いします。<br />
+ 

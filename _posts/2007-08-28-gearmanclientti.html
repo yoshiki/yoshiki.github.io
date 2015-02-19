@@ -1,0 +1,62 @@
+---
+layout: post
+title: Gearman::Clientはまだtimeoutをサポートしてなかった
+mt_id: 989
+date: 2007-08-28 01:09:38.000000000 +09:00
+author: clouder
+category: Perl
+---
+最近Gearmanをいじってるんですが、Gearman::Clientでtimeoutを設定してやってもtimeoutしてくれない。
+なぜだー！とソースを見たら
+
+<pre class="code">#TODO: timeout isn't supported by this client API yet.</pre>
+
+と一番上に書いてあった…。サポートしてないのかよ。PODに書いてくれ！<br /><br />
+
+で、<a href="http://back-paper.labs.mfac.jp/show?paper_rid=CWer1HejeG">tokuhiromさんのBackPaperのGearman::Client::Asyncの例</a>を元に、文末のようなコードでやってみた。<br />
+そしたらtimeoutは効いてくれるみたい。ちゃんと起動して5秒後にはon_failがコールされた。<br /><br />
+
+お、これでいけるかな？と思ったら、on_failしたあとすぐに処理が戻ってこないで10秒経って(worker.plのsleepの時間だけ待って)から「done」が表示された。<br />
+timeoutしたあとに、すぐ処理が戻る(下記のコードで言うと「done」が表示される)ようにしたいんだけどどうしたらいいんだろうか。<br />
+
+client.pl
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use Gearman::Client::Async;
+use Danga::Socket;
+
+my $client = Gearman::Client::Async->new( job_servers => [ qw(127.0.0.1) ] );
+my $result;
+my $task;
+Danga::Socket->AddTimer(
+    0 => sub {
+        $task = Gearman::Task->new("sleepcheck", undef, {
+            timeout => 5,
+            on_fail => sub { print "failed\n" },
+        });
+        $client->add_task($task);
+    },
+);
+Danga::Socket->SetPostLoopCallback( sub { !$task->is_finished } );
+Danga::Socket->EventLoop;
+
+print "done.\n";</pre>
+
+worker.pl
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use Gearman::Worker;
+use Carp ();
+
+my $worker = Gearman::Worker->new;
+$worker->job_servers(qw(127.0.0.1));
+$worker->register_function(
+    sleepcheck => sub {
+        sleep 10;
+        return "done sleep check";
+    },
+);
+$worker->work while 1;</pre>
+ 

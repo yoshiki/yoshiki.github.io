@@ -1,0 +1,35 @@
+---
+layout: post
+title: HTMLで画像を使わずにコーナーを作る
+mt_id: 371
+date: 2005-03-28 06:36:34.000000000 +09:00
+author: clouder
+category: Language
+---
+<style>
+div#html-corner-container {margin:0 0&#37;; background:#9BD1FA;}
+div#html-corner-text {margin:0 1&#37;; background:#9BD1FA;}
+.rtop, .rbottom{display:block;background:#fff;}
+.rtop *, .rbottom *{display: block; height: 1px; overflow: hidden; background:#9BD1FA;}
+.r1{margin: 0 5px}
+.r2{margin: 0 3px}
+.r3{margin: 0 2px}
+.r4{margin: 0 1px; height: 2px}
+</style>
+
+<div id="html-corner-container">
+<b class="rtop">
+  <b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b>
+</b>
+<div id="html-corner-text">
+<a title="Nifty Corners" href="http://pro.html.it/esempio/nifty/" target="_blank">Nifty Corners</a><br />
+<br />
+Rounded Corners with CSS are a hot topic in web design: I think that there are hundreds of articles on them. This page is intended to present the solution I came up, that doesn't requires images, extra markup nor CSS. Let's start.<br />
+</div>
+<b class="rbottom">
+  <b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b>
+</b>
+</div>
+<br />
+HTMLでコーナーを作るのにCSSだけで作ったり、JavaScriptとCSSだけで作ったり。画像を使わないでやってます。すごいね。これ便利かも。<br />
+ちなみに、↑のやつもCSSだけでやってみました。<br /> 

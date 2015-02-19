@@ -1,0 +1,45 @@
+---
+layout: post
+title: Plagger::Plugin::Widget::Extractor
+mt_id: 634
+date: 2006-02-28 00:02:47.000000000 +09:00
+author: clouder
+category: Perl
+---
+とりあえず作っといた。del.icio.usのロゴと並ぶとなぜかちょと嬉しい…。
+
+<pre class="code">
+package Plagger::Plugin::Widget::Extractor;
+use strict;
+use base qw( Plagger::Plugin );
+
+use Encode;
+use HTML::Entities;
+use URI;
+
+sub register {
+    my($self, $context) = @_;
+    $context->register_hook(
+        $self,
+        'publish.entry.fixup' => \&add,
+    );
+}
+
+sub add {
+    my($self, $context, $args) = @_;
+    $args->{entry}->add_widget($self);
+}
+
+sub html {
+    my($self, $entry) = @_;
+    my $uri = URI->new('http://extractor.47objects.com/url');
+    $uri->query_form(
+        url => $entry->permalink,
+    );
+
+    my $url = HTML::Entities::encode($uri->as_string);
+    return qq(&lt;a href="$url"&gt;&lt;img src="http://extractor.47objects.com/static/images/favicon.gif" alt="extract it!" style="border:0;vertical-align:middle" /&gt;&lt;/a&gt;);
+}
+
+1;
+</pre> 

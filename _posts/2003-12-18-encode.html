@@ -1,0 +1,20 @@
+---
+layout: post
+title: Encodeメモ
+mt_id: 156
+date: 2003-12-18 01:22:23.000000000 +09:00
+author: clouder
+category: Perl
+---
+Encodeをときどき使うのだが忘れないためにメモ
+普通に変換するには、
+<code>
+use Encode qw(from_to);
+from_to($str, 'utf8', 'euc-jp');
+</code>
+でできます。そのまま、$strが変換されます。
+よくやる間違いが、
+<code>
+$encoded_str = from_to($str, 'utf8', 'euc-jp');
+</code>
+とか。 

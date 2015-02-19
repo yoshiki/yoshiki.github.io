@@ -1,0 +1,47 @@
+---
+layout: post
+title: qmailであるドメインへ送るメールだけ配送しない方法
+mt_id: 685
+date: 2006-06-13 12:58:21.000000000 +09:00
+author: clouder
+category: Unix
+---
+この方法の最終結論は<a href="#result">こちら</a><br /><br />
+
+仕事で、あるドメインに配送するメールだけ/dev/nullとかにリダイレクトする(要は闇に葬る)という要件があって、その方法を探していました。<br /><br />
+
+SMTPサーバに送る前にプログラムでハジけってはなしなのですが、今回はSMTPサーバに送ってしまった後でリモート配送するときにハジきたいということで、いろいろ調べてみたのですが、qmailだけで解決する最適なソリューションがみつかりませんでした。<br /><br />
+
+ということで下記のPerlで作ったダミーのSMTPサーバを立ち上げて、smtproutesに「example.com:localhost:26」と書いて、ダミーSMTPサーバに流すようにしました。<br /><br />
+
+qmailだけで解決する方法を知ってる方がいたら教えてください！
+
+<pre class="code">use strict;
+use Net::SMTP::Server;
+use Net::SMTP::Server::Client;
+use Carp;
+
+my $server = new Net::SMTP::Server('localhost', 26) ||
+    croak("Unable to handle client connection: $!\n");
+
+while(my $conn = $server->accept()) {
+    my $client = new Net::SMTP::Server::Client($conn) ||
+        Carp::croak("Unable to handle client connection: $!\n");
+    $client->process;
+}</pre>
+
+<div style="color: #F00">追記(Tue Jun 13 15:13:13 2006)</div>
+id:hideokiさんから、localsでローカル配送にしてvirtualdomainsでvpopmailに渡せばいけるんじゃね？ということ。なるほど。vpopmailあればそれでいけそう。あと、もしかしたらvpopmailがなくてもいけそうな気がしないでもない。<br /><br />
+
+<div style="color: #F00">追記(Tue Jun 13 15:20:43 2006)</div>
+vpopmailの解決方法でできました。おぉ。<br />
+今vpopmailなしで、qmail単体でできないか試しちう。<br /><br />
+
+<a name="result"></a><div style="color: #F00">最終結論(Tue Jun 13 15:26:17 2006)</div>
+1. localsに葬りたいドメイン(example.comとか)を書く<br />
+2. virtualdomainsに「example.com:foo」と記述しておく<br />
+3. /var/qmail/alias/.qmail-foo-default に # とだけ記述しておく<br />
+<br />
+これだけでやりたいことできました。最初のダミーSMTPサーバのプログラムなんていらねー！<br />
+Perlでなんでも解決しようとする悪いクセだな…。
+ 

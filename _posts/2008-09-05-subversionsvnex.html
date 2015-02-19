@@ -1,0 +1,34 @@
+---
+layout: post
+title: Subversionのsvn:externalsというプロパティ
+mt_id: 1061
+date: 2008-09-05 15:17:07.000000000 +09:00
+author: clouder
+category: Software
+---
+<pre class="command">Fetching external item into 'path/to/example'
+Updated external to revision 12345.</pre>
+
+Subversionを使ってて「svn update」するとよく上記のようなのがでることがあるんだけど、今までどっか別のライブラリ取ってきてるんだろうなぐらいのことはわかってたんだけど、ちゃんと知らなかったので調べてみた。<br /><br />
+
+さっそぐググってみると、これはSubversionのsvn:externalsというプロパティの機能らしく、たとえば自分のプロジェクトのリポジトリ内で他のプロジェクトのライブラリを使いまわしたいときなどに、このプロパティを設定しておくだけで、あたかも自分のプロジェクトの中にあるライブラリのようにsvn updateコマンドで他のプロジェクトのライブラリを更新してくれるというものらしい<br /><br />
+
+で、具体的な使い方なんだけど、たとえば自分のプロジェクトのextlib/の中にotherprojという名前でhttp://svn.example.com/repos/otherproj/trunkをひもづけたいと思ったら、<br />
+
+<pre class="command">&#37; svn propset svn:externals 'otherproj http://svn.example.com/repos/otherproj/trunk' extlib
+property 'svn:externals' set on 'extlib'</pre>
+
+とかやればいい。この状態でsvn updateするとextlib/otherprojが更新されるようになります。<br /><br />
+
+このプロパティを消すには以下のようにすればOK。<br />
+
+<pre class="command">&#37; svn propdel svn:externals extlib
+property 'svn:externals' deleted from 'extlib'.</pre>
+
+ちなみに、そのディレクトリにどんなプロパティが設定されているか確認したければ以下のようにproplistコマンドでわかります。<br />
+
+<pre class="command">&#37; svn proplist -v extlib
+Properties on 'extlib':
+  svn:externals : otherproj http://svn.example.com/repos/otherproj/trunk</pre>
+
+<br />

@@ -1,0 +1,16 @@
+---
+layout: post
+title: cronolog
+mt_id: 150
+date: 2003-11-27 16:40:15.000000000 +09:00
+author: clouder
+category: Unix
+---
+<blockquote class="quote"><a title="cronolog.org" href="http://www.cronolog.org/" target="_blank">cronolog.org</a>
+
+Welcome to cronolog.org, the home of the cronolog web log rotation program.</blockquote>
+よく、apacheとかのlogをうっかりローテートさせてなくて、ぬあー分割するスクリプト書くのめんどくせーってときにこれを使うと便利。このcronologに一緒に付いてくるcronosplitってのでさくっと日別に分割してくれます。
+
+&#37; cronosplit --template "access_log.&#37;Y&#37;m&#37;d" access_log
+
+でいっちょあがり。 

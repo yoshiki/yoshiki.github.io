@@ -1,0 +1,43 @@
+---
+layout: post
+title: Gearmanのあれ
+mt_id: 998
+date: 2007-09-29 13:57:07.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000997.html">例のGearmanのあれ</a>ですが、naoyaさんが調べてくれてます(<a href="http://naoya.g.hatena.ne.jp/naoya/20070929/1191038378">Gearmanのやつ</a>、<a href="http://naoya.g.hatena.ne.jp/naoya/20070928/1190974874">Gearmanのやつ#2</a>)。<br /><br />
+
+とりあえず、問題となる箇所をsysread()ではなく、recv()でMSG_WAITALLをすることにより64kb以上のデータでも問題のなく取得できることを確認しました。すげー。<br /><br />
+
+変更は下記のような感じにしました。ほぼnaoyaさんが書いた修正案そのままです。<br /><br />
+
+<pre class="code">--- Util.pm.old 2007-06-30 06:40:24.000000000 +0900
++++ Util.pm.new 2007-09-29 13:55:10.278878000 +0900
+@@ -1,6 +1,7 @@
+
+ package Gearman::Util;
+ use strict;
++use Socket; # for MSG_WAITALL
+
+ # I: to jobserver
+ # O: out of job server
+@@ -100,8 +101,10 @@
+     return $err->("malformed_magic") unless $magic eq "\0RES";
+
+     if ($len) {
+-        $rv = sysread($sock, $buf, $len);
+-        return $err->("short_body") unless $rv == $len;
++        $rv = recv($sock, $buf, $len, MSG_WAITALL);
++        die $! if not defined $rv;
++        my $buflen = length $buf;
++        return $err->("short_body") unless $buflen == $len;
+     }
+
+     $type = $cmd{$type};</pre>
+<br />
+
+まぁ、あと問題なのはnaoyaさんが書いている通り、$lenに不正に大きい値を入れられた時の処理や、これを修正したことによるGearman全体でのバランスとかパフォーマンスなどがどの程度影響を受けるのかといったところでしょうか。<br /><br />
+
+今度はパフォーマンス的にどうなのか、他に影響がないのかなどを調べてみたいと思います。<br />
+ 

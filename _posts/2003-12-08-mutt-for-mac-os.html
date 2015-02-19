@@ -1,0 +1,26 @@
+---
+layout: post
+title: muttのススメ for Mac OS X
+mt_id: 154
+date: 2003-12-08 10:54:48.000000000 +09:00
+author: clouder
+category: Mac
+---
+最近MUAをmuttに変えました。なんでかっていうと、wanderlustが異常に遅いからである。
+ということで、muttに変えるプロセスを公開してこれからMac OS Xでmuttを使おうって人がこのページを見てもらって、役に立てればなと思います。前提として、Mac OS X にだけ必要なことを書こうと思います。 
+・muttのコンパイル
+
+<a href="http://www.emaillab.org/mutt/">http://www.emaillab.org/mutt/</a>
+ここで1.5のバージョンの mutt-1.5.5.1i.tar.gz と日本語化パッチの mutt-1.5.5.1i-ja.1.beta.tar.gz をダウンロードしてくる。そしてそれぞれ解凍。そしてマニュアルを見てパッチをあてる。
+(前提として、finkで、iconvをインストールしておきましょう)
+configure のオプションは以下でいけると思います。
+
+&#37; ./configure  --enable-default-japanese --enable-imap --enable-iconv --without-wc-funcs --enable-locales-fix --libdir=/sw/lib --includedir=/sw/include
+&#37; make
+
+無事、configure と make が通れば、root で make install をする。
+
+&#37; sudo make install
+
+・設定
+

@@ -1,0 +1,29 @@
+---
+layout: post
+title: Symbol::gensym
+mt_id: 267
+date: 2005-01-28 02:33:12.000000000 +09:00
+author: clouder
+category: Perl
+---
+perlでSymbol::gensymってのがあるのを知らなかった。
+どうやら、ファイルを開くときなどに無名ハンドルを作りたいときなどに使用するようだ。
+使い方は下記のような感じです。
+
+<pre class="code">
+foreach $filename (@names) {
+    use Symbol;
+    my $fh = gensym();
+    open($fh, "/etc/$filename") || die "open /etc/$filename: $!";
+    $file{$filename} = [ $i++, $fh ];
+}
+</pre>
+
+これで、多分使うとしたら、
+
+<pre class="code">
+print $file{foo}->[0] "example text";
+</pre>
+
+とかで扱うのかな。
+なるほど、今度使ってみよう。 

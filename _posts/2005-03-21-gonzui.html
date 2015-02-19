@@ -1,0 +1,27 @@
+---
+layout: post
+title: gonzuiを使ってみる
+mt_id: 363
+date: 2005-03-21 00:18:21.000000000 +09:00
+author: clouder
+category: Software
+---
+<blockquote><a title="gonzui: ソースコード検索エンジン" href="http://gonzui.sourceforge.net/" target="_blank">gonzui: ソースコード検索エンジン</a>
+
+gonzui はソースコード検索エンジンです。 オープンソースのソフトウェア開発に役立てることを目的としてい ます。
+
+現在、gonzui はベータ版 です。</blockquote>gonzuiを使ってみた。rubyは最新の1.8.2以上じゃないとだめみたい。あと<a href="http://raa.ruby-lang.org/project/bdb/" target="_blank">bdb</a>という<a href="http://raa.ruby-lang.org/" target="_blank">RAA</a>が必要。(RAAはperlで言うところのCPANのようだ)
+
+Mac OS Xに入れてみた。Mac OS Xはrubyがデフォルトで入っているけど、自分のマシンのrubyはバージョンが1.6.8だったので最新のrubyをmakeしてインストール。普通に./configure && make && make installすると、/usr/local/bin/rubyに入る。デフォルトで入っているrubyは/usr/bin/rubyなのでごっちゃになる。とりあえず/usr/bin/rubyを/usr/bin/ruby-にmvして、bdbをインストールする。(このインストールが一番時間かかった…)その後やっとgonzuiをインストール。
+ 
+やっとインストールして、会社のCVSをgonzui-importしようと思ったがこれって結局のところソースを全部checkoutするのでそれだけのディスクスペースが必要となる。それには自分のマシンではぜんぜんディスク容量が足りず…。この辺上手くいかないもんだろうか。
+
+とりあえず、どれかてきとうなモジュールをcheckoutしてgonzui-importしてみた。そして検索をしてみる。結構いい感じである。関数の検索とか便利。いろいろと検索方法があるようだが、まだまだ使いこんでないので関数検索とか文字列検索ぐらいしかつかってない…。
+
+gonzuiにはgonzui-serverというのがあるらしく、それでローカルホストに検索サーバが立ち上がる。それにw3mでアクセスしてみると文字化け…。あら？と思ったら文字コードがUTF-8じゃないでつか。自分のw3mはUTF-8対応してないので諦める。
+
+でもなんとなくわかった。使い道として考えられるのは、昔こんな関数つくったけどどこだっけなー…ってときに、grep -r funcname . とかで自分の案件のソースをCVSからcheckoutしてきたとこでやることなしに検索できるようになるって感じかなぁ。あればあるで便利だ。
+
+でも問題はディスクスペース。まだぜんぜんドキュメントを読んでないので、もしかしたらなんかいい方法があるのかもな。
+
+あと、宮川さんがperl対応していたのでそれもあとで試してみようと思う。

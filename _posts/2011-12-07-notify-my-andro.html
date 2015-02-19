@@ -1,0 +1,56 @@
+---
+layout: post
+title: Notify My Androidでim.kayac.comの通知を受け取る方法
+mt_id: 1143
+date: 2011-12-07 15:05:29.000000000 +09:00
+author: clouder
+category: Android
+---
+先日メインで使ってるDoCoMoのフィーチャーフォンをGalaxy Nexusに機種変したのですが、それまでiPhoneで受け取っていたim.kayac.comの通知をAndroidでも受け取りたくなったのでどういう方法があるのか調べてみました。<br><br>
+
+im.kayac.comはGoogle Talk(Jabber)でも通知ができるので、やるとしたらその方向しかないんだろうなぁと思いつつググってみると案の定Google Talkのアプリで通知を受け取るっていう記事がいくつかみつかりました。<br><br>
+
+でも、なんか「素のGoogle Talkで通知を確認するのはなんかクールじゃない！」<br><br>
+
+と思っちゃったので、それ以外の方法ないのかといろいろ探してみたらみつかりました。<br>
+(みつかったというかアプリを利用して足りない部分は自分で作ったんですが...)<br><br>
+
+簡単に方法を説明しちゃうと、自前でXMPPのクライアントを立てて、im.kayac.comからの通知を「Notify My Android」っていうNotify専用のアプリに流すという方法です。<br><br>
+
+簡単に書くとこんな感じ。<br>
+<pre>[im.kayac.com] -> [XMPP client] -> [Notify My Android]</pre><br><br>
+
+ちなみにNotify My Androidは有料です。<br>
+有料だけど、今回この実装をやってみたら買う価値はあるかなと。<br>
+缶ビール2本我慢すれば買える値段ですし(※お酒はあまりのみませんが！)。<br><br>
+
+ってことで手順を説明します。<br><br>
+
+<ul>
+<li>AndroidマーケットでNotify My Androidを購入し、Notify My Androidのサイトでアカウント登録とAPI Keyの発行を済ませておく。</li>
+<li>以下のスクリプトを使って、im.kayac.comのGoogle Talkのアクティベーションします。<br>
+実行にはAnyEvent::XMPPのインストールと、pitを使ってgtalkって名前で設定(usernameとpassword)を追加しておく必要があります。<br><br>
+
+<script src="https://gist.github.com/1441510.js?file=register.pl"></script>
+
+実行は引数にim.kayac.comで発行されたアクティベーションコードを渡すだけ。
+<pre class="command">&#37; ./register.pl アクティベーションコード
+session ready at ./register.pl line 27.
+connected at ./register.pl line 31.message from api@im.kayac.com/123456: Your jabber account has been activated! at ./register.pl line 36.</pre>
+</li>
+<li>あとは以下のスクリプトを起動するだけです。<br>
+実行にはWebService::NotifyMyAndroidのインストールと、pitを使ってnma(Notify My Androidの略)って名前で設定(apikey)を追加しておく必要があります。<br><br>
+
+<script src="https://gist.github.com/1441510.js?file=server.pl"></script>
+
+実行は普通に以下な感じ。
+<pre class="command">&#37; ./server.pl &</pre>
+ちなみに、
+<pre class="command">request to https://nma.usk.bz/publicapi/verify?apikey=YOUR_API_KEY failed at ./server.pl line 19</pre>
+とかでる人はLWP::Protocol::httpsが入ってないからだと思います。
+</li>
+</ul>
+
+これでサーバさえちゃんと動いてたら、Notify My Androidに通知が来るはずです。
+
+興味ある方がいたらやってみてください。 

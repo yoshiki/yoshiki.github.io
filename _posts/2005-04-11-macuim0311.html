@@ -1,0 +1,29 @@
+---
+layout: post
+title: MacUIM0.3.1-1リリース
+mt_id: 378
+date: 2005-04-11 09:29:13.000000000 +09:00
+author: clouder
+category: Mac
+---
+<blockquote><a title="[Macuim-dev 57] MacUIM 0.3.1-1 リリース" href="http://www.digital-genes.com/~yatsu/macuim/" target="_blank">[Macuim-dev 57] MacUIM 0.3.1-1 リリース</a>
+
+MacUIM 0.3.1-1 をリリースしました。 http://sourceforge.jp/projects/macuim/files/?release_id=14257#14257
+ [変更点]
+ * Adobe Reader, VirtualPCが異常終了する不具合の修正 
+* 文節のアトリビュートが適切でなかったのを修正 
+* ダミーモードの実装(Mac OS X本来のモードはダミーとした) 
+* USキーボードの場合もキー入力1回で日本語入力できるようになった 
+* パスワード入力エリアでMacUIMが無効にならないようになった 
+* 環境設定にuim設定を追加 
+* uim-ximと同時に使ったときにヘルパーの表示が混乱するのを修正 
+* 環境変数 HOME が取得できない場合、uimを使用せず、直接入力とした 
+* uim-xim, uim-fepを同梱(動作未確認)
+
+ また、Mac OS X本来のモードに対応した代償として、モードティップス の信頼性が低下しています。むりやり以前と同じ動作をするようにして みましたが、動作が遅いマシンや異常に速いマシンで使用したときに、 正しく表示されないかもしれません(その場合は諦めて無効にしてくだ さい)。</blockquote>自分の今のメインマシンはWindowsですが、Mac OS Xもサイドに置いて使っていて、そちらのIMはskkベースのなにかをここ数年使っています。以前は、AquaSKkを使わせて頂いていたのですが、新し物好きな性分ゆえ、今はMacUIMをメインに使っています。
+
+そのMacUIMが久々(4ヶ月ぶりぐらい)にリリースされました。今でもぜんぜん実用に耐え得るものですが、リリースが続くということは開発が活発だということでいいことですよね。
+
+MacUIMの使用感ですが、普通にemacsはskkと同じように使用できるので、それだけで大満足です。
+
+ちなみに、自分のIMは、emacsは<a href="http://openlab.jp/skk/index-j.html" target="_blank">skk</a>、windowsでは<a href="http://www.tatari-sakamoto.jp/~tatari/skkime.jis.html" target="_blank">skkime</a>、macではMacUIMな感じです。一時期screen上では、<a href="http://www.daionet.gr.jp/~knok/screen/uim.html" target="_blank">screen-uim</a>を使っていたのですがemacsぐらいしか使わないので今はやめています。。。(今知りましたが、screen-uimは<a href="http://freedesktop.org/Software/uim" target="_blank">uim</a>に統合されたみたいですね)IMって今後はuimに収束していくんでしょうかねぇ。 

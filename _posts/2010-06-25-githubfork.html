@@ -1,0 +1,23 @@
+---
+layout: post
+title: githubでforkしたあとに元のリポジトリの更新を取り込む方法
+mt_id: 1129
+date: 2010-06-25 12:10:04.000000000 +09:00
+author: clouder
+category: Git
+---
+githubとかで他の人のリポジトリをforkしたあとに、元のリポジトリの更新を取り込む方法。<br />
+
+<pre class="code">$ git remote add foo git://元のリポジトリ
+$ git fetch foo
+$ git merge foo/master</pre>
+
+これでいける。<br />
+たぶん他にも方法はあると思うんだけど<br /><br />
+
+追記(2010-06-25)<br />
+lestrratさんから<br />
+git pull foo でいけますお。 その前にgit checkout -b for_merge したほうが安全だと思うけど。 <br /><br />
+
+との返信を頂いた。<br />
+なるほど、その方が簡単ですね。 

@@ -1,0 +1,17 @@
+---
+layout: post
+title: Catalyst::Plugin::MobileAgentを修正してCPANにアップした
+mt_id: 1008
+date: 2007-10-16 00:19:23.000000000 +09:00
+author: clouder
+category: Perl
+---
+・<a href="http://www.geminium.com/chiba_blog/2007/06/07/7/">Catalystで携帯端末ID取得</a>
+・<a href="http://kokogiko.net/m/archives/002076.html">Catalyst::Plugin::MobileUserIDがそのままでは動かなかった</a>
+
+この辺で言われている件を修正しました。
+修正内容は千葉さんのブログにある通り$c-&gt;req-&gt;user_agentを$c-&gt;req-&gt;headersにしただけです。
+
+CPANでインデックスが更新されるまで待てない方は↓こちらからどうぞ。
+<a href="http://svn.clouder.jp/repos/public/Catalyst-Plugin-MobileAgent/trunk/">http://svn.clouder.jp/repos/public/Catalyst-Plugin-MobileAgent/trunk/</a>
+ 

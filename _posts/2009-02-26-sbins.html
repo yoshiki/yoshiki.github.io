@@ -1,0 +1,30 @@
+---
+layout: post
+title: sbinのsってなによ
+mt_id: 1103
+date: 2009-02-26 12:42:47.000000000 +09:00
+author: clouder
+category: Unix
+---
+sbinのsってなんだろうと気になったので調べてみた。
+
+結論から言うと下記のように<b>System BINary</b>のことでした。
+Wikipediaの<a href="http://en.wikipedia.org/wiki/Sbin">この辺</a>にも書いてありますね。
+
+<blockquote class="quote">http://momox.net/blog/2007/02/bin_sbin_lib_libexec.html<br/><br/>＜ディレクトリ名の意味＞<br />
+bin -- binary 実行可能なプログラムのこと。<br />
+sbin -- system binary システム管理者が主に使用するプログラム。<br />
+lib　　　-- ライブラリ--同じ階層のbinとかsbinのプログラムが使う関数（プログラムの断片）<br />
+libexe -- プログラムが使うプログラム</blockquote>
+
+
+よくサービスとかパッケージのディレクトリ内でbinとsbinって作って使い分けてたりするけど自分の中でいまいちその棲み分けができていない。
+
+cronとかに設定するのはsbin？
+コマンドラインで実行するのはbin？
+とかばっくり自分基準があるけど、この基準も合ってるか怪しい。
+
+こんな基準のやってるよ！ってのがあったら教えて欲しいです。
+
+あとlibexecとかもあるけど、これもなにを置くか微妙で「プログラムが使うプログラム」はこの中みたいですね。ぱっと思いつくので言うとmysqldとかがlibexecに置いてあったりしますね。
+ 

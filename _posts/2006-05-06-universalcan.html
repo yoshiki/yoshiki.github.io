@@ -1,0 +1,46 @@
+---
+layout: post
+title: UNIVERSAL::can なんてあるのね
+mt_id: 676
+date: 2006-05-06 00:54:42.000000000 +09:00
+author: clouder
+category: Perl
+---
+A というすでにいろんなメソッドが定義されているクラスがあって、その中に foo っていうメソッドがすでにあったとします。で、その A というクラスを継承した B というクラスを作ったとして、でもあるプログラムで B のインスタンスを生成して $b->can('foo') ってやったときだけ真にならない(他のメソッドが呼ばれたときは真にする)方法ってないかということで先日 id:nipotanや id:ikebe と話をしていたところ、<a href="http://search.cpan.org/dist/UNIVERSAL-can">UNIVERSAL::can</a> なるものをみつけた。これを使えばやりたいことはできるのではという話になりました。<br /><br />
+
+UNIVERSAL::can はなにをするもんかというと、それを use したクラスに can というメソッドを定義すれば、そのクラスのインスタンスに対して $instance->can('hoge') ってやると、そのクラスに定義した can が使われるというものだそうで、これを上手く上記の問題に照らし合わせると。。。<br /><br />
+
+B というクラスで、
+
+<pre class="code">sub can { $_[1] eq 'foo' ? undef : UNIVERSAL::can($_[0], $_[1]) }</pre>
+
+という風に can を定義しておけば、やりたいことができるんじゃないかと。<br />
+テストコードの全容は下記のような感じです。これを実行すると $b->can('foo') は false なので sub foo { warn &quot;foo&quot; } は実行されず、$b->can('bar') はコードリファレンスが返されるので sub bar { warn &quot;bar&quot; } が実行されます。<br /><br />
+
+<pre class="code">#!/usr/local/bin/perl
+use strict;
+
+package a;
+
+sub new { bless {}, shift }
+sub foo { warn &quot;foo&quot; }
+sub bar { warn &quot;bar&quot; }
+
+package b;
+
+use base qw(a);
+use UNIVERSAL::can;
+
+sub can { $_[1] eq 'foo' ? undef : UNIVERSAL::can($_[0], $_[1]) }
+
+package main;
+
+my $b = b-&gt;new;
+$b-&gt;can('foo') && $b-&gt;can('foo')-&gt;();
+$b-&gt;can('bar') && $b-&gt;can('bar')-&gt;();
+</pre>
+
+これ他にやりかたあるんだろうか…。ちなみに、普通の can は perldoc UNIVERSAL とやると説明が書いてあるというのも初めて知りました。。。
+
+<div style="color: #ff0000;">追記</div>
+コメントにありますが、当初やりたかったことは B のクラスに sub can {} を定義してやれば $b-&gt;can() って呼んでやるのであれば解決するという結論になりました。UNIVERSAL::can() を使う場合には UNIVERSAL::can モジュールを use してやる必要があるようです。 

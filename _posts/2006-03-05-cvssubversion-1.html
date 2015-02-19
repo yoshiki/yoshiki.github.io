@@ -1,0 +1,82 @@
+---
+layout: post
+title: cvsからsubversionに移行するときにやったこと その1
+mt_id: 639
+date: 2006-03-05 23:03:07.000000000 +09:00
+author: clouder
+category: Software
+---
+ずっとやろうと思っていた cvs から subversion への移行を今年の初めの頃にやったので、その時にやったことを書きます。
+<a href="#reference">(※参考にしたページを一番下に記しておきますのでそちらもご覧ください)</a>
+<ul>
+<li>svnのインストール</li>
+これは他の方が書いていると思いますのでそちらを参照してください(ｵｲ
+
+<li>cvsからsvnへリポジトリの移行</li>
+これは<a href="http://cvs2svn.tigris.org/">cvs2svn</a>というpythonのスクリプトがあるので、それを使いました。
+<pre class="command">&#37; cvs2svn -s /path/to/svn/repos /path/to/cvs/repos</pre>
+これで /path/to/cvs/reposにあるcvsのリポジトリが、/path/to/svn/reposにsvnのリポジトリとして変換されます。
+これはサクっといくと思います。
+
+<li>subversion流に管理するために一旦ダンプする</li>
+ここまででも、まぁ使えなくはないですが、subversion流に管理した方がいいと思いそのための変換を行ないました。subversion流というのは、下記のようにあるプロジェクトの下にはtrunk、tags、branchesというディレクトリを作るものです。
+
+<pre>-project
+--trunk
+--tags
+--branches</pre>
+
+まず先程/path/to/svn/reposとしたのですが、これを一旦ダンプします。
+
+<pre class="command">&#37; svnadmin dump /path/to/svn/repos &gt; dump</pre> 
+
+<li>パスの変換</li>
+次にdumpファイルの中の「Node-path: trunk/project」という部分を、「Node-path: project/trunk」に変えます。変更の方法はperlのワンライナとかで一発で変換しました。コマンドは下記。
+
+<pre class="command">&#37; perl -pi -e 's|Node-path: trunk/([^/]*)|Node-path: $1/trunk|' dump</pre>
+
+ちなみにこの場合は cvs で管理していたときの最上位の階層でプロジェクトを管理していた際の話です。つまり下記のようなとき。
+
+<pre>-/path/tocvs/repos
+--project1
+--project2
+--project3</pre>
+
+もし、
+
+<pre>-/path/tocvs/repos
+--foo
+---project1
+---project2
+--bar
+---project3
+---project4</pre>
+
+とかなっていたときは、「Node-path: trunk/foo/project1」を「Node-path: project1/trunk」もしくは「Node-path: foo/project1/trunk」とかしたらいいんじゃないでしょうか。これは自分がやりたいようにNode-pathを変換してください。
+
+<li>プロジェクトの取捨選択</li>
+もう1つTipsとして、今まで cvs では管理していたプロジェクトを subversion では管理したくない、もしくは subversion では別のリポジトリとして管理したいという場合があると思います。その際に役立つ svndumpfilterというコマンドがありまして、これを使うと dump ファイルの中で指定したプロジェクトのコミット情報をすべて省いたり、もしくは、それだけを取り出すことができたりします。例えば trunk/project1 だけを subversionで管理したい場合には、dump ファイルに対して下記のコマンドを発行したら、それだけのダンプが生成されます。
+
+<pre class="command">&#37; svndumpfilter include 'trunk/project1' &lt; dump &gt; project1.dump</pre>
+
+サブコマンドは含めたい場合は include、省きたい場合は exclude を指定できます。また、trunk/project1は Node-path の部分を指定します。正規表現や部分一致は対応してないようです。
+
+これで dump ファイルを好きなようにいじったら、あとは subversion 用のリポジトリを新たに作成してそこに dump ファイルを流し込むだけです。
+
+<li>ダンプの流し込み</li>
+流し込みは下記のようにやります。手順的にわかりづらいところはないかと思います。「svn mkdir project」というのは、作ろうとしているプロジェクトのディレクトリを先に作っておくのは、loadする時にコケるからのようです。自分で上記で変換した際のプロジェクト分 mkdir をしておきましょう。
+
+<pre class="command">&#37; svnadmin create /path/to/svn/newrepos
+&#37; svn co file:///path/to/svn/newrepos
+&#37; svn mkdir project
+&#37; svn ci -m "new directories"
+&#37; svnadmin load dump</pre>
+</ul>
+
+とりあえず、今回はここまで。次回はapache2でdavを使ったリポジトリの公開や、tracの立ち上げなどについて書きたいと思います。
+
+<strong><a name="reference">参考</a></strong>
+<a href="http://blog.bulknews.net/mt/archives/001790.html">http://blog.bulknews.net/mt/archives/001790.html</a>
+<a href="http://www.apache.org/dev/cvs2svn.html">http://www.apache.org/dev/cvs2svn.html</a>
+<a href="http://svnbook.red-bean.com/">http://svnbook.red-bean.com/</a>
+ 

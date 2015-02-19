@@ -1,0 +1,53 @@
+---
+layout: post
+title: Xcode4でCPANモジュールがコンパイルできない問題の解決方法
+mt_id: 1139
+date: 2011-04-04 18:56:51.000000000 +09:00
+author: clouder
+category: Perl
+---
+MacBook Airの11インチを遅ればせながら購入したclouderです、こんにちは。<br /><br />
+
+購入したその日にさっそく開発環境を整えようとXcode4を入れて、iPhoneアプリ開発を...と思いきや、Perlの開発を始めたんですが、いくつかのCPANモジュールがインストール(コンパイル)できないのに気付きました。<br /><br />
+
+コンパイル時のエラーは以下のようなもの。<br />
+
+<pre class="code">lipo: can't open input file: /var/tmp/hoge.out (No such file or directory)</pre>
+
+どうやらXSなどのコンパイルが必要なモジュールでこの現象がおこっているようです。いろいろ調べてみたら、コンパイルオプションに「-arch ppc」があるのにppcのアーキテクチャのファイルが適切な場所にないからエラってしまうようです。<br /><br />
+
+なんでだよーと思いつつ、Xcode4のREADMEを見たら以下のような記述を発見。<br /><br />
+
+<blockquote>Xcode 4 does not support developing for PowerPC; you must continue to use Xcode 3.2.6 to develop applications for the PowerPC architecture. The Custom Install section below has instructions to install both Xcode 4 and Xcode 3.2.6 on the same Mac.</blockquote><br />
+
+「Xcode4じゃPowerPCのサポートしないぜよｗ」って書いてありますね。<br /><br />
+
+どうしようかなぁと思いつつ、その後もいろいろ調べてみたらこれに対する解決方法を2つ発見しました。<br /><br />
+
+1つはppcのアーキテクチャを無視してx86_64とi386だけでコンパイルしちゃう方法で、もう1つは(実は入っている)ppcのアーキテクチャのファイルを適切な場所に置いてしまうという方法があります。<br /><br />
+
+1つ目は、以下の環境変数を設定してコンパイルする方法。<br />
+
+<pre class="code">ARCHFLAGS='-arch i386 -arch x86_64'</pre>
+
+これをドットファイルに設定するとか<br />
+
+<pre class="command">$ env ARCHFLAGS='-arch i386 -arch x86_64' perl Makefile.PL</pre>
+
+とかすると問題なくコンパイルできます。<br />
+この方法は「perldoc perlmacosx」っていうpodに書いてあります。<br />
+こんなpodがあったんですね！知らなかったよ。<br /><br />
+
+そして、もう1つの方法は「<a href="http://blogger.splhack.org/2011/03/xcode4powerpc.html">Xcode4でPowerPC</a>」に書いてありました。<br />
+適切な場所に(実はインストールされている)ppcのアーキテクチャのファイルのシンボリックリンクをはるという方法です。<br />
+
+<pre class="command">$ sudo ln -s /Developer/Platforms/iPhoneOS.platform/Developer/usr/libexec/gcc/darwin/ppc /Developer/usr/libexec/gcc/darwin/
+$ sudo ln -s /Developer/Platforms/iPhoneOS.platform/Developer/usr/libexec/gcc/darwin/ppc /usr/libexec/gcc/darwin/</pre>
+
+どっちでも好きな方でいいと思うんだけど、個人的には後者の方法で対応しました。<br /><br />
+
+なお、この現象はXcode4が出る以前にXcodeをインストールしていた環境ではおこらないので、特定の人しかこの問題に遭遇しないかもしれません。<br /><br />
+
+困っている人がいたら、どっちかを試してみてください。<br /><br />
+
+ 

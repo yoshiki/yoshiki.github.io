@@ -1,0 +1,29 @@
+---
+layout: post
+title: 最近のモジュールで使われているModule::Install::AuthorTestsとは
+mt_id: 1078
+date: 2008-11-13 12:11:18.000000000 +09:00
+author: clouder
+category: Perl
+---
+最近Perlモジュールをperl Makefile.PLするときに<br /><br />
+
+<pre class="command">syntax error at Makefile.PL line 12, near "author_tests 'xt'"</pre><br />
+
+って出るときがあるんだけど、これはModule::Install::AuthorTests<br />
+というモジュールをインストールしておけばエラーは出なくなります。<br /><br />
+
+モジュールの使い方はPODを見てもらうとして、このモジュールはなんのために<br />
+あるかというとモジュールの作者がモジュールを作ってる最中だけテストをしたい<br />
+場合などにこのモジュールを使うことで作者だけのテストを仕込めるようにするためみたい。<br /><br />
+
+で、このモジュールは$Module::Install::AUTHORがtrueの時だけ<br />
+動くようになっていて、$Module::Install::AUTHORってのは<br />
+「<a href="http://blog.clouder.jp/archives/001006.html">Module::Installを使ったプロジェクトのincディレクトリについて</a>」<br />
+の時にも書いた「inc/.author」というディレクトリがあるかないかで変わります。<br /><br />
+
+つまり普通にCPANからモジュールを落して使う分には気にしなくていいと<br />
+思いますが<a href="http://coderepos.org/">CodeRepos</a>などにある<br />
+モジュールをインストールするときには必要になってくるということですね。<br /><br />
+
+ 

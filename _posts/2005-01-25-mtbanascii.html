@@ -1,0 +1,97 @@
+---
+layout: post
+title: MTBanASCII導入
+mt_id: 264
+date: 2005-01-25 12:36:22.000000000 +09:00
+author: clouder
+category: MovableType
+---
+<blockquote><a title="MTBanASCII: コメントSPAM対策を MT3 に移植: blog.bulknews.net" href="http://blog.bulknews.net/mt/archives/001508.html">MTBanASCII: コメントSPAM対策を MT3 に移植: blog.bulknews.net</a><br />
+ということで MT3.1 の CommentFilter コールバックを利用して、ASCII or Latin-1 のコメントを拒否またはモデレートするプラグイン MTBanASCII を作成しました。</blockquote>
+<br />
+導入してみました。<br />
+<br />
+今までTypeKeyに登録している方しか受け付けないようにしていたのですが、<br />
+どうもコメントが激減してしまいました…。<br />
+というか、TypeKey導入後はほぼ同じ3人の方(自分も含め(笑))しかコメントしてくれません。<br />
+<br />
+コメントが書かれない理由としては「TypeKeyを打つのが面倒」、「そもそもTypeKeyの認知度が低い」
+というのが挙げられそうです。<br />
+あ、あと1つ、<div style="font-weight:bold;">「記事がコメントするまでの記事ではない…」</div>;-)<br />
+<br />
+上記の理由なのだとは思うのですが、コメントが少ないと書いてる側としても<br />
+淋しい気持ちになるのでどうしようかと思っていたところ、<br />
+<a href="http://blog.bulknews.net/mt/" target="_blank">宮川さん</a>がのASCII banのプラグインを公開していたので早速導入をしてみた。<br />
+これはコメントがASCIIかLatin-1だったらspamと判定して書き込みを出来なくしたり、モデレートにしてしまうプラグインとなっています。<br />
+<br />
+んで早速インストール。<br />
+でも、ちゃんとpluginsディレクトリに置いたのですがどうもうまくいかないのでいろいろと調べてみたら<br />
+どうやら、テキスト判定がうまくできてないことがわかった。<br />
+ 
+<br />
+テキストのASCII or Latin-1の判定が自分の環境ではうまくいかなかったので、<br />
+下記のようにutf8::decode()を使ってutfフラグをonにするように変更を加えました。<br />
+<br />
+<code>my $text = $comment->text;</code><br />
+↓<br />
+<code>my $text = utf8::decode($comment->text);</code><br />
+<br />
+＃ちなみに、Encode::decode_utf8()でも同様に動くようです。<br />
+＃いまだにこのutfフラグがいまいちわかってない…。<br />
+<br />
+
+ということで、TypeKeyとかいらなくなったので、じゃんじゃんコメント下さい。<br />
+ソース全体は下記です。<br />
+って元ソースから一行しか変えてませんが…。<br />
+<pre class="code">
+package MT::Plugin::BanASCII;
+# mt-ban-ascii.pl
+# - Deny or moderate ASCII or Latin-1 comments using MT3 CommentFilter API
+#
+# Author:  Tatsuhiko Miyagawa <miyagawa at bulknews.net>
+# License: same as Perl
+# Arranged by Yoshiki Kurihara <yoshiki at clouder.jp>
+#
+
+use strict;
+our $VERSION = "0.90";
+
+# 'deny' or 'moderate'
+our $Method = "moderate";
+
+use MT;
+use MT::Plugin;
+
+my $plugin = MT::Plugin->new({
+    name => "BanASCII v$VERSION",
+    description => "Deny or moderate ASCII or Latin-1 comments",
+});
+
+MT->add_plugin($plugin);
+MT->add_callback('CommentFilter', 2, $plugin, \&handler);
+
+sub handler {
+    my($eh, $app, $comment) = @_;
+    my $text = utf8::decode($comment->text);
+    if ($text =~ /^[\x00-\xff]+$/) {
+        $app->log("ASCII or Latin-1 comment from " .
+                  $app->remote_ip . ": " . $Method);
+        no strict 'refs';
+        return $Method->($app, $comment);
+    }
+    return 1;
+}
+
+sub moderate {
+    my($app, $comment) = @_;
+    $comment->visible(0);
+    return 1;
+}
+
+sub deny {
+    my($app, $comment) = @_;
+    return 0;
+}
+
+1;
+</pre>

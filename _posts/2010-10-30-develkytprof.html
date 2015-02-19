@@ -1,0 +1,61 @@
+---
+layout: post
+title: Devel::KYTProfがだいぶいい！
+mt_id: 1135
+date: 2010-10-30 23:47:25.000000000 +09:00
+author: clouder
+category: Perl
+---
+仕事でアプリのボトルネックを探しているという話をしたら、hideokiさんが<br /><br />
+
+「ＹＡＰＣ::Ａｓｉａ　２０１０ で ｃｈｏ４５ が紹介してた Devel::KYTProf がいいよー」<br /><br />
+
+って言ってたので、使ってみたらだいぶよかったのでご紹介。<br /><br />
+
+Devel::KYTProfの作者はid:onishiさんで、リポジトリは<a href="http://github.com/onishi/perl5-devel-kytprof">http://github.com/onishi/perl5-devel-kytprof</a>にあります。<br /><br />
+
+このモジュール、何ができるモジュールかっていうと(まぁcho45さんの発表動画見ればわかるのですが)、モジュール名とメソッド名を指定してやると、そのメソッドの処理にかかった時間をさくっと調べられるというものです。<br /><br />
+
+たとえば Foo::Controller::Bar の baz() って関数の処理時間が知りたかったら、そのアプリケーションのメインモジュールに
+
+<pre class="code">use Devel::KYTProf;
+Devel::KYTProf->add_prof( 'Foo::Controller::Bar', 'baz' );</pre>
+
+って書くことで、STDERRに
+
+<pre class="command">123.456 ms [Foo::Controller::Bar] baz() | Devel::KYTProf:100</pre>
+
+みたいな感じで処理時間とちょっとした情報が出力されます。よっぽどトリッキーなことしてるモジュールじゃない限り、これを使うことで処理時間を調べることができるはず。<br /><br />
+
+あとadd_prof() は、第3引数を渡すことができて
+
+<pre class="code">Devel::KYTProf->add_prof(
+    'Foo::Controller::Bar',
+    'baz',
+    sub {
+        my ( $orig, $self ) = @_;
+        return $self->foo_bar;
+    }
+);</pre>
+
+とやると処理時間と共に$self->foo_bar の値がSTDERRに出力されます。<br /><br />
+
+それ以外にも Devel::KYTProf->threshold( 100 ) とかやると、指定したものよりも処理時間がかかったもののみを出力するようにしたりと、いくつかのオプションが用意されています。<br /><br />
+
+ちなみに Devel::KYTProf は、デフォルトでIO関係でよく問題になるようなDBI、LWP::UserAgent、Cache::Memcached::Fast、MogileFS::Clientなどのモジュールの設定が最初からされていたりします。それ以外にも調べたいという場合に上記の設定を自分でしたらよいという感じになっています。<br /><br />
+
+なお今回、僕の場合はTTの[&#37; foo &#37;]の部分の速度が調べたかったので
+
+<pre class="code">Devel::KYTProf->add_prof(
+    'Template::Stash::XS',
+    'get',
+    sub {        my ($orig, $self, $ident, $args) = @_;
+        return ref $ident eq 'ARRAY' ? join(",", @$ident) : $ident;
+    }
+);</pre>
+
+こんな感じにしてみました。<br />
+まぁ、結局問題はそこじゃなかったんですけどね...。<br /><br />
+
+ということで、このDevel::KYTProfはかなりお手軽に細かい処理時間が調べられるので興味ある方は一度使ってみてはいかがでしょうか。<br />
+ 

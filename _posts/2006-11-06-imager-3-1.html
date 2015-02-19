@@ -1,0 +1,92 @@
+---
+layout: post
+title: Imagerを使おう - 第3回「文字を書く」
+mt_id: 721
+date: 2006-11-06 01:44:05.000000000 +09:00
+author: clouder
+category: Perl
+---
+ちょっと間があいてしまいましたが、第3回を公開します。今回は画像に文字を書く方法をご紹介したいと思います。(決っして熱が冷めたわけではないで、いやほんとにほんとにｗ)<br /><br />
+
+Imagerには、文字を書くためのモジュールとAPIが用意されていて使い方も簡単。それでいて、いろいろな細かい設定ができたりします。<br /><br />
+
+とりあえずサンプルコードと生成された画像を見てみましょう。<br />
+※ちなみに文字を書く(フォントを扱う)にはImagerの他にfreetype1.x(freetype2.xでもok)をインストールしておく必要があります。詳しくはImager::Fontを参照のこと。<br /><br />
+
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use Imager;
+
+my $string = "Let's use Imager.";
+my $font = Imager::Font->new(
+    file  => '/path/to/ImUgly.ttf',
+    color => '#000000',
+    size  => 20,
+);
+my $bbox = $font->bounding_box(string => $string); # 文字情報を取得
+my $img = Imager->new(xsize => $bbox->total_width, ysize => $bbox->font_height);
+$img->box(color => '#ffffff', filled => 1); # 背景を白くする
+$img->string(
+    font => $font,
+    text => $string,
+    x => 0,
+    y => $bbox->font_height + $bbox->descent,
+    aa => 1,
+);
+$img->write(file => 'font01.gif');</pre>
+<br />
+これで下記のように文字を書くことができます。<br />
+
+font01.gif<br />
+<img alt="font01.gif" src="http://clouder.jp/yoshiki/mt/archives/images/font01.gif" width="162" height="20" style="border: 1px solid #000000" /><br /><br />
+
+おおまかに処理を説明すると、Imager::Fontオブジェクトのインスタンスを生成($font)し、その後Imagerのインスタンスを生成、最後に$img->string() を使って文字を描画しています。どうです？簡単でしょ。<br /><br />
+
+さて、この説明だけだと意味不明だと思いますので、もうちょっと詳しく説明しましょう。<br /><br />
+
+まず、$fontに代入しているImager::Fontというのは、描画する文字のためのフォント情報のためのクラスで、上記のプログラムでは、描画に使うTrueTypeのフォントファイル、文字の色、そして文字のフォントサイズをしています。(フォントは、Imagerのパッケージに入っているフォントを使いました)<br /><br />
+
+次に、$font->bounding_box()という関数で、生成したImager:Fontのインスタンスで描画されるであろう文字の各情報(フォントの高さや横幅などなど)を取得しています。この情報はあとで空のイメージを生成する際の縦横幅などに必要となります。<br /><br />
+
+そして、そのbounding_boxの情報を元に描画しようとしている文字の縦横幅に合わせた空イメージ(Imagerクラスのインスタンス)を生成し、$img->string()関数でテキストの描画を指示しています。$img->string()では、描画のためのImager::Fontのインスタンス、描画するテキスト、描画する文字の左上の(x, y)座標、そしてaa(アンチエイリアス)処理をするかどうかのフラグを渡しています。<br /><br />
+
+これだけで文字を書くことができます。この文字はフォントさえあれば日本語も簡単に描画することができます。注意する点は文字コードをflaggedなutf-8で渡してやるだけです。実際に日本語を描画したコードと画像は以下です。<br /><br />
+
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use Imager;
+use Encode;
+
+my $string = decode('utf-8', 'Imagerを使おう');
+my $font = Imager::Font->new(
+    file  => 'sazanami-mincho.ttf',
+    color => '#000000',
+    size  => 24,
+);
+my $bbox = $font->bounding_box(string => $string);
+my $img = Imager->new(xsize => $bbox->total_width, ysize => $bbox->font_height);
+$img->box(color => '#ffffff', filled => 1);
+$img->string(
+    font => $font,
+    text => $string,
+    x => 0,
+    y => $bbox->font_height + $bbox->descent,
+    aa => 1,
+);
+$img->write(file => 'font02.gif');</pre>
+
+これで下記のように文字を書くことができます。<br />
+
+font02.gif<br />
+<img alt="font02.gif" src="http://clouder.jp/yoshiki/mt/archives/images/font02.gif" width="166" height="28" style="border: 1px solid #000000" /><br /><br />
+
+基本的にやっていることは最初のコードと同じです。違うところは、日本語の文字コードをflaggedなutf-8に変更して、日本語のフォント(今回日本語のフォントには<a href="http://wiki.fdiary.net/font/?sazanami">さざなみフォント</a>を使わせて頂きました)を使っているだけです。<br /><br />
+
+さて、Imagerでの文字も書く方法を紹介しましたが、いかがだったでしょうか。<br />
+次は、なにをやろう…。んー、んー、そうだなぁ、「イメージの各種情報を取得する方法」を書きたいと思います。<br /><br />
+
+次回はできるだけ早くやりたす。
+
+ 

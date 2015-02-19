@@ -1,0 +1,30 @@
+---
+layout: post
+title: Plagger を使ってカレンダーを携帯で見る
+mt_id: 682
+date: 2006-05-20 01:33:59.000000000 +09:00
+author: clouder
+category: Perl
+---
+今日会社の人と話してて、それ Plagger でできるんじゃね？ってことになってやってみた。いや別になんてことはなくて、30boxes とかのカレンダーサービスで管理しているデータを Plagger で取ってきて携帯で見られるようにするって話です。<br /><br />
+
+30box は自分のカレンダーのデータを RSS で吐いてくれるので、それを Plagger で取ってきて、 Publish::CHTML で携帯用に整形しているだけです。簡単やねぇ。<br />
+
+<pre class="code">plugins:
+  - module: Subscription::Config
+    config:
+      feed:
+          - url: http://30boxes.com/rss/12345/FooBar/24rj394fk093i30w409i4r/1/
+
+  - module: Aggregator::Simple
+
+  - module: Publish::CHTML
+    config:
+      title: 30boxes
+      work: /path/to/htdocs</pre>
+
+Google Calendar でもやろうと思ったけど、Google Calendar はデータを Atom で吐き出してるっぽいのですが、設定でタイムゾーンをちゃんと +09:00に設定してるのに吐き出された Atom のスケジュールの予定時間のタイムゾーンはそうなってない。<br /><br />
+
+DateTime系がまだよくわかってない部分もあるのですが、それをローカルのタイムゾーンに修正するためのフィルタも Plagger にはまだないっぽい(Filter::RSSTimeZoneStringやFilter::RSSLiberalDateTimeやFilter::FloatingDateTimeとかでできるかなと思ったが、違うっぽ(？))<br /><br />
+
+あとで調べて必要なら作ってみるかな。 

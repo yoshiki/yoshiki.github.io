@@ -1,0 +1,16 @@
+---
+layout: post
+title: bookmarklet文字数制限
+mt_id: 394
+date: 2005-05-06 01:57:56.000000000 +09:00
+author: clouder
+category: Technique
+---
+<blockquote><a title="川o・-・）＜2nd life - bookmarkletの文字数制限を無くす" href="http://d.hatena.ne.jp/secondlife/20050503/1115085179" target="_blank">川o・-・）＜2nd life - bookmarkletの文字数制限を無くす</a>
+
+bookmarkletを作るとき、IEでは500文字ちょい、Firefoxでは2000文字ぐらい(?)の文字数制限がある。また、作った後に一行にまとめたり、デバッグしたりも大変面倒。でもそれがとても簡単な方法でどうにでもなることをインターフェイス！インターフェイス！の人に教わった。</blockquote>上記にあるようにブラウザにはbookmarkletの文字数制限があります。それを回避する方法が書かれていたので、メモ。
+ようは、createElementでscriptタグのエレメントを作って、そのsrcをネットワーク上のURLに指定して、それを実行させるというものだ。これならばいくらでもjsを書くことができる。なるほどねぇー。
+
+これは<a href="http://naoya.dyndns.org/~naoya/mt/archives/001683.html" target="_blank">なおやさんのブログ</a>でも紹介されているように、jsのコードをある程度サーバ側でメンテナンスすることができるようになるので、便利かもしれません。
+
+ただこれはネットワークが繋がってなかったら動かないという弱点があるな。 

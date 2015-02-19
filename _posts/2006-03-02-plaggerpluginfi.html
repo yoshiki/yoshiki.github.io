@@ -1,0 +1,58 @@
+---
+layout: post
+title: Plagger::Plugin::Filter::AmazonAssociateIDShift - Plagger's Filter Plugin
+mt_id: 635
+date: 2006-03-02 01:24:09.000000000 +09:00
+author: clouder
+category: Perl
+---
+アグリゲートしてきた中にAmazonアソシエイトIDがあったら、それを自分のものに変えちゃいます。えぇえぇ、アサマシですわ。使用により生じた問題に対し、当方は一切責任を負いませんｗ<br />
+
+
+<pre class="code">package Plagger::Plugin::Filter::AmazonAssociateIDShift;
+
+use strict;
+use base qw( Plagger::Plugin );
+
+sub register {
+    my($self, $context) = @_;
+    $context-&gt;register_hook(
+        $self,
+        'update.entry.fixup' =&gt; \&amp;update,
+    );
+}
+
+sub update {
+    my($self, $context, $args) = @_;
+    my $body = $self-&gt;filter($args-&gt;{entry}-&gt;body);
+    $args-&gt;{entry}-&gt;body($body);
+}
+
+sub filter {
+    my($self, $body) = @_;
+    if ($self-&gt;conf-&gt;{associate_id}) {
+        my $url_re = qr#(http://www.amazon.co.jp/exec/obidos/ASIN/[^/]+/)[0-9a-z]+-\d{2}#;
+        $body =~ s#$url_re#$1 . $self-&gt;conf-&gt;{associate_id}#ieg;
+    }
+    $body;
+}
+
+1;
+
+__END__
+
+=head1 NAME
+
+Plagger::Plugin::Filter::AmazonAssociateIDShift - Shift from other's amazon associate id to your it
+
+=head1 SYNOPSIS
+
+  - module: Filter::AmazonAssociateIDShift
+    config:
+      associate_id: your_associate_id
+
+=head1 SEE ALSO
+
+L&lt;Plagger&gt;, L&lt;http://www.amazon.co.jp/&gt;
+
+=back</pre> 

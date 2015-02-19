@@ -1,0 +1,88 @@
+---
+layout: post
+title: Crypt::CBCのバージョンを2.15以下から2.17以上に上げるときは気を付けろ！
+mt_id: 1010
+date: 2007-11-09 21:44:19.000000000 +09:00
+author: clouder
+category: Perl
+---
+若干釣り気味のタイトルですが、Crypt::CBCの2.15がインストールされたサーバで<br />
+
+<pre class="code">
+my $cipher = Crypt::CBC->new({ key => 'foo', cipher => 'Blowfish' });
+warn $cipher->encrypt_hex( 'bar' );
+</pre>
+
+<br />
+とすると「53616c7465645f5fcf0eb6374be3c083823b5e4bd39192b0」などと暗号化されます。<br />
+で、これをdecrypt_hexすると、<br />
+
+<pre class="code">
+my $cipher = Crypt::CBC->new({ key => 'foo', cipher => 'Blowfish' });
+warn $cipher->decrypt_hex( '53616c7465645f5fcf0eb6374be3c083823b5e4bd39192b0' );
+</pre>
+
+<br />
+ちゃんと「bar」と復号化できます。あたりまえです。<br />
+ここで、同様にdecrypt_hexしたあとに、encrypt_hexするとどうなるでしょう。<br />
+
+<pre class="code">
+my $cipher = Crypt::CBC->new({ key => 'foo', cipher => 'Blowfish' });
+warn $cipher->decrypt_hex( '53616c7465645f5fcf0eb6374be3c083823b5e4bd39192b0' );
+warn $cipher->encrypt_hex( 'bar' );
+</pre>
+
+<br />
+こうすると最初のwarnで「bar」が、次のwarnで「53616c7465645f5fcf0eb6374be3c083823b5e4bd39192b0」が出力されます。<br />
+最初に暗号化したときと同じように暗号化されてるようですね。何回やっても同じ値が返されます。<br /><br />
+
+次に2.17がインストールされたサーバだとどうでしょう。<br />
+
+<pre class="code">
+my $cipher = Crypt::CBC->new({ key => 'foo', cipher => 'Blowfish' });
+warn $cipher->encrypt_hex( 'bar' );
+</pre>
+
+<br />
+こうすると「53616c7465645f5f241223b0d5e71b627c0d3cb07ffa6b88」と出力されます。1回目と値が違いますが、それは暗号に使う初期ベクトルを指定していないのでランダムに初期ベクトルが選択されるためです。<br /><br />
+
+ここで以下のようにします。<br />
+
+<pre class="code">
+my $cipher = Crypt::CBC->new({ key => 'foo', cipher => 'Blowfish' });
+warn $cipher->decrypt_hex( '53616c7465645f5f241223b0d5e71b627c0d3cb07ffa6b88' );
+warn $cipher->encrypt_hex( 'bar' );
+</pre>
+
+<br />
+1つ目のwarnは、2.15のときと同様に「bar」と表示されますが、2つ目のwarnでは「53616c7465645f5f31d2160e14111260cb2ed17d0cafde98」とまったく違う値が表示されるではありませんか。何回も実行すると毎回その都度違う値が出力されます。(もちろんdecrypt_hexしたらちゃんと「bar」になる値です)<br /><br />
+
+なんでかなーと思って<a href="http://search.cpan.org/src/LDS/Crypt-CBC-2.17/Changes">Changes</a>を見てみたら、<br />
+
+<blockquote>-The salt, iv and key are now reset before each complete encryption cycle. This avoids inadvertent reuse of the same salt.</blockquote>
+
+<br />
+と書いてありました。このsaltとivとkeyを毎回リセットするようになったのが原因じゃないかなと思っています。<br /><br />
+
+で、バージョンが違っても同じように暗号化/復号化ができるようにするにはどうしたらいいかと言うと、<br />
+
+<pre class="code">
+my $cipher = Crypt::CBC->new({
+    key => "foo",
+    cipher => "Blowfish",
+    iv => "12345678",
+    prepend_iv => 0,
+});
+warn $cipher->encrypt_hex("mdl12345678");
+</pre>
+
+<br />
+このように iv(8バイトの文字列) を固定で指定してやって、prepend_iv を false にしてやるとバージョンが違っても同じように暗号化/復号化ができるようです。しかも、iv と prepend_iv を指定してやったときよりも暗号化後の文字列が短い。(セキュリティの強度的には弱くなってるんじゃないかと思いますが…)<br /><br />
+
+ということで、もし2.15でこのように値が同じようなものを期待してプログラミングされたプログラムのあるサーバのCrypt::CBCを2.17にバージョンアップすると、いきなり意味不明のバグが起り得るというわけです。<br /><br />
+
+かなりBK臭がしますが覚え書きとして書いておきます。暗号化系のものはなにかと難しいですね…。<br /><br />
+
+以下は今回参考にさせて頂いたサイトです。<br />
+<a href="http://www.ss.iij4u.or.jp/~somali/web/_crypt_cbc.html">Crypt::CBCの暗号化ブロック連鎖モード</a><br />
+ 

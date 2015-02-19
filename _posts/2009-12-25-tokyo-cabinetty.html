@@ -1,0 +1,41 @@
+---
+layout: post
+title: Tokyo (Cabinet|Tyrant)でインデックスを張る
+mt_id: 1122
+date: 2009-12-25 23:12:08.000000000 +09:00
+author: clouder
+category: Development
+---
+最近<a href="http://1978th.net/tokyocabinet/">Tokyo Cabinet</a>(正確には<a href="http://1978th.net/tokyotyrant/">Tokyo Tyrant</a>経由でTokyo Cabinet)のテーブルデータベースを使っているんですが、どうも検索が遅いなぁと思ったらインデックスを張り忘れてて、Tokyo (Cabinet|Tyrant)でどうやってインデックスを張るのかを調べたので、そのまとめです。<br /><br />
+
+実際にTCのテーブルデータベースでインデックスをどう張るのかというと、foo.tctってDBのnameってカラムにインデックスを張るとすると<br />
+
+<pre class="command">&#37; tctmgr setindex foo.tct name</pre>
+
+ってやればOK。実際には張るインデックスのタイプが選べますが、その辺は<a href="http://1978th.net/tokyocabinet/spex-ja.html">ドキュメント</a>に載っていますのでそちらをご覧ください。<br /><br />
+
+PerlモジュールのTokyoCabinetを使って張る場合は、<br />
+
+<pre class="code">my $tdb = TokyoCabinet::TDB->new;
+$tdb->open("foo.tct", $tdb->OWRITER | $tdb->OCREAT);
+$tdb->setindex("name", $tdb->ITLEXICAL);</pre>
+
+ってやるだけでOK。<br /><br />
+
+Tokyo Tyrant経由でもTokyoTyrant::RDBTBLにsetindex()って関数があるのでそれでインデックスが張れます。<br /><br />
+
+また、Tokyo Tyrantのttserverでテーブルを指定して起動する際にも<br />
+
+<pre class="command">&#37; ttserver "foo.tct#idx=name:lex"</pre>
+
+って感じにファイル名のあとに指定することもできるみたい。<br />
+いろいろな張り方があるんですねぇ。<br /><br />
+
+ちなみインデックスを張るとfoo.tctとは別に「foo.tct.idx.name.lex」ってファイルが出来ます。どうやらここにインデックスが入ってるようです。<br />
+ファイル名がどのDBのどのカラムにどんなタイプのインデックスが張られているのか一目瞭然ですね！最後の.lexはインデックスのタイプですね。<br /><br />
+
+で、ここまでわかって思ったのが、これって一度作成したらレコードがputされる毎に更新されるのか、わからなかったのでTokyo Cabinetのソースをみてみたらputされるタイミング(tctdbputimpl())でtctdbidxput()が呼ばれるようなので(両関数ともにtctdb.cの中)、一度作成作成しておけば、あとは勝手に更新されるようだ。<br /><br />
+
+なるほどねぇ。<br />
+よくできてるなぁ。<br /><br />
+ 

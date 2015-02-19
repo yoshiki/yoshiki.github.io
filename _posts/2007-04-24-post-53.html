@@ -1,0 +1,35 @@
+---
+layout: post
+title: Perlのクラス継承の限界
+mt_id: 916
+date: 2007-04-24 02:20:38.000000000 +09:00
+author: clouder
+category: Perl
+---
+<blockquote>
+<a title="404 Blog Not Found:perl - POO と goto" href="http://blog.livedoor.jp/dankogai/archives/50816120.html">404 Blog Not Found:perl - POO と goto</a>
+
+ちなみに，暇な人はdepthの指定を100以上にしてみよう。滅多にお目にかかれないものに巡り会える。
+</blockquote>
+
+暇ではないが、気になったのでdepthを100以上にしてみた。
+
+<pre class="command">&#37; perl sample.pl
+Benchmark: running Goto, Noself, Return for at least 3 CPU seconds...
+Recursive inheritance detected while looking for method '()' in package 'Goto::0' at aa.pl line 77.</pre>
+
+お、なんだこれは。再帰継承じゃねーかと言われた。99まではオッケイで、100より上だとこうなる。
+調べてみると答えは「perldiag」にあった。
+
+<pre class="code">
+&#37; perldoc perldiag
+       …
+       Recursive inheritance detected while looking for method &#37;s
+           (F) More than 100 levels of inheritance were encountered while invoking a method.
+           Probably indicates an unintended loop in your inheritance hierarchy.
+       …
+</pre>
+100以上の継承をするとそうでるみたい。
+
+ってことはPerlでは100以上の継承ができないってことなのかな。
+実際そんなクラス構造を作ることはないとは思うけど…。 

@@ -1,0 +1,29 @@
+---
+layout: post
+title: 自作Alpha Geek Tracker
+mt_id: 500
+date: 2005-08-02 19:15:10.000000000 +09:00
+author: clouder
+category: Perl
+---
+前kentaroさんが<a href="http://antipop.gs/mt/" target="_blank">antipop</a>で公開されていたAlpha Geek Trackerをずっと利用させて頂いていたのですが、サーバ壊れてから配信がなくなってしまったようなので自作しました。30分に1回更新しているので、よかったらどうぞ。ただ勝手な都合で突然なくなったりすることもあるので、その際はご了承下さい。<br /><br />
+
+<a href="http://clouder.jp/~yoshiki/alpha_geek_tracker.xml">Alpha Geek Tracker</a><br /><br />
+
+今のところ下記のRSS及びAtomを取り込んでます。<br />
+<pre class="code">feeds:
+  - http://del.icio.us/rss/sekimura
+  - http://del.icio.us/rss/nagayama
+  - http://del.icio.us/rss/miyagawa
+  - http://del.icio.us/rss/ma.la
+  - http://del.icio.us/rss/hail2u
+  - http://b.hatena.ne.jp/naoya/rss
+  - http://b.hatena.ne.jp/jkondo/rss
+  - http://b.hatena.ne.jp/antipop/rss</pre>
+<br />
+ちなみに、負荷分散のためにこれを作成しているモジュールも公開します。無駄にモジュールにしているのは、ちょっと作ってみたかったから…というだけです…。動作としてはYAML形式の設定ファイルにfeedのリストを書けば、それをアグリゲートしてきて、時間順に並べて1つのRSSにして吐き出します。件数の指定とかはできません。あと速度とかは考慮していないので、取得するfeedがあまりに多いと遅いかもしれません…。<br /><br />
+
+<a href="http://clouder.jp/src/perl_module/RssTracker-0.01.tar.gz">RssTracker-0.01.tar.gz</a><br /><br />
+
+<div style="color:#f00;">追記：</div>はてなブックマークはAtomフィードで取っていたのですが、XML::Feedでは$entry->linkが、alternateをとってくるために一回ページが挟まってしまうようだったのでRSSフィードに変更してpermalinkを取ってくるように変更しました。
+ 

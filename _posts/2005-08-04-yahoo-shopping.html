@@ -1,0 +1,42 @@
+---
+layout: post
+title: Yahoo Shopping APIを試してみる
+mt_id: 504
+date: 2005-08-04 14:40:43.000000000 +09:00
+author: clouder
+category: Webservice
+---
+なんか公開されたらしいので、なんとなくAjaxと絡めて<a href="http://labs.clouder.jp/yahoo/shopping-api.html" target="_blank">検索ページ</a>を作ってみた。Ajaxは外部ドメインのURLを叩けないので、一旦clouder.jpでプロキシをしてYahoo Shopping APIを叩くようにした。<br /><br />
+
+その叩くためのプログラムは下記。なにしているかというと、取得したXMLをXML::Simpleでパースして、それをJSONに食わせて、それをjavascript側でevalしてごにょごにょして表示しています。これが一番楽な方法かな？<br /><br />
+
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use JSON;
+use URI;
+use LWP::Simple;
+use XML::Simple;
+use CGI;
+
+my $q = new CGI;
+
+# access to yahoo shopping api
+my $request_url = 'http://api.shopping.yahoo.com/ShoppingService/V1/productSearch';
+my $uri = URI->new($request_url);
+$uri->query_form(
+    appid => 'Application ID',
+    query => $q->param('q') || 'clouder',
+    start => $q->param('s') || 1,
+);
+
+# parse xml
+my $ref = XMLin(get($uri->as_string));
+
+# convert to json
+my $json = new JSON;
+my $js = $json->objToJson($ref, { pretty => 1, indent => 2 });
+
+# output
+print $q->header;
+print $js;</pre> 

@@ -1,0 +1,21 @@
+---
+layout: post
+title: iモード用フルブラウザScope の User Agent
+mt_id: 257
+date: 2005-01-19 12:49:33.000000000 +09:00
+author: clouder
+category: Mobile
+---
+先日Scopeというiモード用で無料のフルブラウザが、プログラマーズファクトリから<a href="http://www.itmedia.co.jp/mobile/articles/0501/17/news028.html" target="_blank">発表</a>されました。とりあえず、ユーザエージェントがなにか調べてみた。
+
+<pre class="code">221.186.154.213 - - [19/Jan/2005:12:48:47 +0900] "GET / HTTP/1.0" 200 81955 "-" "Scope Server Module (Public Preview)"</pre>
+
+こんな感じ。そのまんまだな…。
+あ、でもこれは端末からではなくて中継サーバからリクエストが来ているんだよな。
+REMOTE_ADDRの「221.186.154.213」のサーバ名を調べたら、
+「i900.programmer.co.jp」だってさ。機種毎にサーバがあるのだろうか。
+それにしても、1台しかないっぽいからこれの負荷はそうとうなものだろう…。
+
+んで予想通り、今現在scopeはダウンロードは中止されています(笑)
+中の人御苦労様です。
+ 

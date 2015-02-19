@@ -1,0 +1,112 @@
+---
+layout: post
+title: livedoorフレンドパーク de RSS
+mt_id: 402
+date: 2005-05-11 12:18:34.000000000 +09:00
+author: clouder
+category: Perl
+---
+以前mixiの日記エントリをRSSにするものを紹介しましたが、最近知人がlivedoorフレンドパークを使ってたりするので、livedoorフレンドパーク用にも作ってみました。原理はほぼ同じで<a href="http://search.cpan.org/search?dist=WWW::Mechanize">WWW::Mechanize</a>を使って実装しています。<br /><br /> 
+MAX_PAGINGは、ページングしている何ページ目までをRSSに取り込むかを指定します。
+あとは$usernameと$passwordを自分のに変えてcronで定期的に実行してファイルに吐き出せばよいかと思います。
+
+<pre class="code">
+#!/usr/local/bin/perl
+
+use strict;
+use WWW::Mechanize;
+use Jcode;
+use XML::RSS;
+use Time::Piece;
+use constant MAX_PAGING =&gt; 10;
+
+my $username = 'your_userid';
+my $password = 'your_passwd';
+my $mech = WWW::Mechanize-&gt;new;
+$mech-&gt;get('http://member.livedoor.com/login/?.next=http&#37;3A&#37;2F&#37;2Ffp.livedoor.com&amp;.sv=sns');
+
+# do login
+my $r = $mech-&gt;submit_form(
+    form_number =&gt; 1,
+    fields =&gt; {
+        '.next' =&gt; 'http://fp.livedoor.com',
+        '.sv' =&gt; 'sns',
+        livedoor_id =&gt; $username,
+        password =&gt; $password,
+    },
+);
+
+# prepare rss instance
+my $rss = XML::RSS-&gt;new({ version =&gt; '1.0' });
+my $t = localtime;
+$rss-&gt;channel(
+    title =&gt; &quot;fp.livedoor.com&quot;,
+    link  =&gt; &quot;http://fp.livedoor.com/&quot;,
+    description =&gt; &quot;livedoor friend park&quot;,
+    dc =&gt; {
+        date =&gt; $t-&gt;datetime,
+
+        subject =&gt; &quot;friend park dialy&quot;,
+        creator =&gt; &quot;clouder&quot;,
+        language =&gt; &quot;ja&quot;
+    },
+);
+
+for my $i (1..MAX_PAGING) {
+    # load friend blog
+    $mech-&gt;get(&quot;http://fp.livedoor.com/home/friend_blog/?p=$i&quot;);
+
+    # parse dialy list
+    parse_dialy($rss, $mech-&gt;content);
+}
+
+print $rss-&gt;as_string;
+
+sub friends_lists {
+    $mech-&gt;get('http://mixi.jp/list_friend.pl');
+    return $mech-&gt;find_all_links(url_regex =&gt; qr/show_friend\.pl/);
+}
+
+sub parse_dialy {
+    my($rss, $html) = @_;
+    my $re = _dialy_pattern();
+    while ($html =~ m#$re#g) {
+        # name date time title content
+        my $datetime = jcode($1)-&gt;h2z-&gt;euc;
+        my $title = jcode($3)-&gt;h2z-&gt;euc;
+        my $link = sprintf('http://fp.livedoor.com&#37;s', $2);
+        my $name = jcode($5)-&gt;h2z-&gt;euc;
+        $datetime =~ s/^(\d+)?[^\d]+(\d+)?[^\d]+(\d+)?[^\s]+ (\d+):(\d+)$/$1-$2-$3 $4:$5:00/;
+        $rss-&gt;add_item(
+            title =&gt; sprintf('&#37;s (&#37;s)', encode_xml_valid_entities(jcode(remove_tag($title))-&gt;utf8), jcode($name)-&gt;utf8),
+            link  =&gt; $link,
+            dc =&gt; {
+                date =&gt; $datetime,
+                subject =&gt; jcode($title)-&gt;utf8,
+                creator =&gt; jcode($name)-&gt;utf8,
+            },
+        );
+    }
+}
+
+sub _dialy_pattern {
+    return &lt;&lt;'RE';
+                &lt;td bgcolor=&quot;#ffffff&quot; style=&quot;border-bottom:1px solid #CCCCCC;background:#EFEFEF;&quot; nowrap&gt;&lt;small&gt;([^&lt;]+)&lt;/small&gt;&lt;/td&gt;
+                &lt;td bgcolor=&quot;#ffffff&quot; style=&quot;border-bottom:1px solid #CCCCCC;background:#EFEFEF;&quot;&gt;&lt;small&gt;[^&lt;]+&lt;/small&gt;&lt;/td&gt;
+                &lt;td bgcolor=&quot;#ffffff&quot; style=&quot;border-bottom:1px solid #CCCCCC;background:#EFEFEF;&quot; width=&quot;100&#37;&quot;&gt;&lt;small&gt;
+&lt;a href=&quot;([^&quot;]+)&quot;&gt;([^&lt;]+)&lt;/a&gt; by
+&lt;a href=&quot;([^&quot;]+)&quot;&gt;([^&lt;]+)&lt;/a&gt;
+RE
+}
+
+sub remove_tag {
+    my  $str = shift;
+    $str =~ s/&lt;.*?&gt;//g;
+    return $str;
+}
+
+sub encode_xml_valid_entities {
+    my $input = shift;
+    return HTML::Entities::encode_entities($input, '&lt;&gt;&amp;&quot;');
+}
+</pre>

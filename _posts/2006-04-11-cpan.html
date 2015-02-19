@@ -1,0 +1,27 @@
+---
+layout: post
+title: CPANの画像はリファラを見ている
+mt_id: 664
+date: 2006-04-11 21:09:20.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://search.cpan.org/">CPAN</a>の画像はリファラがsearch.cpan.org以外だと表示されないようです。
+id:nipotanに聞いたらリファラを見てるらしい。知らなかったお。
+
+試しにリファラを送らないで見てみてください。
+
+<pre class="command">&#37; wget http://search.cpan.org/s/img/cpan-10.jpg
+--23:55:32--  http://search.cpan.org/s/img/cpan-10.jpg
+           => `cpan-10.jpg'
+Resolving search.cpan.org... 216.52.237.135, 84.45.18.237
+Connecting to search.cpan.org|216.52.237.135|:80... connected.
+HTTP request sent, awaiting response... 403 Forbidden
+23:55:33 ERROR 403: Forbidden.
+
+Exit 1</pre>
+
+にぽたんの<a href="http://blog.livedoor.jp/nipotan/archives/17544426.html">星の秘密</a>とか弾さんの<a href="http://blog.livedoor.jp/dankogai/archives/17611636.html">compuri.pl</a>を見る限り、昔は見えていた模様…。いつから見えなくなったんだろうか。そしてなぜ見えなくしたんだろうか。
+
+この二大ブログ(？)からのリファラがものすごかったからそうしたんだろうか？
+ 

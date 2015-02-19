@@ -1,0 +1,37 @@
+---
+layout: post
+title: ps auxww | grep httpdでgrep httpdをgrepしない方法(常識？)
+mt_id: 1018
+date: 2008-02-02 01:04:12.000000000 +09:00
+author: clouder
+category: Unix
+---
+最近、会社の同僚から教えてもらったTipsですが、コマンドラインで
+
+<pre class="command">&#37; ps auxww | grep httpd</pre>
+
+とやったときに「grep httpd」自体のプロセスをひっかけないようにする方法です。
+
+実際やってみるとわかりますが、タイミングが悪いと下記のように「grep httpd」自体もひっかかってしまいます。そんなに実害はないけど、なんだかちょっと気持ち悪い。と思っていたのは自分だけではないはず。
+
+<pre class="code">www       3811  0.0  3.3 216244 14732  ??  S    12:52AM   0:00.38 /path/to/bin/httpd -k start
+www       4511  0.0  1.4 207900  6456  ??  S     1:13AM   0:00.00 /path/to/bin/httpd -k start
+root     59037  0.0  1.4 207860  6372  ??  Ss   23Jul07  11:30.38 /path/to/bin/httpd -k start
+yoshiki   4530  0.0  0.0   348   208  p2  R+    1:13AM   0:00.00 grep httpd</pre>
+
+で、結論から言うと
+
+<pre class="command">&#37; ps auxww | grep \[h\]ttpd</pre>
+
+とやればいいのですが、なんでこれでひっかからなくなるかわかりますか？
+
+以下ネタバレ。
+
+ 
+なんで、これでひっかからなくなるかというと「grep \[h\]ttpd」とした場合に、このgrepのプロセスは「grep [h]ttpd」となるのですが、「grep \[h\]ttpd」の「\[h\]ttpd」自体は正規表現(普通は[abc]とかやってaかbかcにマッチさせたりしますね)で「httpd」にマッチさせることになるため、「grep [h]ttpd」がひっかからなくなるというわけです。
+ちょっとしたパズルみたいで面白い。
+
+ちなみに [] をエスケープしてるのはシェルで [] が意味をもってるためです。
+これはシングルクオートで囲んで「grep '[h]ttpd'」とやっても同じです。
+
+＃でもpsかgrep自体に、これと同等のことができるオプションがあったような記憶もあるんだけど思い違いかなぁ

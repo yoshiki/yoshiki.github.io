@@ -1,0 +1,31 @@
+---
+layout: post
+title: Mac OS Xのcutコマンド
+mt_id: 288
+date: 2005-02-21 01:21:27.000000000 +09:00
+author: clouder
+category: Mac
+---
+先日Mac OS Xでapacheのログ集計をやっていたら、
+どうもcutの挙動がおかしい。なにがおかしいかというと、
+
+<pre class="code">&#37; cat /usr/local/apache/logs/access_log | cut -d' ' -f1</pre>
+
+こんなコマンドを発行してみると、ある行にいったときに
+
+<pre>cut: stdin: line too long.</pre>
+
+ってエラーで処理が止ってしまうのだ。ネットで調べたりすると、
+
+<pre class="code">echo -n 'This is not a waffle' | cut -f1</pre>
+
+こんなのでもエラるという記述が…。確かにこれをやるとMac OS Xだとエラる。
+そもそものMac OS Xのcutがおかしいようだ。
+
+同僚のT氏に、こんなことあるんだよねと聞いたところ同じことになるらしい。
+んで、T氏がFreeBSD 4.8-RELEASEのソースをもってきて、Mac OS Xのgccで
+コンパイルをしたところ普通に動くとのことで、同じことをしてみた。
+
+おお！動く。
+うーむ、デフォルトのcutのはバグなのかな？
+ソースを読むきになれん…。 

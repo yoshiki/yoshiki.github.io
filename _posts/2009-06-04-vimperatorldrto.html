@@ -1,0 +1,247 @@
+---
+layout: post
+title: vimperatorでLDRからTomblooしたい
+mt_id: 1111
+date: 2009-06-04 12:42:06.000000000 +09:00
+author: clouder
+category: Firefox
+---
+最近Firefoxの機能拡張で、vim風な操作でFirefoxを操ることができる<a href="http://vimperator.org/">vimperator</a>を使い始めました。<br /><br />
+
+で、vimperatorのプラグインをいろいろ入れて楽しんでるのですが、Tomblooをvimperatorから使うのに<a href="http://coderepos.org/share/browser/lang/javascript/vimperator-plugins/trunk/tombloo.js">tombloo.js</a>ってのがあってそれを使ってたのですが、<a href="http://reader.livedoor.com/">LDR</a>からは使えないっぽかったのでLDRから使えるようにしてみました。(もしかしたら他に同じことできるものがあるかも。もしあったら教えてください＞＜)<br /><br />
+
+tombloo.jsはCodeReposにあるので直接変更しちゃおうかとも思ったのですがブランチとか切りづらかったので、ちょっと長いですがここに貼っておきます。<br /><br />
+
+使い方はLDRでフィードを読んでいる時に「:tomblooReader」と打てば候補が出てくるので「Link\ -\ LDR」を選べばアクティブはエントリがクリップできます。ちなみに「:tomblooReader!」でやればTomblooのウィンドウも出せます。<br /><br />
+
+JSは得意ではないので微妙なところがあるかも。<br />
+もしあったら修正をお願いします。<br /><br />
+
+<pre class="code">let PLUGIN_INFO =
+&lt;VimperatorPlugin&gt;
+&lt;name&gt;{NAME}&lt;/name&gt;
+&lt;description&gt;Tombloo integrate plugin&lt;/description&gt;
+&lt;description lang=&quot;ja&quot;&gt;Tombloo 統合プラグイン&lt;/description&gt;
+&lt;author&gt;Trapezoid&lt;/author&gt;
+&lt;version&gt;0.1e&lt;/version&gt;
+&lt;minVersion&gt;2.0pre&lt;/minVersion&gt;
+&lt;maxVersion&gt;2.0pre&lt;/maxVersion&gt;
+&lt;updateURL&gt;http://svn.coderepos.org/share/lang/javascript/vimperator-plugins/trunk/tombloo.js&lt;/updateURL&gt;
+&lt;detail&gt;&lt;![CDATA[
+
+== EX-COMMANDS ==
+
+:tombloo arg:
+    post by Tombloo (don't use prompt)
+
+:tombloo! arg:
+    post by Tombloo (use prompt)
+
+:tomblooAction arg:
+    execute Tombloo's action in tool menu
+
+:tomblooReader arg:
+    post by Tombloo on LDR (don't use prompt)
+
+:tomblooReader! arg:
+    post by Tombloo on LDR (use prompt)
+
+]]&gt;&lt;/detail&gt;
+&lt;detail lang=&quot;ja&quot;&gt;&lt;![CDATA[
+== EX-COMMANDS ==
+
+:tombloo arg:
+    Tombloo を使って投稿します ( ダイアログは出てきません )
+
+:tombloo! arg:
+    Tombloo を使って投稿します ( ダイアログが出てきます )
+
+:tomblooAction arg:
+    ツールバーから選択できる Tombloo のメニューを実行します
+
+:tomblooReader arg:
+    LDR で Tombloo を使って投稿します ( ダイアログは出てきません )
+
+:tomblooReader! arg:
+    LDR で Tombloo を使って投稿します ( ダイアログが出てきます )
+
+]]&gt;&lt;/detail&gt;
+&lt;/VimperatorPlugin&gt;;
+
+(function () {
+
+// ts: &quot;T&quot;ombloo &quot;S&quot;ervice
+let tomblooService;
+try { tomblooService = getTombloo(); }
+catch (e) {
+    liberator.log(e.message, 0);
+    return;
+}
+
+with (tomblooService) {
+
+commands.addUserCommand(
+    ['tomblooAction'],
+    'Execute Tombloo actions',
+    function (arg) {
+        let f = Tombloo.Service.actions[arg.string];
+        (f instanceof Function)
+            ? f.execute()
+            : liberator.echoerr(arg.string + ' is not Tombloo Action.');
+    },
+    {
+        completer: function (context) {
+            context.title = ['Tombloo Actions'];
+
+            let names = Tombloo.Service.actions.names;
+            let candidates = [[n, n] for([, n] in Iterator(names))];
+            context.completions = candidates.filter(
+                function ($_) this.test($_[0]),
+                new RegExp(context.filter, 'i')
+            );
+        },
+    }
+);
+
+commands.addUserCommand(
+    ['tombloo'],
+    'Post by Tombloo',
+    function (args, special) {
+        //let f = Tombloo.Service.extractors[args.string];
+        let arg = args.string.replace(/\\(?=\u0020)/g, '');
+        liberator.log(args.string, 0);
+        liberator.log(arg, 0);
+
+        let f = Tombloo.Service.extractors[arg];
+        (typeof f === 'object')
+            ? Tombloo.Service.share(getContext(), f, special)
+            : liberator.echoerr(args.string + ' is not Tombloo command');
+    },
+    {
+        bang: true,
+        completer: function (context) {
+            context.title = ['Tombloo'];
+
+            let extensions = Tombloo.Service.check(getContext());
+            let candidates = [[e.name, e.name] for ([, e] in Iterator(extensions))];
+            context.completions = candidates.filter(
+                function($_) this.test($_[0]),
+                new RegExp(context.filter, 'i')
+            );
+        }
+    }
+);
+
+commands.addUserCommand(
+    ['tomblooReader'],
+    'Post by Tombloo on LDR',
+    function (args, special) {
+        let win = content.window.wrappedJSObject;
+        let item;
+        try {
+            item = win.get_active_item(true);
+        } catch(e) {
+            liberator.echoerr('Use only on LDR');
+            return;
+        }
+        let target = item.element;
+        let ctx = getContextOnLDR(target);
+        let arg = args.string.replace(/\\(?=\u0020)/g, '');
+        liberator.log(args.string, 0);
+        liberator.log(arg, 0);
+
+        let f = Tombloo.Service.extractors[arg];
+        (typeof f === 'object')
+            ? Tombloo.Service.share(ctx, f, special)
+            : liberator.echoerr(args.string + ' is not Tombloo command');
+    },
+    {
+        bang: true,
+        completer: function (context) {
+            context.title = ['TomblooReader'];
+
+            let win = content.window.wrappedJSObject;
+            try {
+                item = win.get_active_item(true);
+            } catch(e) {
+                liberator.echoerr('Use only on LDR');
+                return;
+            }
+            let target = item.element;
+            let ctx = getContextOnLDR(target);
+            let extensions = Tombloo.Service.check(ctx);
+            let candidates = [[e.name, e.name] for ([, e] in Iterator(extensions))];
+            context.completions = candidates.filter(
+                function($_) this.test($_[0]),
+                new RegExp(context.filter, 'i')
+            );
+        }
+    }
+);
+
+} // with (tomblooService)
+
+// helper ---
+function getTombloo() {
+    const serviceId = '@brasil.to/tombloo-service;1';
+
+    if (!Cc[serviceId])
+        throw new Error('Tombloo is not found. install from http://github.com/to/tombloo/wikis');
+
+    return Cc[serviceId].getService().wrappedJSObject;
+}
+
+function getContext() {
+    const doc = content.window.document;
+    const win = content.window.wrappedJSObject;
+    return implant(
+        implant(
+            {
+                document:   doc,
+                window:     win,
+                title:      doc.title.toString() || '',
+                selection:  win.getSelection().toString(),
+                target:     doc,
+                //event     : event,
+                //mouse     : mouse,
+                //menu      : gContextMenu,
+            },
+            {}
+        ),
+        win.location
+    );
+}
+
+function getContextOnLDR(target) {
+    const doc = content.window.document;
+    const win = content.window.wrappedJSObject;
+    return implant(
+        implant(
+            {
+                document  : doc,
+                window    : win,
+                title     : null,
+                selection : win.getSelection().toString(),
+                target    : target,
+            },
+            {}
+        ),
+        win.location
+    );
+}
+
+// stuff ---
+function implant(dst, src, keys){
+    if (keys) {
+        keys.forEach(function(key) { dst[key] = src[key]; });
+    }
+    else {
+        for (let key in src) dst[key] = src[key];
+    }
+
+    return dst;
+}
+
+})();
+
+// vim:sw=4 ts=4 et:</pre> 

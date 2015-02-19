@@ -1,0 +1,42 @@
+---
+layout: post
+title: ! '@cc_on ってなに？'
+mt_id: 1005
+date: 2007-10-11 11:05:44.000000000 +09:00
+author: clouder
+category: JavaScript
+---
+amachangさんの<a href="http://d.hatena.ne.jp/amachang/20071010/1192012056">「一行で IE の JavaScript を高速化する方法」</a>を見てて、見慣れない/*@cc_on なんちゃらなんちゃら @*/ って記述が気になった。<br /><br />
+
+なんだろうとおもい、早速ぐぐってみたところ、<a href="http://msdn2.microsoft.com/ja-jp/library/7kx09ct1(VS.80).aspx">ここ</a>に書いてありました。<br /><br />
+
+@cc_onはステートメントというものらしく「条件付きコンパイルの機能をアクティブにします。」との説明があります。<br /><br />
+
+でも、「条件付きコンパイル」ってなんだよ！そんなの知らないぜ！<br />
+ということで調べてみたら、以下のようなことが書いてありました。<br /><br />
+
+<blockquote>条件付きコンパイルを使用すると、JScript の新しい言語機能を利用しながら、その新機能をサポートしていない以前のバージョンとの互換性も保持できます。JScript の新機能を使用する場合、スクリプトにデバッグサポートを埋め込む場合、コード実行をトレースする場合などは、条件付きコンパイルを使用するのが一般的です。</blockquote>
+<br />
+
+なるほど。ようは、条件付きコンパイルに対応していないブラウザには影響せずに、JScriptの新しい機能を使えちゃうぜ、ということらしいです。<br /><br />
+
+ということでためしに以下のようなHTMLを書いて動作確認してみた。
+
+<pre class="code">&lt;html&gt;
+&lt;body&gt;
+&lt;script type="text/javascript"&gt;
+/*@cc_on document.write("Hello, JScript!"); @*/
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<br />
+このHTMLを各ブラウザで確認してみたところ、Internet Explorerで開くと「Hello, JScript!」とみごとに表示され、FirefoxやOperaだと表示されませんでした。<br /><br />
+
+ちなみに「/*@cc_on」の /* と @ の間にスペース空けたり、@ と cc_on の間にスペースを空けても動きませんでした。ようは「/*@cc_on」のどこにもスペースは空けるなということですね。<br /><br />
+
+この条件付きコンパイルは、こういう用途以外にもいろんな機能が使えるみたいですので、興味のある方は<a href="http://msdn2.microsoft.com/ja-jp/library/ahx1z4fs(VS.80).aspx">こちら</a>の条件付きコンパイルの説明のページをご覧になってみてください。<br /><br /><br />
+
+
+ってここまで書いたけど、@cc_on ってもしや常識！？<br />
+ 

@@ -1,0 +1,21 @@
+---
+layout: post
+title: HTML::Entities::Numberedを使ってみた。
+mt_id: 537
+date: 2005-09-19 23:06:48.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000521.html" target="_blank">拙作Alpha Geek Tracker</a>がコケてましたので、調べてみたら実体参照の文字で&amp;trade;が使われていたのが原因でした。
+
+ご存知の通り、XMLでは、&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;apos;の5つのみが定義されています。そのためそれ以外文字をXML内に記述するには、文字参照(10進数or16進数)を使って表現する必要があります。
+
+perlでこれを解決するには、<a href="http://search.cpan.org/dist?HTML::Entities::Numbered" target="_blank">HTML::Entities::Numbered</a>というモジュールを使用するとよいでしょう。これは、実体参照のものをすべて文字参照に置き換えてくれるすばらしいモジュールです。
+(実は今までこのモジュールの恩恵に与ることがなかったのですが、やっと恩恵に与れました(´ｰ｀))
+
+→<a href="http://ja.wikipedia.org/wiki/&#37;E6&#37;95&#37;B0&#37;E5&#37;80&#37;A4&#37;E6&#37;96&#37;87&#37;E5&#37;AD&#37;97&#37;E5&#37;8F&#37;82&#37;E7&#37;85&#37;A7" target="_blank">実体参照と文字参照についてはこちらに詳しく書いてあります</a>
+
+そして、上記を適用した<a href="http://clouder.jp/src/perl_module/RssTracker-0.03.tar.gz" target="_blank">RssTracker-0.03</a>をリリースしました。＃ってだれも使ってねーか…
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112214/clouder-22" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4873112214.09.MZZZZZZZ.jpg" alt="XML hacks―エキスパートのためのデータ処理テクニック" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112214/clouder-22" name="amazletlink" target="_blank">XML hacks―エキスパートのためのデータ処理テクニック</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4873112214/clouder-22" title="XML hacks―エキスパートのためのデータ処理テクニック" target="_blank">amazlet</a> at 05.09.19</div></div><div class="amazlet-detail">Michael Fitzgerald 佐藤 直生 木下 哲也 福竜興業 <br />オライリー・ジャパン (2005/03)<br />売り上げランキング: 1,142<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112214/clouder-22" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+ 

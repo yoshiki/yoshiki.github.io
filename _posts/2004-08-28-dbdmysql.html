@@ -1,0 +1,21 @@
+---
+layout: post
+title: DBD::mysqlがインストールできない
+mt_id: 198
+date: 2004-08-28 16:08:12.000000000 +09:00
+author: clouder
+category: Perl
+---
+<blockquote class="quote"><a title="Megalinux: install DBD::mysql problem" href="http://www.megalinux.net/archives/000175.html" target="_blank">Megalinux: install DBD::mysql problem</a>
+
+install DBD::mysql problem
+I was working on installing Bugzilla and ran into an error when installing DBD::MySQL module:
+usr/lib/perl5/5.8.0/ExtUtils/Liblist/Kid.pm line 97. Unsuccessful stat on filename containing newline at /usr/lib/perl5/5.8.0/ExtUtils/Liblist/Kid.pm
+If you run into this error, run:
+export LANG=C
+and then do the following:
+perl Makefile.PL
+make
+make install 
+(ignore all the warning messages, during make and make install).</blockquote>
+某案件で、redhatにDBD::mysqlを入れようとしたら、できない…。なんでだーと探していたらこのblogに行きついた。どうやら環境変数のLANGがUTF-8になってたらしく、それでエラってたみたい。redhatはLANGが標準でUTF-8なのか？.tcshrcとかには設定してないから、そうなのかも。てかそれって微妙な…。 

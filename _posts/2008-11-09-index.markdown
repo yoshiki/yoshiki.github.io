@@ -1,0 +1,15 @@
+---
+layout: post
+title: お問い合わせ
+mt_id: 1072
+date: 2008-11-09 20:57:02.000000000 +09:00
+author: clouder
+category: Contact
+---
+<p><strong>以下の文章はサンプルです。内容を適切に書き換えてください。</strong></p>
+<p>お問い合わせはメールで: email (at) domainname.com</p>
+
+<!-- 以下のリンクは削除してください。 -->
+<p class="admin-edit-link">
+<a href="#" onclick="location.href=adminurl + '?__mode=view&_type=page&id=' + page_id + '&blog_id=' + blog_id; return false">コンテンツを編集</a>
+</p>

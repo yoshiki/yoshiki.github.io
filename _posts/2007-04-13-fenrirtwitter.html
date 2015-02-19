@@ -1,0 +1,32 @@
+---
+layout: post
+title: fenrirのインスタントコマンドでtwitterのステータスを更新する方法
+mt_id: 887
+date: 2007-04-13 00:50:17.000000000 +09:00
+author: clouder
+category: Windows
+---
+malaが紹介していた<a href="http://la.ma.la/blog/diary_200704111918.htm">「bluewindからtwitterを更新できるようにRubyでシンプルなクライアントを書いた」</a>のRubyのスクリプトを使って、<a href="http://www.vector.co.jp/soft/win95/util/se362264.html">fenrir</a>のインスタントコマンドからtwitterのステータスを更新できるようにしてみたら、すげー快適。
+
+設定方法は、fenrirの設定ファイルのinstant.iniに以下の行を追加して保存。(rubyw.exeだとコンソールウィンドウが立ち上がらないらしい。知らなかった。)
+
+<pre class="code">/t=""C:\Ruby\bin\rubyw.exe" "C:\path\to\update.rb" username password &#37;A"
+</pre>
+
+そしてfenrirを開き、
+
+<pre class="code">/t ここにステータスを書く</pre>
+
+とインスタントコマンドを実行するだけでステータスを更新できます。これは便利だ！mala++。
+もし、Rubyなんて入れてねーYOって人は、<a href="http://wget.sunsite.dk/">http://wget.sunsite.dk/</a>この辺からWindows版のwgetをもってくれば、
+
+<pre class="code">/t=""C:\path\to\wget.exe" --post-data="status=&#37;A" -O- http://username:password@twitter.com/statuses/update.json""
+</pre>
+
+って設定しておけば、英数字での更新はできます。ただし、コンソールウィンドウが立ち上がります。
+wgetよりもっと簡単にPOSTリクエストが打てるWindows用のコマンドがありそうですが、みつかりませんでした。これよいコマンドを知っていたら教えてください＞＜
+
+ていうか、更新はいいんだけど、友達の更新情報を見る方が問題だよなー。今のところIRCが一番邪魔しなくてよさげだけど、なんかもっといい方法ないかなぁ。Plaggerで定期的に携帯にメールとかも個人的にはいいかも。
+
+どうやってる人が多いんだろう。
+ 

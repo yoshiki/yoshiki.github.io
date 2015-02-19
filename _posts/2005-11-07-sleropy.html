@@ -1,0 +1,17 @@
+---
+layout: post
+title: Sleropy作ってみた - Tropyクローン(Sledge版)
+mt_id: 583
+date: 2005-11-07 01:11:34.000000000 +09:00
+author: clouder
+category: Perl
+---
+出遅れ感がさらに満載なんですが(笑)、<a href="http://www.hyuki.com/d/200511.html#i20051103183338">結城さんがTropy</a>というのを作っていて、いろいろとクローンが出来ているのでSledgeでも作ってみようかと思い作ってみました。最低限の機能しかありません。
+
+→<a href="http://sleropy.clouder.jp/help.cgi">Sleropy</a>
+
+これがんばれば<a href="http://blog.livedoor.jp/nipotan/archives/50293934.html">10分でできる</a>と思うんですけどcssとかいじりだすともっとかかるね。。。やっぱSledge2.0はもっともっと楽に開発(←これ大事ｗ)できるように設計が必要ではないかと実感。
+
+今は表示時にはSQLでORDER BY RAND()をしているため、あきらかに高アクセス時には耐えられない設計となっています(笑)。高アクセスに耐えられるようにするとしたら、このくらいのデータであればはなからDBを使わないでデータを全部memcachedに入れるとか、もしくはDBを使うとしたらidを数字にして(今は32桁の英数字)、last_insert_id()から最後のidを取ってきて、1～最後のidの中でロジック的にランダムで数字を選択してそれをselectして出力とか、もしくはランダムと見せ掛けてid順に出すとか(ｵｲですかねぇ。。。
+
+他にあったら教えて欲しぃー。 

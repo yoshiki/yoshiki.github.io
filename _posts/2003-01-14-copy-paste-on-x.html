@@ -1,0 +1,29 @@
+---
+layout: post
+title: Copy & Paste on X11 for Mac OS X
+mt_id: 31
+date: 2003-01-14 13:25:07.000000000 +09:00
+author: clouder
+category: Mac
+---
+X11 for Mac OS X上でのXとnative applicationのコピー&ペーストについて
+調べてみてわかったことを書きます。
+
+まず、native application → X の場合
+これは、cmd+c でコピーして、マウスの中ボタンでペーストすることが出来ます。
+しかしここで不思議な現象が起ります。
+cmd+cでコピーしたものは X 上では中ボタんでペーストすることができますが、
+あるものを clipboard に入れたまま、今度は X でなにかの文字列をマウスで選択して
+みると、X 上ではその文字列がマウスの中ボタンでペーストできるのだが、native application
+上でペーストをすると、前に native application で cmd+c でコピーしたものがペースト
+されます。 
+ようは、native application の clipboard は X の clipboard に影響を与えるが、
+X は、native application の clipboard には影響を与えないということですね。
+
+んで、X → native application のコピー&ペーストですが、上記の理由で
+通常 X で使う、マウスでの文字列の選択だけでは native application の clipboard
+には影響を与えられないので、マウスで文字列を選択した後に、native application と
+同様に X 上で、cmd+c を使うと、native application の clipboard にその文字列が
+入ります。そうすれば、native application で、cmd+v でペーストすることができます。
+
+ちょっと複雑…。結局は、コピーは、cmd+c を使えということになりますね。

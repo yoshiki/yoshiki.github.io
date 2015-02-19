@@ -1,0 +1,31 @@
+---
+layout: post
+title: Chimeraでのbookmarklet
+mt_id: 22
+date: 2002-12-24 17:56:15.000000000 +09:00
+author: clouder
+category: Mac
+---
+<blockquote class="quote">
+<div class="quotetitle"><a title="Chimera べんりセット" href="http://www.remus.dti.ne.jp/~a-satomi/bunsyorou/Chimera_benriSet.html" target="_blank">Chimera べんりセット</a></div>
+<div class="quotebody">基本機能にまだまだ不足の多い Chimera を、ちょっとだけ便利にするかも知れない小ネタ集。</div>
+</blockquote>
+<br />
+
+というのを発見した。
+これを元にChimera 用の MT の bookmarklet を独自に作成してみたが、不具合がいろいろある…。 
+Mac OS X で Chimera を使用している方は、
+とりあえず下記のリンクをブックマークして頂きたい。
+
+<A HREF="javascript:bsetMTit(); function bsetMTit() { var d=document; var t=window.getSelection() + ''; window.open('http://example.com/path/to/mt/mt.cgi?is_bm=1&bm_show=category,allow_comments,allow_pings,convert_breaks,excerpt&__mode=view&_type=entry&link_title=' + escape(d.title) + '&link_href=' + escape(d.location.href) + '&text=' + escape(t), '_blank', 'scrollbars=no, width=400, height=630, status=yes, resizable=yes, scrollbars=yes'); }" alt="MT it!">MT it!</A>
+
+つぎにブックマークしたものの、example.com あたりを自分の環境に合わせて
+変更して頂きたい。
+
+使いやすくするために、そのブックマークを Toolbar Bookmarks に
+追加すると、すぐに呼出すことができるだろう。
+
+さぁ、準備は整いました。あとは、Webページで見付けた引用したい文章を選択して、
+MT it!をクリックしてみましょう。うまく行けば、別ウィンドウが立ち上がるはず…。
+
+でもなにが要因かわからないが、立ち上がらないところもある。いまのところ原因つかめず…。

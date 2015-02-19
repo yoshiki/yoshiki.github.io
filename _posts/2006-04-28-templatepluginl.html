@@ -1,0 +1,27 @@
+---
+layout: post
+title: Template::Plugin::Lingua::JA::Summarizeを作ってみた
+mt_id: 674
+date: 2006-04-28 02:04:18.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://labs.cybozu.co.jp/blog/kazuho/archives/2006/04/summarize-0_02.php">Kazuhoさんが作られた Lingua::JA::Summarize</a> を TT から使うためのモジュールを作成してみた。<br /><br />
+
+<div style="text-align: center"><a href="http://clouder.jp/src/perl_module/Template-Plugin-Lingua-JA-Summarize-0.01.tar.gz">Template::Plugin::Lungua::JA::Summarize</a></div><br />
+
+使い方はシンブルで、<br />
+
+<pre class="code">[&#37; USE summarize = Lingua.JA.Summarize("ここにsummarizeしたいテキスト") &#37;]
+[&#37; FOREACH keyword = summarize.keywords &#37;]
+[&#37; keyword &#37;]
+[&#37; END &#37;]</pre>
+
+こんな感じです。<br />
+また下記のように keywords にオプションもハッシュリファレンスで渡せるようになってます。<br />
+
+<pre class="code">[&#37; USE summarize = Lingua.JA.Summarize("ここにsummarizeしたいテキスト", { maxwords => 10 }) &#37;]</pre>
+
+Lingua::JA::Summarize はいろいろ使い道が考え付くので今後期待ですね。まだCPANには上がってないですが、今後上げる予定はあるのかなー？
+
+ちなみに Template::Plugin::Lingua::JA::Summarize は Lingua::JA::Summarize が CPAN に上がったら、その後に上げようと思っています。 

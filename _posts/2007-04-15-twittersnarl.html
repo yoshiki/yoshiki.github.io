@@ -1,0 +1,94 @@
+---
+layout: post
+title: Twitterの更新をSnarl(OSXのGrowlみたいなの)で表示する方法
+mt_id: 891
+date: 2007-04-15 02:33:23.000000000 +09:00
+author: clouder
+---
+<a href="http://clouder.jp/yoshiki/mt/images/twitter2snarl.jpg"><img alt="twitter2snarl.jpg" src="http://clouder.jp/yoshiki/mt/images/twitter2snarl-thumb.jpg" width="320" height="240"  class="photo" /></a><br /><br />
+
+Twitterで更新がけっこうおおくてメッセやIRCとかで見るのがめんどうなので、<a href="http://blog.shebang.jp/archives/50576175.html">shebangさんのOSXのGrowlみたいなの</a>をWindowsでできないのかなぁと調べたら、<a href="http://www.fullphat.net/">Snarl</a>というアプリを発見。これ、Growlインスパイヤみたい。しかもRubyのインターフェイスがあるので、こりゃいいやということで、Rubyでプログラムを書いて更新情報を出せるようにしました。<br /><br />
+
+このプログラムを使うには事前にgemで<a href="http://rubyforge.org/projects/ruby-snarl/">ruby-snarl</a>をインストールしておく必要があります。<br /><br />
+
+コードは以下。使い方はSnarlを立ち上げておいて、以下のプログラムをDOSのコマンドラインで、引数にtwitterのidとpassを渡して実行するだけです。Rubyのコードこんなに書いたの初めて…。これでいいのかどうかわからんけど一応動いてます。でもSnarlのバグなのか日本語がちょっと微妙…。ちゃんとUTF8で指定してやってるのに文字化けするところがあります。これはSnarlのバージョンアップを待つしかないかも。<br /><br />
+
+twitter2snarl.rb
+<pre class="code">
+require 'rubygems'
+require 'snarl'
+require 'net/http'
+require 'time'
+require 'rexml/document'
+include REXML
+require 'uri'
+
+user = ARGV.shift
+pass = ARGV.shift
+
+CURDIR  = Dir.pwd
+HOST    = "twitter.com"
+LASTMOD = CURDIR + "/.twitter2snarl"
+
+# make uri
+u = URI::HTTP.build([ nil, HOST, nil, "/statuses/friends_timeline.xml", nil, nil]);
+
+# load last update
+begin
+  f = File.open(LASTMOD, "r")
+  lastupdate = f.gets
+  f.close
+  u.query = "since=" + URI.escape(lastupdate)
+rescue => evar
+  puts "You are first time using twitter2snarl. Thanx!"
+end
+
+# request xml to twitter
+xml = nil
+Net::HTTP.version_1_2
+req = Net::HTTP::Post.new(u.request_uri)
+req.basic_auth user, pass
+Net::HTTP.start(HOST, 80) { |http|
+  res = http.request(req)
+  xml = res.body
+}
+
+# check icons dir
+Dir.mkdir(CURDIR + "/icons") unless FileTest.exists?(CURDIR + "/icons")
+
+# parse xml and send message to snarl
+img_cache = Hash[]
+doc = Document.new xml
+doc.elements.each("statuses/status") { |s|
+  text        = s.elements["text"].text
+  screen_name = s.elements["user/screen_name"].text
+  image_url   = s.elements["user/profile_image_url"].text
+  ext         = image_url.gsub(/^.*\.(jpg|png|gif)\?\d+$/, '\1')
+  icon        = CURDIR + "/icons/" + screen_name + "." + ext
+
+  # fetch profile icon
+  if !img_cache[image_url] && !FileTest.exist?(icon) then
+    u = URI.parse(image_url);
+    File.open(icon, 'wb') { |f|
+      Net::HTTP.start(u.host, u.port) { |http|
+        res = http.get(u.request_uri)
+        f.write res.body
+        f.close
+      }
+    }
+    img_cache[image_url] = 1
+  end
+
+  Snarl.show_message("Twitter: " + screen_name, text, icon, 10)
+}
+
+# write last update to file
+f = File.open(LASTMOD, "w");
+f.write Time.now.httpdate
+f.close
+</pre>
+
+あと、いちいちコマンドラインで実行するのは面倒なので、以下のようにschtasksでスケジュール登録しておくとよいでしょう。
+
+<pre class="command">C:\> schtasks.exe /Create /tn "Twitter Friends Timeline" /tr "C:\Ruby\bin\rubyw.exe \"C:\path\to\twitter2snarl.rb\" username@example.com password" /sc minute /mo 10</pre>
+ 

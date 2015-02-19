@@ -1,0 +1,46 @@
+---
+layout: post
+title: Chumbyにssh接続してみたよ
+mt_id: 1050
+date: 2008-05-30 14:50:45.000000000 +09:00
+author: clouder
+category: Chumby
+---
+Chumbyにssh接続をしたい！ということで試してみたので手順などを含めてご紹介します。今回は「<a href="http://dsas.blog.klab.org/archives/51249237.html">klabのDSAS開発者の部屋</a>」などを参考にやってみました。<br /><br />
+
+おおまかな手順としては、<br /><br />
+
+「Chumby側でsshdを起動」→「外部からssh接続」<br /><br />
+
+なんですが、今まで使ってきてsshdを起動するパネルなんてなかったけどなぁ?と思ってるあなたは正しい。自分もこれを知るまでまったく気付かなかった方法でsshdを起動させます。<br /><br />
+
+ではさっそくはじめてみましょう。<br /><br />
+
+まずChumbyの上にあるスイッチを押してコントロールパネルを表示してください。<br />
+次に「SETTINGS」→「CHUMBY INFO」と押すとChumbyの各種情報が表示されていると思います。<br /><br />
+
+このCHUMBY INFOの画面の右上をよーく見ると下のように「π」の文字が表示されているのがわかります。<br /><br />
+
+<img alt="chumby_hacks20080524_01.jpg" src="http://blog.clouder.jp/archives/images/chumby_hacks20080524_01.jpg" class="photo" width="320" height="240" /><br /><br />
+
+こんなの知らなかった！すげー！オラものすごくわくわくすっぞ！<br />
+ってことで、さっそくこの「π」をタップしてみましょう。<br />
+そうすると下のような裏コントロールパネルが表示されます。<br /><br />
+
+<img alt="chumby_hacks20080524_02.jpg" src="http://blog.clouder.jp/archives/images/chumby_hacks20080524_02.jpg" class="photo" width="320" height="240" /><br /><br />
+
+いろいろなメニューがありますが、今回はsshdを起動したいのでここでは「SSHD」をタップします。<br /><br />
+
+タップをすると、Chumbyのタコが表れてウインクをしてくれます。これで準備万端(らしい)。<br /><br />
+
+あとは画面の「ip」のところに書いてあるChumbyのIPアドレスに外部からターミナルでssh接続してみるだけ。下のような画面が表示されたら成功です。<br /><br />
+
+<img alt="chumby_hacks20080524_03.jpg" src="http://blog.clouder.jp/archives/images/chumby_hacks20080524_03.jpg" class="photo" width="320" height="295" /><br /><br />
+
+ここでもタコが表示されるんですねぇ。<br />
+なんかいちいち小粋な仕掛けがちりばめられていて作成者のセンスの良さを感じさせます。<br /><br />
+
+ということでssh接続が無事成功したので、これからいろいろとハックができたらなぁと思っているのですが、とりあえずはその前にウィジェットを作りたいと考えています。<br />
+
+
+ 

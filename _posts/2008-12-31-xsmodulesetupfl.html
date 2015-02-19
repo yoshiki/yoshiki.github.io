@@ -1,0 +1,375 @@
+---
+layout: post
+title: XSモジュール用のModule::Setupのflavorを作った
+mt_id: 1094
+date: 2008-12-31 01:06:21.000000000 +09:00
+author: clouder
+category: Perl
+---
+まだXSのことをよくわかってないのですが、XSモジュール用のModule::Setupのflavorを作ってみました。<br /><br />
+
+このflavorを使うには、記事下にあるコードをXSFlavor.pmって名前でファイルに保存して、<br /><br />
+
+<pre class="command">&#37; module-setup --init --flavor-class=+XSFlavor xs</pre>
+<br />
+
+でflavorを展開したら、あとは以下のようにするだけでXSモジュールの雛形ができあがります。<br /><br />
+
+<pre class="command">&#37; module-setup Your::Module xs</pre>
+<br />
+
+このflaverでできる雛形のXSには、newとincrementっていう関数が最初から追加されているので、いらない場合はてきとうに編集してください。<br /><br /><br />
+
+このflavorを最初はModule::Starterで作ろうと思ってたんだけど、module-starterコマンドではflavorの使い分ける機能がないんですね。自分でそういうコマンドラインのを作ればいいんだけど、もうその機能が備わってるModule::Setupに切り替えちゃいました。<br /><br />
+
+Module::Setupのflavor機能は素晴しいすなぁ。<br /><br />
+
+以下がFlavorになります。<br /><br />
+
+<pre class="code">package XSFlavor;
+use strict;
+use warnings;
+use base 'Module::Setup::Flavor';
+1;
+
+=head1
+
+XSFlavor - pack from xs
+
+=head1 SYNOPSIS
+
+  XSFlavor-setup --init --flavor-class=+XSFlavor new_flavor
+
+=cut
+
+__DATA__
+
+---
+file: .shipit
+template: |
+  steps = FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist, UploadCPAN
+  svk.tagpattern = release-&#37;v
+---
+file: ____var-module_file-var____.xs
+template: |
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+  #include "EXTERN.h"
+  #include "perl.h"
+  #include "XSUB.h"
+  #include "ppport.h"
+  #ifdef __cplusplus
+  }
+  #endif
+  
+  typedef SV * [&#37; module.replace('::', '_')&#37;];
+  
+  MODULE = [&#37; module &#37;]		PACKAGE = [&#37; module &#37;]		
+  
+  [&#37; module.replace('::', '_') &#37;]
+  new(...)
+      INIT:
+      	char *classname;
+  	/* get the class name if called as an object method */
+  	if ( sv_isobject(ST(0)) ) {
+  	    classname = HvNAME(SvSTASH(SvRV(ST(0))));
+  	}
+  	else {
+  	    classname = (char *)SvPV_nolen(ST(0));
+  	}
+  
+      CODE:
+      	/* This is a standard hash-based object */
+      	RETVAL = ([&#37; module.replace('::', '_') &#37;])newHV();
+  
+  	/* Single init value */
+  	if ( items == 2 ) 
+  	    hv_store((HV *)RETVAL, "value", 5, newSVsv(ST(1)), 0);
+  	/* name/value pairs */
+  	else if ( (items-1)&#37;2 == 0 ) {
+  	    int i;
+  	    for ( i=1; i &lt; items; i += 2 ) {
+  		hv_store_ent((HV *)RETVAL, ST(i), newSVsv(ST(i+1)), 0);
+  	    }
+  	}
+  	/* odd number of parameters */
+  	else {
+  	    Perl_croak(aTHX_
+  		"Usage: [&#37; module &#37;]-&gt;new()\n"
+  		"    or [&#37; module &#37;]-&gt;new(number)\n"
+  		"    or [&#37; module &#37;]-&gt;new(key =&gt; value, ...)\n"
+  	    );
+  	}
+  
+      OUTPUT:
+      	RETVAL
+  
+  IV
+  increment(obj)
+      [&#37; module.replace('::', '_') &#37;] obj
+  
+      INIT:
+         RETVAL = 0;
+         if ( items &gt; 1 )
+             Perl_croak(aTHX_ "Usage: [&#37; module &#37;]-&gt;increment()");
+  
+      CODE:
+         SV **svp;
+         if ((svp = hv_fetch((HV*)obj, "value", 5, FALSE))) {
+             RETVAL = SvIV(*svp);
+             RETVAL++;
+             hv_store((HV *)obj, "value", 5, newSViv(RETVAL), 0);
+         }
+      OUTPUT:
+         RETVAL
+---
+file: Changes
+template: |
+  Revision history for Perl extension [&#37; module &#37;]
+  
+  0.01    [&#37; localtime &#37;]
+          - original version
+---
+file: Makefile.PL
+template: |+
+  use inc::Module::Install;
+  
+  name     '[&#37; dist &#37;]';
+  all_from 'lib/[&#37; module_path &#37;].pm';
+  
+  # requires '';
+  
+  tests 't/*.t';
+  author_tests 'xt';
+  
+  cc_inc_paths '.';
+  can_cc or die 'This module requires a C compiler';
+  
+  build_requires 'Test::More';
+  use_test_base;
+  auto_include;
+  WriteAll;
+  
+  sub MY::post_constants {
+      return &lt;&lt;"POST_CONST";
+  XSUBPPARGS += -typemap typemap
+  POST_CONST
+  }
+
+---
+file: MANIFEST.SKIP
+template: |
+  \bRCS\b
+  \bCVS\b
+  ^MANIFEST\.
+  ^Makefile$
+  ~$
+  ^#
+  \.old$
+  ^blib/
+  ^pm_to_blib
+  ^MakeMaker-\d
+  \.gz$
+  \.cvsignore
+  ^t/9\d_.*\.t
+  ^t/perlcritic
+  ^tools/
+  \.svn/
+  ^[^/]+\.yaml$
+  ^[^/]+\.pl$
+  ^\.shipit$
+---
+file: README
+template: |
+  This is Perl module [&#37; module &#37;].
+  
+  INSTALLATION
+  
+  [&#37; module &#37;] installation is straightforward. If your CPAN shell is set up,
+  you should just be able to do
+  
+      &#37; cpan [&#37; module &#37;]
+  
+  Download it, unpack it, then build it as per the usual:
+  
+      &#37; perl Makefile.PL
+      &#37; make && make test
+  
+  Then install it:
+  
+      &#37; make install
+  
+  DOCUMENTATION
+  
+  [&#37; module &#37;] documentation is available as in POD. So you can do:
+  
+      &#37; perldoc [&#37; module &#37;]
+  
+  to read the documentation online with your favorite pager.
+  
+  [&#37; config.author &#37;]
+---
+file: typemap
+template: |
+  ###############################################################################
+  ##
+  ##    Typemap for [&#37; module &#37;] objects
+  ##
+  ##    Copyright (c) [&#37; config.author &#37;]
+  ##    All rights reserved.
+  ##
+  ##    This typemap is designed specifically to make it easier to handle
+  ##    Perl-style blessed objects in XS.  In particular, it takes care of
+  ##    blessing the object into the correct class (even for derived classes).
+  ##
+  ##
+  ###############################################################################
+  ## vi:et:sw=4 ts=4
+  
+  TYPEMAP
+  
+  [&#37; module.replace('::', '_') &#37;] T_PTROBJ_SPECIAL
+  
+  INPUT
+  T_PTROBJ_SPECIAL
+      if (sv_derived_from($arg, \"${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\")) {
+  	$var = SvRV($arg);
+      }
+      else
+  	croak(\"$var is not of type ${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\")
+  
+  OUTPUT
+  T_PTROBJ_SPECIAL
+      /* inherited new() */
+      if ( strcmp(classname,\"${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\") != 0 )
+  	$arg = sv_bless(newRV_noinc($var),
+  	    gv_stashpv(classname,TRUE));
+      else
+  	$arg = sv_bless(newRV_noinc($var),
+  	    gv_stashpv(\"${(my $ntt=$ntype)=~s/_/::/g;\$ntt}\",TRUE));
+---
+file: lib/____var-module_path-var____.pm
+template: |
+  package [&#37; module &#37;];
+  
+  use strict;
+  use warnings;
+  #use base qw(Exporter);
+  #our @EXPORT_OK = ();
+  
+  our $VERSION = '0.01';
+  
+  require XSLoader;
+  XSLoader::load(__PACKAGE__, $VERSION);
+  
+  1;
+  __END__
+  
+  =head1 NAME
+  
+  [&#37; module &#37;] -
+  
+  =head1 SYNOPSIS
+  
+    use [&#37; module &#37;];
+  
+  =head1 DESCRIPTION
+  
+  [&#37; module &#37;] is
+  
+  =head1 AUTHOR
+  
+  [&#37; config.author &#37;] E&lt;lt&gt;[&#37; config.email &#37;]E&lt;gt&gt;
+  
+  =head1 SEE ALSO
+  
+  =head1 LICENSE
+  
+  This library is free software; you can redistribute it and/or modify
+  it under the same terms as Perl itself.
+  
+  =cut
+---
+file: t/00_compile.t
+template: |
+  use strict;
+  use Test::More tests =&gt; 1;
+  
+  BEGIN { use_ok '[&#37; module &#37;]' }
+---
+file: xt/01_podspell.t
+template: |
+  use Test::More;
+  eval q{ use Test::Spelling };
+  plan skip_all =&gt; "Test::Spelling is not installed." if $@;
+  add_stopwords(map { split /[\s\:\-]/ } &lt;DATA&gt;);
+  $ENV{LANG} = 'C';
+  all_pod_files_spelling_ok('lib');
+  __DATA__
+  [&#37; config.author &#37;]
+  [&#37; config.email &#37;]
+  [&#37; module &#37;]
+---
+file: xt/02_perlcritic.t
+template: |
+  use strict;
+  use Test::More;
+  eval {
+      require Test::Perl::Critic;
+      Test::Perl::Critic-&gt;import( -profile =&gt; 'xt/perlcriticrc');
+  };
+  plan skip_all =&gt; "Test::Perl::Critic is not installed." if $@;
+  all_critic_ok('lib');
+---
+file: xt/03_pod.t
+template: |
+  use Test::More;
+  eval "use Test::Pod 1.00";
+  plan skip_all =&gt; "Test::Pod 1.00 required for testing POD" if $@;
+  all_pod_files_ok();
+---
+file: xt/perlcriticrc
+template: |
+  [TestingAndDebugging::ProhibitNoStrict]
+  allow=refs
+---
+plugin: plugin.pm
+template: |
+  package XSFlavor::Plugin;
+  use strict;
+  use warnings;
+  use base 'Module::Setup::Plugin';
+  use Devel::PPPort;
+  use File::Spec;
+  
+  sub register {
+      my $self = shift;
+      $self-&gt;add_trigger( after_create_skeleton =&gt; \&create_ppport_process );
+      $self-&gt;add_trigger( after_setup_template_vars =&gt; \&add_template_vars );
+  }
+  
+  sub create_ppport_process {
+      my $self = shift;
+      $self-&gt;log( "Creating ppport.h" );
+      Devel::PPPort::WriteFile(
+          File::Spec-&gt;catfile( $self-&gt;distribute-&gt;dist_path, 'ppport.h' )
+      );
+  }
+  
+  sub add_template_vars {
+      my ( $self, $template_vars ) = @_;
+      my ( $module_file ) = $template_vars-&gt;{ module } =~ m#(?:.*::)?(.*)$#;
+      $template_vars-&gt;{ module_file } = $module_file;
+  }
+  
+  1;
+---
+config:
+  plugins:
+    - Config::Basic
+    - Template
+    - Test::Makefile
+    - Additional
+    - +XSFlavor::Plugin
+</pre> 

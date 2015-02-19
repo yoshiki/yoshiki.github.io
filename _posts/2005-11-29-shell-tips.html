@@ -1,0 +1,63 @@
+---
+layout: post
+title: 今日覚えたshell Tips(ネットワーク越しにごにょごにょ編)
+mt_id: 596
+date: 2005-11-29 15:30:26.000000000 +09:00
+author: clouder
+category: Unix
+---
+あるときネットワーク越しにいろいろなことやりたくて、shellのコマンド調べていて覚えたことを覚え書き的に記しておきます。
+下記は<strong>コマンドラインから、ネットワーク越しにその場で書いた内容のファイルを作る方法</strong>です。
+
+<pre class="code">&#37; cat &lt;&lt;EOT | ssh $SERVER "cat &gt; /path/to/file"
+content
+content
+content
+content
+EOT</pre>
+
+これの応用で、パッチを複数サーバであてたいときは、
+
+<pre class="code">&#37; cat &lt;&lt;EOT | ssh $SERVER "cat &gt; /path/to/patch"
+--- /path/to/orig   2005-11-29 13:45:42.129125170 +0900
++++ /path/to/new   2005-11-29 13:46:27.540536045 +0900
+@@ -1,3 +1,3 @@
+ aaa
+-bbb
++ddd
+ ccc
+EOT
+&#37; ssh $SERVER "patch &lt; /path/to/patch"</pre>
+
+とか、もっとやるとファイルなぞ作らなくても直接patchをあてちゃったりできる。
+
+<pre class="code">&#37; cat &lt;&lt;EOT | ssh $SERVER patch
+--- /path/to/orig   2005-11-29 13:45:42.129125170 +0900
++++ /path/to/new   2005-11-29 13:46:27.540536045 +0900
+@@ -1,3 +1,3 @@
+ aaa
+-bbb
++ddd
+ ccc
+EOT</pre>
+
+こんな感じです。知ってる人には常識中の常識なのかもしれませんが…。
+
+あと自分は複数サーバで同時にあるコマンドを実行したいときは下記のようにコマンドラインでやっちまいます。
+Borne Shellでは
+
+<pre class="code">
+&#37; for x in 192.168.0.1 192.168.0.2 192.168.0.3; do command; done
+</pre>
+
+tcshだったら
+
+<pre class="code">
+&#37; foreach x (192.168.0.1 192.168.0.2 192.168.0.3)
+foreach?command
+foreach?end
+</pre>
+
+みたいな感じで。サーバのIPはserver_list.txtとかに1サーバ1行で書いてcatする方法でもいけます。
+
+んで疑問なのは、tcshでborne shellみたいにコマンドラインで1行でone-linerが書けないのかということなんですが、調べてみたんですがどうもできなそうなんですよね…。教えてエラい人！(注:<a href="http://d.hatena.ne.jp/naoya/20050909/1126240088">NDOメソッド</a>) 

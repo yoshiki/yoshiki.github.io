@@ -1,0 +1,16 @@
+---
+layout: post
+title: Gearman::Client::Asyncはtimeoutできます
+mt_id: 990
+date: 2007-08-28 13:23:38.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000989.html">前のエントリ</a>で、Gearman::Clientはtimeoutできないけど、Gearman::Client::Asyncはtimeoutできる。でもすぐに処理が戻ってこない！って書きました。
+
+で、この処理すぐに戻ってこないという問題をもうちょっと調べたら、すぐではないけど処理が戻ってくることが確認できました。設定した秒数が短かすぎて勘違いしていたみたい＞＜<br /><br />
+
+ということで、結論としてはtimeoutさせたかったらGearman::Clientじゃなく、Gearman::Client::Asyncを使おうということですね。
+
+
+ 

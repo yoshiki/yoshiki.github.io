@@ -1,0 +1,122 @@
+---
+layout: post
+title: mixi de RSS
+mt_id: 245
+date: 2004-12-21 17:05:20.000000000 +09:00
+author: clouder
+category: Perl
+---
+めずらしく、<a href="http://mixi.jp/" target="_blank">mixi</a>のネタです。<br />
+<br />
+mixiの自分のページの「マイミクシィ最新日記」をRSSにして吐きだすプログラムです。<br />
+自分の友達リストの中で、「mixi日記」を使っている人の更新された日記を抽出しています。<br />
+(外部のブログのは取ってきません、それは<a href="http://www.bloglines.com/" target="_blank">Bloglines</a>なりを使った方がいいべ)<br />
+
+<a href="http://search.cpan.org/perldoc?WWW&#37;3A&#37;3AMechanize" target="_blank">WWW::Mechanize</a>、<a href="http://search.cpan.org/perldoc?Jcode" target="_blank">Jcode</a>、<a href="http://search.cpan.org/perldoc?XML&#37;3A&#37;3ARSS" target="_blank">XML::RSS</a>、<a href="http://search.cpan.org/perldoc?Time&#37;3A&#37;3APiece" target="_blank">Time::Piece</a>が必要です。<br />
+WWW::Mechanizeをはじめて使ってみたのですが、とても便利ですね。<br />
+クッキーとかその辺の処理をさっくりやってくれます。<br />
+<br />
+さて、表題のスクリプトは↓にあります。<br />
+$usernameと$passwordは自分のを入れてください。<br />
+<br />
+cronに<br />
+<pre class="code">0 * * * * /path/to/md-lite.pl > mixi.rdf </pre>
+とか設定して1時間に1回RSSを吐き出して、それをRSSリーダーで読めばよいでしょう。<br />
+<br />
+ちなみにmd-lite.plのmdはmixi discoveryの略ということで…意味なし…。<br />
+てか<a href="http://digit.que.ne.jp/work/index.cgi?Perl&#37;A5&#37;E2&#37;A5&#37;B8&#37;A5&#37;E5&#37;A1&#37;BC&#37;A5&#37;EB&#37;2FWWW&#37;3A&#37;3AMixi" target="_blank">WWW::Mixi</a>を使えというのはまぁ…。WWW::Mechanize使いたかったんですもの…。 
+<pre class="code">
+#!/usr/local/bin/perl
+
+use strict;
+use WWW::Mechanize;
+use Jcode;
+use XML::RSS;
+use Time::Piece;
+use Data::Dumper;
+
+my $username = 'foo@example.com'; # email for mixi.jp
+my $password = 'yourpassword';    # password for mixi.jp
+my $mech = WWW::Mechanize->new;
+$mech->get('http://mixi.jp/');
+
+# do login
+my $r = $mech->submit_form(
+    form_number => 1,
+    fields => {
+	next_url => '/home.pl',
+	email => $username,
+	password => $password,
+    },
+);
+
+(my $uri = $r->content) =~ s/^.*url=([^"]+)".*$/$1/;
+$mech->get("http://mixi.jp$uri");
+
+# get new friend diary
+$mech->get('http://mixi.jp/new_friend_diary.pl');
+
+my $rss = XML::RSS->new({ version => '1.0' });
+my $t = localtime;
+$rss->channel(
+    title => "mixi.jp",
+    link  => "http://mixi.jp/",
+    description => "mixi",
+    dc => {
+	date => $t->datetime,
+	subject => "mixi friends diary",
+	creator => "clouder",
+	language => "ja"
+    },
+);
+
+# parse diary list
+parse_diary($rss, $mech->content);
+
+print $rss->as_string;
+
+sub friends_lists {
+    $mech->get('http://mixi.jp/list_friend.pl');
+    return $mech->find_all_links(url_regex => qr/show_friend\.pl/);
+}
+
+sub parse_diary {
+    my($rss, $html) = @_;
+    my $re = _diary_pattern();
+    while ($html =~ m#$re#g) {
+        # name date time title content
+        my $datetime = jcode($1)->h2z->euc;
+	my $link = sprintf('http://mixi.jp/&#37;s', $2);
+	my $title = jcode($3)->h2z->euc;
+        my $name = jcode($4)->h2z->euc;
+        $datetime =~ s/^(\d+)?[^\d]+(\d+)?[^\d]+(\d+)?[^\s]+ (\d+):(\d+)$/$1-$2-$3 $4:$5:00/;
+        $rss->add_item(
+	    title => sprintf('&#37;s (&#37;s)', encode_xml_valid_entities(jcode(remove_tag($title))->utf8), jcode($name)->utf8),
+	    link  => $link,
+	    dc => {
+		date => $datetime,
+		subject => jcode($title)->utf8,
+		creator => jcode($name)->utf8,
+	    },
+        );
+    }
+}
+
+sub _diary_pattern {
+    return &lt;&lt;'RE';
+&lt;td WIDTH=180&gt;&lt;img src=http://img.mixi.jp/img/pen.gif ALIGN=left WIDTH=14 HEIGHT=16&gt;([^&lt;]+)&lt;/td&gt;
+&lt;td WIDTH=450&gt;&lt;a href=(.*\?id=[^&gt;]+)&gt;([^&lt;]+)&lt;/a&gt; \((.+)\)
+RE
+}
+
+sub remove_tag {
+    my  $str = shift;
+    $str =~ s/<.*?>//g;
+    return $str;
+}
+
+sub encode_xml_valid_entities {
+    my $input = shift;
+    return HTML::Entities::encode_entities($input, '<>&"');
+}
+</pre>

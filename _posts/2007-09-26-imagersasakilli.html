@@ -1,0 +1,29 @@
+---
+layout: post
+title: Imagerを使ってsasakillizer作った
+mt_id: 995
+date: 2007-09-26 00:49:56.000000000 +09:00
+author: clouder
+category: Perl
+---
+Imagerを使ってこのエントリでやっているPhotoshopと(おそらく)同等の処理になるであろう変換サービスを作った。
+
+<a href="http://sasakillizer.47objects.com/">http://sasakillizer.47objects.com/
+</a>
+
+やってることは以下の処理だけです。
+
+<pre class="code">my $img = Imager->new->read( file => 'before.jpg' ) or die Imager->errstr;
+$img->filter( type => "autolevels", lsat => 0.0003, usat => 0.0003 ) or die $img->errstr;
+$img->filter( type => "contrast", intensity => 1.05 ) or die $img->errstr;
+$img = $img->convert(
+    matrix =>[ [ 1.12,    0,    0, 0 ],
+              [    0, 1.08,    0, 0 ],
+              [    0,    0, 1.03, 0 ] ]
+) or die $img->errstr;
+$img->write( file => 'after.jpg' );</pre>
+
+autolevelsフィルターでコントラストの上下0.03&#37;をカットして、contrastフィルターで全体的にコントラストを上げて、convertで赤と黄の色をちょっと上げる。それだけです。
+
+小さい画像だと、変換後がちょっと荒くなってしまうのはご愛敬。
+ 

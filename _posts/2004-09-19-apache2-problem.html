@@ -1,0 +1,18 @@
+---
+layout: post
+title: apache2 problem on cygwin
+mt_id: 208
+date: 2004-09-19 03:21:34.000000000 +09:00
+author: clouder
+category: Unix
+---
+最近cygwinにいろいろと入れているのだが、
+apache2をやっとこさインストールして起動してみた。
+
+&#37; /usr/local/apache2/bin/apachectl start
+ulimit: ulimit: not available on this system
+ulimit: ulimit: not available on this system
+
+動かない…。なんか ulimit ってのがcygwinにはないらしい。
+preforkだからだめなのかな？
+ 

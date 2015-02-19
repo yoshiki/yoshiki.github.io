@@ -1,0 +1,23 @@
+---
+layout: post
+title: Bookmarklet on Safari
+mt_id: 34
+date: 2003-01-17 16:42:23.000000000 +09:00
+author: clouder
+category: Mac
+---
+<blockquote class="quote"><a title="david.blangstrup.dk: MovableType on Safari" href="http://david.blangstrup.dk/archives/000072.php" target="_blank">david.blangstrup.dk: MovableType on Safari</a>
+Six Log: Initial reactions to Safari
+
+And here's a fix to squash the bug that's preventing Bookmarklets in Safari
+
+In order to get the MT-Bookmarklet work without the text selection function you have to delete the following piece of code in your bookmarklet:
+
+?d.selection.createRange().text:d.getSelection()</blockquote>
+
+これで Safari でも bookmarklet ができるようになるらしい。
+ただ、textだけは引用できない(d.selection等が使えない)ので、
+自分でコピーするしかないようだ。
+
+bug report は送ってるようなので、そのうち d.selection
+も使えるようになると思います。 

@@ -1,0 +1,32 @@
+---
+layout: post
+title: Perlのファイル内の文字列置換をワンライナではなくスクリプトでやる1つの方法
+mt_id: 724
+date: 2006-11-14 19:23:59.000000000 +09:00
+author: clouder
+category: Perl
+---
+よくワンライナで、<br /><br />
+
+<pre class="code">&#37; perl -pi -e 's/foo/bar/' file</pre><br />
+
+とかやって、fileの中身の foo を bar に置換するけど、それをスクリプトでやりたいときはどうするんだと同僚に聞かれて実験してみた。当たり前だけど、下記のようにしたら出来た。これって正しいのだろうか。<br /><br />
+
+<pre class="code">#!/usr/local/bin/perl -pi
+
+use strict;
+s/foo/bar/;</pre>
+
+<strong>追記：</strong><br />
+Perlクックブックに載っていた模様。<br />
+場所は7章の「レシピ7.9 ファイルを-iスイッチを使って、その場で更新する」。<br /><br />
+
+やり方は↑のやつでいいみたい。shebangにオプションでよいようです。<br />
+ちなみにあなたが漢であるならば必要ないが、「-i」オプションを「-i.orig」とするとバックアップのファイル(filename.orig)を勝手に作ってくれるので吉。
+<br /><br /><br />
+
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112028/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4873112028.09.MZZZZZZZ.jpg" alt="Perlクックブック〈VOLUME1〉" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112028/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Perlクックブック〈VOLUME1〉</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4873112028/clouder-22" title="Perlクックブック〈VOLUME1〉" target="_blank">amazlet</a> on 06.11.14</div></div><div class="amazlet-detail">トム クリスチャンセン ネイザン トーキントン Tom Christiansen Nathan Torkington Shibuya Perl Mongers ドキュメントシステム <br />オライリージャパン <br />売り上げランキング: 142559<br /></div><div class="amazlet-review" style="margin-top:10px; margin-bottom:10px"><div class="amazlet-review-average" style="margin-bottom:5px">おすすめ度の平均: <img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5.0" /></div><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5" /> Perlプログラマ必携本（ご存知でしょうけど）<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112028/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div><br /><br />
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112036/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4873112036.01.MZZZZZZZ.jpg" alt="Perlクックブック〈VOLUME2〉" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112036/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Perlクックブック〈VOLUME2〉</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4873112036/clouder-22" title="Perlクックブック〈VOLUME2〉" target="_blank">amazlet</a> on 06.11.14</div></div><div class="amazlet-detail">トム クリスチャンセン ネイザン トーキントン Tom Christiansen Nathan Torkington Shibuya Perl Mongers ドキュメントシステム <br />オライリージャパン <br />売り上げランキング: 85814<br /></div><div class="amazlet-review" style="margin-top:10px; margin-bottom:10px"><div class="amazlet-review-average" style="margin-bottom:5px">おすすめ度の平均: <img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-3-0.gif" alt="3.0" /></div><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-3-0.gif" alt="3" /> あまり使わない部分が集まってしまった下巻<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873112036/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+ 

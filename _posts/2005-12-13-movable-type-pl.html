@@ -1,0 +1,17 @@
+---
+layout: post
+title: Movable Type Plugin for はてなブックマーク件数取得API
+mt_id: 608
+date: 2005-12-13 16:49:35.000000000 +09:00
+author: clouder
+category: Perl
+---
+<blockquote><a title="はてなダイアリー - はてなブックマーク件数取得APIとは" href="http://d.hatena.ne.jp/keyword/&#37;a4&#37;cf&#37;a4&#37;c6&#37;a4&#37;ca&#37;a5&#37;d6&#37;a5&#37;c3&#37;a5&#37;af&#37;a5&#37;de&#37;a1&#37;bc&#37;a5&#37;af&#37;b7&#37;ef&#37;bf&#37;f4&#37;bc&#37;e8&#37;c6&#37;c0API">はてなダイアリー - はてなブックマーク件数取得APIとは</a>
+
+任意のURLのリストを送信すると、はてなブックマークでの被ブックマーク件数を取得することができるAPIです。APIはXML-RPC APIを用いて実装を行っており、結果は URL と被ブックマーク件数のペアの構造体として返却されます。</blockquote>はてなブックマーク件数取得APIがリリースされてました。<a href="http://tanimo.to/mt/archives/2005/09/post_22.html">作ってる方がいる</a>のですが…XMLRPC版ということでMT用のプラグインを作成しました。
+
+<a href="http://clouder.jp/src/mt_plugin/mt-hatena-bookmark-count.pl">mt-hatena-bookmark-count.pl</a>
+
+&lt;MTEntries&gt;などの中で&lt;$MTHatenaBookmarkCount$&gt;と指定すると、再構築時にその記事がはてなブックマークでブックマークされている件数を取得してきて表示してくれます。Cache::FastMmapを使って結果取得後1時間はキャッシュさせるようになっているのではてブサーバにちょっと優しくしてます。でもリアルタイムではなく再構築時のみなので、気になる人は定期的に再構築をする必要あり…。もしめんどうならcronとかで再構築しませう。
+
+ていうか作ってる途中からうすうすわかってはいたのだが、やっぱJavaScriptにしてそこからcgiを叩いて半リアルタイム(キャッシュも使う)でやった方がいいよな…あとで作ろう。。。 

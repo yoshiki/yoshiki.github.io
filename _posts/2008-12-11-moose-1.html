@@ -1,0 +1,35 @@
+---
+layout: post
+title: Mooseをさわる 1日目
+mt_id: 1089
+date: 2008-12-11 19:09:13.000000000 +09:00
+author: clouder
+category: Perl
+---
+世の中の<a href="http://search.cpan.org/perldoc?Moose">Moose</a>期が過ぎ去った感がある今日この頃ですが、ここにきてやっとMooseをさわりはじめました。<br /><br />
+
+なんで突然Mooseをさわりはじめたかというと、<a href="http://trombik.mine.nu/~cherry/w/index.php/2008/03/22/1202/oop-with-moose">typester</a>の<a href="http://trombik.mine.nu/~cherry/w/index.php/2008/03/22/1202/oop-with-moose">kamaitachi</a>をちょっと使ってみようと思って見ていたらMooseを使っていて、まずMooseがわからないとコードが読めなかったからです。<br /><br />
+
+ということで、ファーストインプレッションは以下。<br /><br />
+
+<ul>
+<li>hasとかextendsはなんとなくわかる</li>
+<li>use Moose;するとuse strict;やuse warnings;が必要ないんだね</li>
+<li>no Moose;している理由ってhasとかextendsとかのメソッド(pod内でkeywordと書かれているもの)をそれ以降で使えないようにしたいからなのね</li>
+<li>__PACKAGE__->meta->make_immutable;はそのクラスをimmutableにして、memorizeすることによりMooseの速度を上げる</li>
+<li>Mooseを使ったモジュールの最後に1;ってやってないのあって、変わりに__PACKAGE__->meta->make_immutable;してる</li>
+<li>なんか日本語のドキュメントが少ない。Moose::Cookbookがけっこう充実してるのでまずはその辺を読めばいいかも</li>
+<li>sub BUILD {} ってのがあってMoose的にはnew()は書き換えないで、その代わりにBUILD()を使うらしい</li>
+<li>use Moose;するとそのクラスがMoose::Objectの子クラスいなる(という動作の原理をあとで調べたい)</li>
+</ul>
+
+以下参考にしたページ<br />
+<a href="http://blog.yappo.jp/yappo/archives/000579.html">http://blog.yappo.jp/yappo/archives/000579.html</a><br />
+<a href="http://d.hatena.ne.jp/tokuhirom/20080504/1209891158">http://d.hatena.ne.jp/tokuhirom/20080504/1209891158</a><br />
+<a href="http://d.hatena.ne.jp/fbis/20080814/1218689670">http://d.hatena.ne.jp/fbis/20080814/1218689670</a><br />
+<a href="http://d.hatena.ne.jp/fbis/20080815/1218776733">http://d.hatena.ne.jp/fbis/20080815/1218776733</a><br />
+<a href="http://perl-mongers.org/2008/05/moose.html">http://perl-mongers.org/2008/05/moose.html</a><br />
+<a href="http://mt.endeworks.jp/d-6/2008/07/moose.html">http://mt.endeworks.jp/d-6/2008/07/moose.html</a><br />
+<a href="http://trombik.mine.nu/~cherry/w/index.php/2008/03/22/1202/oop-with-moose">http://trombik.mine.nu/~cherry/w/index.php/2008/03/22/1202/oop-with-moose</a><br />
+
+<br /> 

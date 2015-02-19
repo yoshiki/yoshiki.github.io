@@ -1,0 +1,16 @@
+---
+layout: post
+title: DBIでmysqlのmy.cnfを読み込ませる方法
+mt_id: 726
+date: 2006-11-20 23:06:26.000000000 +09:00
+author: clouder
+category: Perl
+---
+1つのサーバでmysqlを2台動かしてmy.cnfを分けたときに、DBIから接続する際にそのmy.cnfをdata sourceとして読み込ませる方法を初めて知った。。。(see also <a href="http://search.cpan.org/dist/DBD-mysql">DBD::mysql</a>)
+
+<pre class="code">my $dbh = DBI->connect('dbi:mysql:foo;mysql_read_default_file=/path/to/my.cnf', 'root', '') or die $!;</pre>
+
+こうやるとできるみたい。もちろんmy.cnfの[client]セクションに接続したいmysqldの起動してあるポートとかを指定する必要があります。まぁ最近はサーバのコストも低くなってきているので、1台で複数のmysqlを動かすなんて機会がないっちゃないんですけどね…。
+
+これは個人サーバでやりたかっただけです。
+ 

@@ -1,0 +1,63 @@
+---
+layout: post
+title: Gearmanは64kbぐらいのデータをうまくやりとりできないっぽい
+mt_id: 997
+date: 2007-09-27 18:08:21.000000000 +09:00
+author: clouder
+category: Perl
+---
+最近Gearmanを使っていてわかったのですが、Gearmanでは64kbぐらい(ぐらいっていう曖昧な表現なのは、毎回そうとは限らないから)のデータをworkerに投げると、うまく処理できないようです。うまく処理できないというかデータが欠損してしまうようです。<br /><br />
+
+なんでなのか調べてみると、Gearman::Utilのread_res_packet()という関数の下記の部分で、clientから投げられたデータを全て取得できていないというのがわかりました。<br /><br />
+
+<pre class="code">     if ($len) {
+         $rv = sysread($sock, $buf, $len);
+         return $err->("short_body") unless $rv == $len;
+     }</pre>
+
+この部分の$lenは、clientから投げられたデータ(パケット)のヘッダーから取得したもので、workerに送られてきたデータ長になります。で、$rvにはsysreadで読み込んだデータ長が入るのだが、その$lenと$rvの長さが違うためにshort_bodyのエラーになってしまっているのです。<br /><br />
+
+実際にどのくらいのデータ欠損があるのかというと、試しに以下のworker.plを立ち上げて、task.plで処理の依頼をworkerに投げた際の$lenと$rvは、$lenは65554byte、$rvは65524byte(ヘッダーと合わせると65536byte = 64kb)となっていました。ただ、この取得できるバイト数というのは毎回こうではなく、場合によって違うようです。64kb満たない場合でもデータがある程度大きいと起るようです。
+
+<pre class="code">#!/usr/local/bin/perl
+# worker.pl
+
+use strict;
+use Gearman::Worker;
+
+my $worker = Gearman::Worker->new;
+$worker->job_servers(qw(127.0.0.1));
+$worker->register_function(
+    test => sub {
+        return "this is test";
+    },
+);
+$worker->work while 1;</pre>
+
+<pre class="code">#!/usr/local/bin/perl
+# task.pl
+
+use strict;
+use Gearman::Client;
+
+my $client = Gearman::Client->new( job_servers => [ qw(127.0.0.1) ] );
+my $tasks = $client->new_task_set;
+$tasks->add_task(
+    "test" => 'a' x (1024 * 64),
+    {
+        on_complete => sub { my $ref = shift; print $$ref, "\n" },
+        on_fail     => sub { warn "failed\n" },
+    },
+);
+$tasks->wait( timeout => 10 );
+
+print "done.\n";</pre>
+
+もしかしたらclientが全部データを投げる前にsysreadを始めちゃってるのかな？と思ったので、Gearman::Utilのread_res_packet()の処理の前にsleepをいれてデータを待つようにしてやったら、なんと全部のデータが取れたりする(これも必ず取れるわけではないのはタイミングの問題かな)ので、全部のデータがworkerに届いてないうちに、sysreadが走っているような気がします。<br /><br />
+
+もう1つ気になっているのが、tcpのパケットのサイズ制限が64kbだからなのかな？と思い、socketの設定で1パケットの送受信の長さが変えられる SO_RCVBUF と SO_SNDBUF を多めに変更してみたのですが、それでもうまく動かないっぽいので、それだけの問題でもないようです。<br /><br />
+
+ということで、どちらにしても今のところGearmanでは64kbぐらい大きいデータは扱わない方がいいみたい。<br /><br />
+
+もしこのデータが欠損してしまう問題の解決方法をご存知の方がいましたら、ぜひ教えてください＞＜<br />
+ 

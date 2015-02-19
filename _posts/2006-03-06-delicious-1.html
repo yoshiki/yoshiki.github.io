@@ -1,0 +1,22 @@
+---
+layout: post
+title: del.icio.usでプライベートブックマークする方法
+mt_id: 640
+date: 2006-03-06 13:12:48.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<div style="color: #f00">追記: こちらの説明は間違っていました、正しくはこちら→<a href="http://clouder.jp/yoshiki/mt/archives/000643.html">http://clouder.jp/yoshiki/mt/archives/000643.html</a></div>
+
+最近知ったのですが、del.icio.usで他人に見せることなくブックマークすることが出来る方法があるようです。まぁ正しくは本当にブックマークしたのがわからないわけではないんですが、少なくとも自分がブックマークしたということはわからなくできます。
+
+やり方は簡単で下記のようなブックマークレットを使うだけです。usernameのところを自分のものに変えておいてください。
+
+<pre class="code">javascript:location.href='http://del.icio.us/username?v=3&amp;tags=private.bookmarks&amp;url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title)</pre>
+
+見てわかるようにタグでprivate.bookmarksと入れるだけです。ブックマークレットを使わなくても、自分で手でprivate.bookmarksを入れてもよいです。
+こうすることにより、そのタグを付けたブックマークは通常の自分のブックマークリストである http://del.icio.us/username には出ず http://del.icio.us/for/username というリンクでしか見ることができなくなります。この /for/username のページはその username でログインした時しか参照できません。
+
+この昨日にはいくつか問題(自分が見る限り)があって、1つはこの機能を使ったブックマークは http://del.icio.us/private.bookmarks ここで一覧が見られます。誰がブックマークしたかはわかりませんが…。もう1つは、一度ブックマークすると削除ができません。これはイケてない…。
+
+ちょっとこのページをブックマークするのは…と躊躇って、でも自分のローカルに残すのもなぁと思った時にはぜひ試してみてください。 

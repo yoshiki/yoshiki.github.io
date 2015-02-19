@@ -1,0 +1,51 @@
+---
+layout: post
+title: Google Maps API release!
+mt_id: 463
+date: 2005-06-30 16:11:10.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<blockquote><a title="O'Reilly Radar > Where 2.0: Google Maps API" href="http://radar.oreilly.com/archives/2005/06/where_20_google.html">O'Reilly Radar > Where 2.0: Google Maps API</a><br /><br />
+
+Google Maps API released today. Look for Google Maps PM Bret Taylor to talk about it in his Where 2.0 talk. </blockquote>Google Maps APIがリリースが昨日リリースしていたらしいです。API Keyを取るときに掲載するURIを入力しなければならないのがちょっとアレですが、とりあえず登録をしてみました。<br />
+APIはJavaScriptで提供されていて、いろいろできるっぽいですね。でも日本の地図はまだ提供されていないので、面白いことをしようとするなら、もう少し辛抱が必要…。<br />
+<br /> 
+<br /><br />
+試しにここにgoogle mapsを貼ってみた。<br />
+<br />
+<script src="http://maps.google.com/maps?file=api&v=1&key=ABQIAAAAp9Jad5vk6kFcaf3p_9oo1RRdVAKha6sV5IUOT5pCTWuK9Wm8kBRzNNhjvJIWL9ov0Y-ZCC7yFh5wtA" type="text/javascript"></script>
+<div id="map" style="width: 400px; height: 300px"></div>
+<script type="text/javascript">
+//<![CDATA[
+// Create our "tiny" marker icon
+var icon = new GIcon();
+icon.image = "http://labs.google.com/ridefinder/images/mm_20_red.png";
+icon.shadow = "http://labs.google.com/ridefinder/images/mm_20_shadow.png";
+icon.iconSize = new GSize(12, 20);
+icon.shadowSize = new GSize(22, 20);
+icon.iconAnchor = new GPoint(6, 20);
+icon.infoWindowAnchor = new GPoint(5, 1);
+
+// Center the map on Fujitv
+var map = new GMap(document.getElementById("map"));
+map.addControl(new GSmallMapControl());
+map.addControl(new GMapTypeControl());
+map.centerAndZoom(new GPoint(139.774343, 35.626849), 13);
+
+// Creates one of our tiny markers at the given point
+function createMarker(point) {
+  var marker = new GMarker(point, icon);
+  map.addOverlay(marker);
+  GEvent.addListener(marker, "click", function() {
+    marker.openInfoWindowHtml("Fujitv is Here!");
+  });
+}
+
+var bounds = map.getBoundsLatLng();
+var width = bounds.maxX - bounds.minX;
+var height = bounds.maxY - bounds.minY;
+createMarker(new GPoint(139.774343, 35.626849));
+//]]>
+</script>
+

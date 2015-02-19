@@ -1,0 +1,36 @@
+---
+layout: post
+title: MacBook AirにGMPをインストールする方法
+mt_id: 1049
+date: 2008-05-27 17:46:03.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://www.atmarkit.co.jp/fsecurity/rensai/openid01/openid01.html">ZIGOROuさんのOpenIDの記事</a>を読んで、Net::OpenID::Consumerをインストールしようとしたのですが、Net::OpenID::ConsumerはCrypt::DHを使っていて、そのCrypt::DHはMath::BigInt::GMPを使った方が速度が早いらしいということで、早速Math::BigInt::GMPをインストールしようとしてみたところMacBook AirにはGMP(<a href="http://gmplib.org/">The GNU MP Bignum Library</a>)が入ってないことが発覚。<br /><br />
+
+ネットを検索したら、<br />
+yoshidasterさんの「<a href="http://d.hatena.ne.jp/hi-rocks/20080215/1203052445"> Mac OSXにNet::OpenID::Serverをインストール </a>」や
+弾さんの「<a href="http://blog.livedoor.jp/dankogai/archives/50712932.html">備忘録 - Intel Mac vs. GMP</a>」や「<a href="http://www.geocities.jp/ct35z/gmp-core2.html">gmp-4.2.2-core2</a>」などがひっかかりました。<br /><br />
+
+これらを試してみたのですが、どうもうまくインストールできません。<br />
+make checkも問題ないし、インストールもできるのですが、その後Math::BigInt::GMPのmake testでコケてしまいます。<br /><br />
+
+なんでだろうなぁと思いながら、<a href="http://svn.macports.org/repository/macports/trunk/dports/devel/gmp/Portfile">MacPortsのGMPのPortfile</a>(インストール方法みたいなのを記述するもの)をみながら、下記のようにやってみたら無事インストールでき、Math::BigInt::GMPもインストールできました。<br />
+
+<pre class="code">&#37; tar jxvf gmp-4.2.2.tar.bz2
+&#37; cd gmp-4.2.2/
+&#37; env ABI=32 ./configure --enable-shared --enable-cxx
+&#37; make CFLAGS=-force_cpusubtype_ALL
+&#37; make check
+&#37; sudo make install</pre>
+
+ちなみにABIや-force_cpusubtype_ALLの意味はまったくわかってませんｗ<br /><br />
+
+弾さんのところにあるベンチマークプログラムを使ってみたところ、予想通りGMPの方が下記のように劇的に早いようです。
+
+<pre class="command">&#37; ./bench.pl Calc 5000
+Math::BigInt::Calc
+elapsed: 7.43699407577515s
+&#37; ./bench.pl GMP 5000
+Math::BigInt::GMP
+elapsed: 0.535856962203979s</pre> 

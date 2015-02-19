@@ -1,0 +1,42 @@
+---
+layout: post
+title: dateコマンドで日付の計算処理するテクニック
+mt_id: 1083
+date: 2008-12-01 23:53:41.000000000 +09:00
+author: clouder
+category: Unix
+---
+dateコマンドで今の時刻の1日前とかを求めるのってよくやると思いますが、<br />
+dateコマンドはOSによって方言があってオプションをいつも忘れて毎回調べたりしてるので<br />
+メモがわりに書いておりきます。<br /><br />
+
+<h3>1日前をもとめたいときは？</h3>
+
+BSD系<br />
+<pre class="command">&#37; date -v-1d</pre><br />
+Linux系<br />
+<pre class="command">&#37; date --date '1 days ago'</pre><br />
+<br />
+
+<h3>1日前をもとめつつフォーマットを整えたいときは？</h3>
+
+BSD系<br />
+<pre class="command">&#37; date -v-1d +&#37;Y&#37;m&#37;d</pre><br />
+Linux系<br />
+<pre class="command">&#37; date --date '1 days ago' +&#37;Y&#37;m&#37;d</pre><br />
+<br />
+
+<h3>ある指定した日の1日前とかを求める方法。</h3>
+
+BSD系<br />
+<pre class="command">&#37; date -j -v-1d -f &#37;Y&#37;m&#37;d 20081201 +&#37;Y&#37;m&#37;d</pre><br />
+※この「-j」を付け忘れるとシステムの時間が変わっちゃうので注意<br />
+Linux系<br />
+<pre class="command">&#37; date --date '20081201 1days ago'</pre><br />
+<br />
+
+とこんな感じ。<br /><br/>
+
+<span style="font-weight: bold;">関連エントリ:</span><br />
+<a href="http://blog.clouder.jp/archives/000239.html">crontabで月末に実行させたし</a><br />
+ 

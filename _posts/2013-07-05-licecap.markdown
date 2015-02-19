@@ -1,0 +1,24 @@
+---
+layout: post
+title: "LICEcap - A screen capture tool to save animated gif"
+date: 2013-07-05 17:41
+comments: true
+categories: 
+---
+githubでiOSのライブラリを探していると、そのライブラリの挙動をgifアニで載せてるものがあるんですよね。
+
+それと同じことをやりたくて、iPhoneシミュレータで動かしてる様子をキャプチャしてgifアニで出力するものを探していたら、[LICEcap](http://www.cockos.com/licecap/)というツールを見つけたのでご紹介。
+
+使ってる様子は、下記のように公式サイトでgifアニになっていますｗ
+紹介gifアニはWindows版のですが、OSX版もあります。
+
+<img src="http://www.cockos.com/licecap/how_to_licecap.gif" width="480px" />
+
+起動すると中が透過されているウィンドウが表示されるので、そのウィンドウをキャプチャしたいエリアに合わせてサイズ調整。
+
+そして、FPS(1秒間のフレーム数)などを設定してからRecordボタンを押すと、保存先を聞いてくるので適当にファイル名を設定して、Saveボタンを押してちょっとすると録画が始まります。
+
+録画を終了するにはStopボタンでOK。これでgifアニのファイルが出力されるという感じです。ちょ〜簡単！
+
+これを使えばgifhubとかでライブラリの動作の紹介がわかりやすくなりそうですね。
+

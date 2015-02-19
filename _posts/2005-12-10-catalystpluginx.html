@@ -1,0 +1,31 @@
+---
+layout: post
+title: ハテナオヤのネタにかぶせろ！Catalyst::Plugin::XFramework
+mt_id: 605
+date: 2005-12-10 00:44:23.000000000 +09:00
+author: clouder
+category: Perl
+---
+ん？たまには流行りにのってもいいじゃない！ってことで、<a href="http://clouder.jp/src/perl_module/Catalyst-Plugin-XFramework-0.01.tar.gz">Catalyst::Plugin::XFramework</a>を作ってみた。
+
+<pre class="code">
+&#37; HEAD http://localhost:3000/
+200 OK
+Connection: close
+Date: Fri, 09 Dec 2005 15:42:14 GMT
+Content-Length: 1695
+Content-Type: text/html; charset=utf-8
+Client-Date: Fri, 09 Dec 2005 15:42:14 GMT
+Client-Peer: 127.0.0.1:3000
+Client-Response-Num: 1
+Status: 200
+X-Catalyst: 5.61
+X-Framework: Catalyst/5.61
+</pre>
+
+そもそもX-Catalyst:って付いてるんだけどね。いいじゃない…！
+(X-Catalyst:はデバッグモードでないと出ないです via <a href="http://b.hatena.ne.jp/entry/http://clouder.jp/yoshiki/mt/archives/000605.html">はてブ</a>)
+
+ちなみにHEADってあんまりメジャーじゃないのかな？？むしろw3m -dump_headってのを知らなかった…。
+あとMac OS Xだと、その昔ファイルシステムの関係でHEADとheadを区別しない時期があってLWPをインストールするとheadをHEADで上書きしてくれるという素晴しいことになっていたのは内緒だ。
+ 

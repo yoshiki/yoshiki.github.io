@@ -1,0 +1,139 @@
+---
+layout: post
+title: Plagger::Plugin::Publish::OneFeed
+mt_id: 669
+date: 2006-04-19 01:02:46.000000000 +09:00
+author: clouder
+category: Perl
+---
+<span style="color:#ff0000;">追記：</span>これ使わなくても同じ機能は実現できます→<a href="http://clouder.jp/yoshiki/mt/archives/000671.html">http://clouder.jp/yoshiki/mt/archives/000671.html</a><br<br />
+
+1つのファイルに吐き出したかったので作った。P::P::P::Feedとマージするのは微妙…。とりあえず自分用ということで。
+
+<pre class="code">package Plagger::Plugin::Publish::OneFeed;
+
+use strict;
+use base qw( Plagger::Plugin );
+
+our $VERSION = 0.01;
+
+use XML::Feed;
+use XML::Feed::Entry;
+use XML::RSS::LibXML;
+use File::Spec;
+
+# xxx ugh
+$XML::Feed::RSS::PREFERRED_PARSER =
+    $XML::RSS::LibXML::VERSION &gt;= 0.16 ? &quot;XML::RSS::LibXML&quot; : &quot;XML::RSS&quot;;
+
+sub register {
+    my($self, $context) = @_;
+    $context-&gt;register_hook(
+        $self,
+        &#39;publish.feed&#39; =&gt; \&amp;publish_feed,
+        &#39;publish.finalize&#39; =&gt; \&amp;finalize_feed,
+    );
+    $self-&gt;init_feed($context);
+}
+
+sub init_feed {
+    my($self, $context) = @_;
+
+    # check filename
+    $self-&gt;conf-&gt;{filename} or $context-&gt;error(&quot;No specify filename in config&quot;);
+
+    # check dir
+    my $dir = $self-&gt;conf-&gt;{dir};
+    unless (-e $dir &amp;&amp; -d _) {
+
+        mkdir $dir, 0755 or $context-&gt;error(&quot;mkdir $dir: $!&quot;);
+    }
+}
+
+sub publish_feed {
+    my($self, $context, $args) = @_;
+    for my $e ($args-&gt;{feed}-&gt;entries) {
+        my $entry = XML::Feed::Entry-&gt;new($self-&gt;conf-&gt;{format} || &#39;Atom&#39;);
+        $entry-&gt;title($e-&gt;title);
+        $entry-&gt;link($e-&gt;link);
+        $entry-&gt;summary($e-&gt;body_text);
+        $entry-&gt;content($e-&gt;body);
+        $entry-&gt;category(join(&#39; &#39;, @{$e-&gt;tags}));
+        $entry-&gt;issued($e-&gt;date) if $e-&gt;date;
+        $entry-&gt;author($e-&gt;author);
+        push @{ $self-&gt;{__entries} }, $entry;
+    }
+}
+
+sub finalize_feed {
+    my($self, $context) = @_;
+    my $conf = $self-&gt;conf;
+
+    # generate feed
+    my $feed = XML::Feed-&gt;new($conf-&gt;{format} || &#39;Atom&#39;);
+    $feed-&gt;title($conf-&gt;{title} || &quot;Plagger Feed&quot;);
+    $feed-&gt;link($conf-&gt;{link});
+    $feed-&gt;modified(Plagger::Date-&gt;now);
+    $feed-&gt;generator(&quot;Plagger/$Plagger::VERSION&quot;);
+
+    for my $entry (sort { $b-&gt;issued cmp $a-&gt;issued } @{$self-&gt;{__entries}}) {
+        $feed-&gt;add_entry($entry);
+    }
+
+    # generate file
+    my $filepath = File::Spec-&gt;catfile($conf-&gt;{dir}, $conf-&gt;{filename});
+    my $xml = $feed-&gt;as_xml;
+    utf8::decode($xml) unless utf8::is_utf8($xml);
+    open my $output, &quot;&gt;:utf8&quot;, $filepath or $context-&gt;error(&quot;$filepath: $!&quot;);
+    print $output $xml;
+    close $output;
+}
+
+1;
+
+__END__
+
+=head1
+
+Plagger::Plugin::Publish::OnFeed - republish RSS/Atom feeds as one file
+
+=head1 SYNOPSYS
+
+  - module: Publish::Feed
+    config:
+      format: RSS
+      dir: /home/yoshiki/plagger/feed
+      filename: my_feed.rss
+
+=head1 CONFIG
+
+=head2 format
+
+Specify the format of feed. C&lt;Plagger::Plugin::Publish::OneFeed&gt; supports
+the following syndication feed formats:
+
+=over 4
+
+=item * Atom (default)
+
+=item * RSS
+
+=back
+
+=head2 dir(require)
+
+Directory to save feed files in.
+
+=head2 filename(require)
+
+Filename to be used to create feed files.
+
+=head1 AUTHOR
+
+Yoshiki KURIHARA
+
+=head1 SEE ALSO
+
+L&lt;Plagger&gt;, L&lt;XML::Feed&gt;
+
+=cut</pre> 

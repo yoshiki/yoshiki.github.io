@@ -1,0 +1,140 @@
+---
+layout: post
+title: App::SocialSKK の socialskk.pl を自動起動するようにした
+mt_id: 1105
+date: 2009-03-24 01:43:10.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://d.hatena.ne.jp/antipop/20090322/1237731585">antipopさんのApp::SocialSKK</a>をさっそくインストールして使ってみた。<br />
+これは素晴しすぎる！<br /><br />
+
+使えるまでを軽く説明しておく(Macの場合)。<br /><br />
+
+まずインストール。<br /><br />
+
+<pre class="command"># cpan App::SocialSKK</pre>
+
+この際 socialskk.pl も同時にインストールされます。<br />
+次に $HOME/.socialskk に<br /><br />
+
+<pre class="code">plugins:
+  - name: SocialIME
+  - name: HatenaBookmark
+  - name: Wikipedia</pre>
+
+こんな感じに書く。<br />
+あとはsocialskk.plを起動するだけでApp::SocialSKK使える状態になります。<br /><br />
+
+AquaSKK側での設定は「環境設定」の「辞書」タブで「+」を押して辞書を追加し、辞書の種類を「外部 skkserv 辞書」にし、場所を「localhost:1179」にするだけです。<br />
+(ちなみにいままでMacではMacUIMを使っていたのですが、現状のMacUIMだとskkservとskkの辞書を同時に設定できないっぽいので2年ぶりぐらいにAquaSKKに乗り換えました。そしたらAquaSKKがめっちゃ進化していてびびった)<br /><br />
+
+とりあえず「ほってんとり」って書いて変換したら<br /><br />
+
+<pre>料理のススメ:これから料理をしようと思っているひとへ - Money does not hurt your heart</pre>
+
+ってでた。はてブからうまく取れてるようですね。<br />
+まぁ、これはネタとして。<br /><br />
+
+その他にもSocialIMEには郵便番号とかも登録されてるっぽくて、日本語入力モードで「/0000000」(0000000はちゃんとした郵便番号ね)と打って変換を押すとその郵便番号の住所が出てきました(昔は郵便番号データベースをファイルに落したりしてたのを思い出した)。<br /><br />
+
+っていうか実はSocialIMEに郵便番号が登録されてること知らなくてApp::SocialSKK::Plugin::ZipCodeとか作っちまった。悔しい...。<br /><br />
+
+悔しいからソースを公開しておく。<br /><br />
+
+<pre class="code">package App::SocialSKK::Plugin::ZipCode;
+
+use strict;
+use warnings;
+use base qw( App::SocialSKK::Plugin );
+use XML::Simple ();
+use URI;
+use Encode ();
+
+sub get_candidates {
+    my ($self, $text) = @_;
+    return if !defined $text || $text !~ /^\d{7}$/;
+
+    my $uri = URI-&gt;new( &#39;http://zip.cgis.biz/xml/zip.php&#39; );
+    $uri-&gt;query_form( zn =&gt; $text );
+    my $res = $self-&gt;ua-&gt;get( $uri-&gt;as_string );
+    if ($res-&gt;is_success) {
+        eval {
+            my $xml = XML::Simple::XMLin(
+                $res-&gt;content, ValueAttr =&gt; [ qw(state_kana city_kana address_kana company_kana
+                                                 state city address company) ]
+            );
+            my @candidates;
+            for my $seq ( [ 4..7 ], [ 0..3 ] ) {
+                my $val = join( &#39;&#39;, map {
+                    my $v = $xml-&gt;{ ADDRESS_value }-&gt;{ value }-&gt;[ $_ ];
+                    $v ne &#39;none&#39; ? $v : &#39;&#39;;
+                } @$seq );
+                push @candidates, Encode::encode(
+                    &#39;euc-jp&#39;,
+                    Encode::is_utf8( $val ) ? $val : Encode::decode( &#39;utf8&#39;, $val ),
+                );
+            }
+            return @candidates;
+        };
+    }
+}
+
+1;
+
+__END__
+
+=head1 NAME
+
+App::SocialSKK::Plugin::ZipCode - Retrieves Candidates from Zip Code API
+
+=head1 SYNOPSIS
+
+  # Add a line like below into your .socialskk:
+  plugins:
+    - name: ZipCode
+
+=head1 DESCRIPTION
+
+App::SocialSKK::Plugin::ZipCode performs retrieval of
+candidates from Zip Code API
+
+=head1 SEE ALSO
+
+=over 4
+
+=item * Zip Code API
+
+http://zip.cgis.biz/
+
+=back
+
+=head1 AUTHOR
+
+Yoshiki Kurihara E&lt;lt&gt;kurihara __at__ cpan.orgE&lt;gt&gt;</pre>
+
+<br />
+あ、本題を忘れそうになってしまった。<br />
+socialskk.plをログインしたら毎回起動するのはめんどうなのでlaunchdで起動するようにしといた。これはMac OS X 10.5.6でしか動作確認してませんのであしからず。<br /><br />
+
+設定は簡単。$HOME/Library/LaunchAgents/socialskk.plist ってファイルを作って下記の内容にで保存したあとMacを再起動すると socialskk.pl が自動で起動しているはず。<br /><br />
+
+<pre class="code">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+        &lt;key&gt;Label&lt;/key&gt;
+        &lt;string&gt;socialskk&lt;/string&gt;
+        &lt;key&gt;ProgramArguments&lt;/key&gt;
+        &lt;array&gt;
+                &lt;string&gt;/usr/local/bin/socialskk.pl&lt;/string&gt;
+        &lt;/array&gt;
+        &lt;key&gt;RunAtLoad&lt;/key&gt;
+        &lt;true/&gt;
+        &lt;key&gt;StandardErrorPath&lt;/key&gt;
+        &lt;string&gt;/dev/null&lt;/string&gt;
+        &lt;key&gt;StandardOutPath&lt;/key&gt;
+        &lt;string&gt;/dev/null&lt;/string&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;</pre>
+<br /><br /> 

@@ -1,0 +1,33 @@
+---
+layout: post
+title: Sledge::Plugin::SessionAccessor
+mt_id: 579
+date: 2005-10-31 16:44:15.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000578.html">「Sledge::Sessionに便利なアクセサ追加するには」</a>を受けて、Sledge::Sessionにアクセサを追加できるプラグインを作ってみました。下記からダウンロードできます。<br /><br />
+
+<a href="http://clouder.jp/src/perl_module/Sledge-Plugin-SessionAccessor-0.01.tar.gz">Sledge-Plugin-SessionAccessor-0.01.tar.gz</a><br /><br />
+
+使い方はpodを見てください。…というのもあれなので簡単に説明するとProject::Pages::Baseに下記のようにメソッドと無名関数を定義しておくと、それをベースクラスとしたPagesクラスであれば、$self->session->methodという感じで呼べるようになります。<br />
+＃と作っておいてあれだけど、ニーズあるのかなぁ…。ありそうだったらコミットしてみよう。<br />
+<br />
+<pre class="code">package Project::Pages::Base;
+use Sledge::Plugin::SessionAccessor;
+__PACKAGE__->mk_session_accessor(
+    method => sub {
+        my $self = shift;
+        #...
+        return $foo
+    },
+);
+
+package Project::Pages::Root;
+
+use base qw(Project::Pages::Base);
+
+sub dispatch_index {
+    my $self = shift;
+    my $foo = $self->session->method;
+}</pre><br /> 

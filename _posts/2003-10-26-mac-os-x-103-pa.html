@@ -1,0 +1,23 @@
+---
+layout: post
+title: Mac OS X 10.3 Panther Release
+mt_id: 137
+date: 2003-10-26 03:01:06.000000000 +09:00
+author: clouder
+category: Mac
+---
+<a href="http://www.apple.co.jp/macosx/" target="_blank">Panther</a>がついにリリースしました。まってました！
+なんだかんだ言って結局リリース日に買うし…(笑)
+
+perlがなんか 5.8.1RC3 がデフォルトで入ってるんだけど、ライブラリの位置が微妙に違うみたいで、モジュールを入れ直さないといけないみたい。めんどー。
+んで、DBD::mysqlが上手くインストールできなくてハマる。mysql.bundleってのをbuildできない。
+よくよく調べたら、make中の
+
+LD_RUN_PATH="/usr/local/mysql/lib/mysql:/usr/lib" /usr/bin/perl myld MACOSX_DEPLOYMENT_TARGET=10.3 cc -bundle -undefined dynamic_lookup -L/usr/local/lib dbdimp.o mysql.o -o blib/arch/auto/DBD/mysql/mysql.bundle -L/usr/local/mysql/lib/mysql -lmysqlclient -lz -lm
+
+ってやってところを
+
+env MACOSX_DEPLOYMENT_TARGET=10.3 gcc -bundle -undefined dynamic_lookup -L/usr/local/lib dbdimp.o mysql.o -o blib/arch/auto/DBD/mysql/mysql.bundle -L/usr/local/mysql/lib/mysql -lmysqlclient -lz -lm
+
+にしたらうまくいった。myldっての使わなければいいのね。なんだいこりは。
+ 

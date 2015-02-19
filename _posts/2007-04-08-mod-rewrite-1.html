@@ -1,0 +1,30 @@
+---
+layout: post
+title: ホットリンクを禁止する(mod_rewrite編)
+mt_id: 877
+date: 2007-04-08 20:09:33.000000000 +09:00
+author: clouder
+category: Apache
+---
+<a href="http://blog.livedoor.jp/dankogai/archives/50804992.html">弾さんがやってた</a>のを見てmod_rewriteでもできるべと思い、試しにやってみた。<br />
+
+<pre class="code">RewriteCond &#37;{HTTP_REFERER} !^http://clouder\.jp/~yoshiki/nohotlinks/
+RewriteRule ^/~yoshiki/nohotlinks/.*\.(gif|png|jpe?g|mov|wmv|avi|flv)$ - [F]</pre>
+
+これでできた。<br /><br />
+
+やっていることは、RewriteCondディレクティブでリファラーをチェックして、http://clouder.jp/~yoshiki/nohotlinks/でなかった場合には、RewriteRuleディレクティブで/~yoshiki/nohotlinks/以下の画像やメディアを403 Forbiddenに飛ばすだけです。<br /><br />
+
+以下は実際の動作の様子です。<br />
+http://clouder.jp/~yoshiki/nohotlinks/から参照できる画像も、このページや直接アクセスすると見られなくなっています。<br /><br />
+
+・<a href="http://clouder.jp/~yoshiki/nohotlinks/">ホットリンクできる例</a><br /><br />
+
+・ホットリンクできない例<br />
+↓は表示されない。<br />
+<img src="http://clouder.jp/~yoshiki/nohotlinks/logo.gif" width="153" height="35" style="border:outset 1px" /><br /><br />
+
+ちなみに自分もそのサイトが「ホットリンクしないで複製してね」という以外はホットリンクするというのが正しいやり方じゃないかと思います。<br /><br /><br />
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873111501/clouder-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4873111501.09.MZZZZZZZ.jpg" alt="Apacheハンドブック" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873111501/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Apacheハンドブック</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4873111501/clouder-22" title="Apacheハンドブック" target="_blank">amazlet</a> on 07.04.08</div></div><div class="amazlet-detail">Ben Laurie Peter Laurie 大川 佳織 田辺 茂也 <br />オライリージャパン (2003/09)<br />売り上げランキング: 35539<br /></div><div class="amazlet-review" style="margin-top:10px; margin-bottom:10px"><div class="amazlet-review-average" style="margin-bottom:5px">おすすめ度の平均: <img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5.0" /></div><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5" /> Apache使い必須<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873111501/clouder-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+ 

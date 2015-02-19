@@ -1,0 +1,15 @@
+---
+layout: post
+title: 文字コードの波ダッシュ問題
+mt_id: 1019
+date: 2008-02-20 20:53:08.000000000 +09:00
+author: clouder
+category: Perl
+---
+<pre class="code">print unpack('H*', encode('shiftjis', decode('utf8', '〜'))); # => 8160
+print unpack('H*', encode('cp932', decode('utf8', '〜'))); # => 3f</pre>
+
+PerlのEncodeモジュールを使うと「～」がshiftjisとcp932のときで結果が違います。
+なんでかというと、shiftjis.ucmとcp932.ucmにおいて
+
+shift 

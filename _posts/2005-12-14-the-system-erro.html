@@ -1,0 +1,62 @@
+---
+layout: post
+title: The system error is displayed by the del.icio.us
+mt_id: 610
+date: 2005-12-14 17:14:58.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<pre class="code">System error
+error:          Can't call method &quot;prepare&quot; on an undefined value at /www/del.icio.us/comp/user/get line 13.
+context:
+...
+9:      my $usedb = 'master';
+10:     my $ret;
+11:
+12:     if (!$auth_user) { $usedb = 'user' }
+13:     if (!exists ($db-&gt;{$usedb})) { $usedb = 'master' }
+14:     $user_name_q-&gt;{$usedb} = $db-&gt;{$usedb}-&gt;prepare('select * from users where user_name = ?');
+15:     my $query = $user_name_q-&gt;{$usedb};
+16:     $query-&gt;execute(lc($user_name));
+17:
+...
+code stack:     /www/del.icio.us/comp/user/get:13
+/www/del.icio.us/comp/posts/all:35
+/www/del.icio.us/site/index:82
+/www/del.icio.us/site/autohandler:110
+raw error
+ 
+Can't call method &quot;prepare&quot; on an undefined value at /www/del.icio.us/comp/user/get line 13.
+ 
+ 
+Trace begun at /usr/share/perl5/HTML/Mason/Exceptions.pm line 131
+HTML::Mason::Exceptions::rethrow_exception('Can\'t call method &quot;prepare&quot; on an undefined value at /www/del.icio.us/comp/user/get line 13.^J') called at /www/del.icio.us/comp/user/get line 13
+HTML::Mason::Commands::__ANON__('dbh', 'DBI::db=HASH(0x1b3f990)', 'user_name', 'clouder') called at /usr/share/perl5/HTML/Mason/Component.pm line 134
+HTML::Mason::Component::run('HTML::Mason::Component::FileBased=HASH(0x1d12840)', 'dbh', 'DBI::db=HASH(0x1b3f990)', 'user_name', 'clouder') called at /usr/share/perl5/HTML/Mason/Request.pm line 1069
+eval {...} at /usr/share/perl5/HTML/Mason/Request.pm line 1068
+HTML::Mason::Request::comp(undef, undef, 'dbh', 'DBI::db=HASH(0x1b3f990)', 'user_name', 'clouder') called at /www/del.icio.us/comp/posts/all line 35
+HTML::Mason::Commands::__ANON__('dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'count', 20, 'mp3', 0, 'time_format', 'by-second') called at /usr/share/perl5/HTML/Mason/Component.pm line 134
+HTML::Mason::Component::run('HTML::Mason::Component::FileBased=HASH(0x1ed3080)', 'dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'count', 20, 'mp3', 0, 'time_format', 'by-second') called at /usr/share/perl5/HTML/Mason/Request.pm line 1074
+eval {...} at /usr/share/perl5/HTML/Mason/Request.pm line 1068
+HTML::Mason::Request::comp(undef, undef, 'dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'count', 20, 'mp3', 0, 'time_format', 'by-second') called at /www/del.icio.us/site/index line 82
+HTML::Mason::Commands::__ANON__('dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'items', 100, 'tagview', 'cloud', 'tagsort', 'alpha', 'bundleview', 'show', 'cookies', 'HASH(0x1ec6920)', 'browser', 'ff') called at /usr/share/perl5/HTML/Mason/Component.pm line 134
+HTML::Mason::Component::run('HTML::Mason::Component::FileBased=HASH(0x1dadfe0)', 'dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'items', 100, 'tagview', 'cloud', 'tagsort', 'alpha', 'bundleview', 'show', 'cookies', 'HASH(0x1ec6920)', 'browser', 'ff') called at /usr/share/perl5/HTML/Mason/Request.pm line 1074
+eval {...} at /usr/share/perl5/HTML/Mason/Request.pm line 1068
+HTML::Mason::Request::comp(undef, undef, 'dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'items', 100, 'tagview', 'cloud', 'tagsort', 'alpha', 'bundleview', 'show', 'cookies', 'HASH(0x1ec6920)', 'browser', 'ff') called at /usr/share/perl5/HTML/Mason/Request.pm line 760
+HTML::Mason::Request::call_next('HTML::Mason::Request::ApacheHandler=HASH(0x1ec7520)', 'dbh', 'DBI::db=HASH(0x1b3f990)', 'auth_user', 'clouder', 'items', 100, 'tagview', 'cloud', 'tagsort', 'alpha', 'bundleview', 'show', 'cookies', 'HASH(0x1ec6920)', 'browser', 'ff') called at /www/del.icio.us/site/autohandler line 110
+HTML::Mason::Commands::__ANON__ at /usr/share/perl5/HTML/Mason/Component.pm line 134
+HTML::Mason::Component::run('HTML::Mason::Component::FileBased=HASH(0x1b22e70)') called at /usr/share/perl5/HTML/Mason/Request.pm line 1069
+eval {...} at /usr/share/perl5/HTML/Mason/Request.pm line 1068
+HTML::Mason::Request::comp(undef, undef, undef) called at /usr/share/perl5/HTML/Mason/Request.pm line 338
+eval {...} at /usr/share/perl5/HTML/Mason/Request.pm line 338
+eval {...} at /usr/share/perl5/HTML/Mason/Request.pm line 297
+HTML::Mason::Request::exec('HTML::Mason::Request::ApacheHandler=HASH(0x1ec7520)') called at /usr/share/perl5/HTML/Mason/ApacheHandler.pm line 134
+eval {...} at /usr/share/perl5/HTML/Mason/ApacheHandler.pm line 134
+HTML::Mason::Request::ApacheHandler::exec('HTML::Mason::Request::ApacheHandler=HASH(0x1ec7520)') called at /usr/share/perl5/HTML/Mason/ApacheHandler.pm line 793
+HTML::Mason::ApacheHandler::handle_request('HTML::Mason::ApacheHandler=HASH(0x1ad1600)', 'Apache=SCALAR(0x1e71490)') called at (eval 43) line 8
+HTML::Mason::ApacheHandler::handler('HTML::Mason::ApacheHandler', 'Apache=SCALAR(0x1e71490)') called at /dev/null line 0
+eval {...} at /dev/null line 0</pre>
+
+今del.icio.usを見たら、上記のようなエラーが表示されていてプログラムの中身が見えてるじゃん！Mason使ってるんだ…知らなかった。。。
+
+<span style="color:#ff0000;font-weight: bold">Update:</span>と思ったのだが、自分だけの現象のようだ…。なに？私のなにが悪いの！？(汗) 

@@ -1,0 +1,39 @@
+---
+layout: post
+title: screenでUTF-8を表示されるにはUTF-8モードにするのが楽みたい
+mt_id: 1017
+date: 2008-01-27 04:21:13.000000000 +09:00
+author: clouder
+category: Unix
+---
+screenで、今までutf8に対応するために.screenrcに
+
+<pre class="code">
+defencoding utf8
+encoding utf8 utf8
+</pre>
+
+とかやって、かつ各文字コードを行き来するために
+
+<pre class="code">
+bind ^U encoding utf8 utf8
+bind ^E encoding eucjp utf8
+bind ^W encoding sjis utf8
+</pre>
+
+というようなのを設定してたんですが、DettachしてあるプロセスをAttachする毎に毎回C-t C-uとしてやらないとemacsのutf8の日本語文字列が「?」になってしまっていた。
+ちゃんと設定してるはずなんだけどなぁと思っていたのですが、今日調べてみたらscreenを起動する際に「-U」オプションをつければC-t C-uしなくても表示されることを発見した。
+
+<pre class="code">
+       -U   Run  screen  in  UTF-8  mode.  This  option tells screen that your terminal sends and
+            understands UTF-8 encoded characters. It also sets the default encoding for new  win-
+            dows to `utf8'.
+</pre>
+
+manには上記のように書いてありました。
+「-U」を指定して起動してやると、defencoding utf8を指定しなくても新しいウィンドウはutf8になるし、表示も問題なくできるっぽい。
+
+ということで.screenrcのdefencodingとencodingをコメントアウトして、screenコマンドをscreen -Uとaliasさせることにしました。ちなみにbindは、文字コードの行き来のために使うので、そのままです。
+
+これでしばらく使ってみたいと思います。
+ 

@@ -1,0 +1,33 @@
+---
+layout: post
+title: dynamic_pagerを骨抜きにしてみた
+mt_id: 1060
+date: 2008-08-26 20:46:14.000000000 +09:00
+author: clouder
+category: Mac
+---
+<a href="http://blog.livedoor.jp/dankogai/archives/51101101.html">Mac OS X Leopard - dynamic_pager を骨抜きに</a>
+<blockquote>OS X で一ついやなものは、swapping.</blockquote>
+
+この記事で弾さんの書いているdynamic_pagerの改造版を自分のMacBook Airにインストールしてみた。<br /><br />
+
+結果としては<span style="font-weight: bold;">筐体がいつもより熱くなる</span>けど、pageoutしない分多くのアプリを立ち上げても処理落ちして動作が鈍くなくことはほとんどなくなりました。<br /><br />
+
+と思って今半日ぐらい起動しっぱなしの状態でvm_statしてみたら<span style="font-weight: bold;">Pageouts</span>が15って出てるな。しばらくは0だったんだけど、なんだろう…。どきどき。<br /><br />
+
+<pre class="command">&#37; vm_stat
+Mach Virtual Memory Statistics: (page size of 4096 bytes)
+Pages free:                   120347.
+Pages active:                 232462.
+Pages inactive:                73657.
+Pages wired down:              96325.
+"Translation faults":       19568174.
+Pages copy-on-write:          402293.
+Pages zero filled:           8727733.
+Pages reactivated:              2082.
+Pageins:                       80214.
+Pageouts:                         15.
+Object cache: 58000 hits of 93961 lookups (61&#37; hit rate)</pre>
+
+<br />
+とりあえず、熱いけど快適ではあるのでしばらく使い続けてみようと思います。

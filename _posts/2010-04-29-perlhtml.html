@@ -1,0 +1,41 @@
+---
+layout: post
+title: Perlで壊れたHTMLを補完する
+mt_id: 1126
+date: 2010-04-29 00:20:18.000000000 +09:00
+author: clouder
+category: Perl
+---
+タイトルの問題ですが、自分はよく以下のような関数でやります。<br />
+HTML::TreeBuilderのas_HTML()がうまいことやってくれます。<br />
+(実際にはHTML::Element::as_HTML()ですが)<br />
+
+<pre class="code">sub _complement_html {
+    my $broken_html = shift;
+    my $html = do {
+        no strict &#39;refs&#39;;
+        no warnings &#39;redefine&#39;;
+        local *HTML::Entities::encode_entities = sub {};
+        local *HTML::Entities::decode = sub {};
+        my $tree = HTML::TreeBuilder-&gt;new;
+        $tree-&gt;parse( $broken_html );
+        $tree-&gt;as_HTML;
+    };
+    $html =~ s#&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;##g;
+    $html =~ s#&lt;/body&gt;&lt;/html&gt;##g;
+    $html =~ s#&lt;div&gt;(?:\&amp;nbsp;)?&lt;/div&gt;##ig;
+    return $html;
+}</pre>
+
+この関数を使って<br />
+
+<pre class="code">&lt;div align=&quot;right&quot;&gt;foo&lt;font color=&quot;#000000&quot;&gt;black text</pre>
+
+のような閉じてないタグをもったHTMLを渡すと<br />
+
+<pre class="code">&lt;div align=&quot;right&quot;&gt;foo&lt;font color=&quot;#000000&quot;&gt;black text&lt;/font&gt;&lt;/div&gt;</pre>
+
+こんな感じに補完してくれます。<br /><br />
+
+もっと良い方法あるんですかね。<br />
+あったら教えて欲しいっす。<br /> 

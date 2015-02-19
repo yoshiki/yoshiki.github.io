@@ -1,0 +1,26 @@
+---
+layout: post
+title: パスワード付きのzipをバッチで作成
+mt_id: 389
+date: 2005-05-02 18:03:46.000000000 +09:00
+author: clouder
+category: Unix
+---
+windowsとかのアプリで作成するパスワード付きzipファイルをUNIX系OSでバッチ処理で作成したかったのですが、調べるのに時間かかったので、なんとなくメモ代りに書いておきます。
+
+最初、perlのモジュール(Archive::Zipとか)でやろうと思ったんですが、Archive::ZipのPODを見ると isEncrypted() っていう関数でzipファイルにパスワードがかかっているかのチェックはできますが、「The Archive::Zip module does not currently create or extract encrypted members.」と書いてあるので、作成することも解凍することもできないようです。
+
+なのでzipコマンドでやろうと思ったら、-eオプションを指定すればできるというのを知りました。
+-eオプションを指定すると
+
+<pre class="code">&#37; zip -e test.zip test.txt
+Enter password:
+Verify password:
+  adding: test.txt (deflated 76&#37;)</pre>
+
+とかパスワードを聞いてきますので、そこにパスワードを入力すると、パスワード付きのzipファイルが出来上がります。ではバッチではどうやるかというと
+
+<pre class="code">&#37; zip -P password -e test.zip test.txt</pre>
+
+とやることでバッチでパスワード付きzipファイルを作成することが出来ます。
+ 

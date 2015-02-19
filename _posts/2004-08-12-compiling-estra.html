@@ -1,0 +1,25 @@
+---
+layout: post
+title: compiling Estraier on Mac OS X
+mt_id: 195
+date: 2004-08-12 02:24:24.000000000 +09:00
+author: clouder
+category: Mac
+---
+Estraierの1.2.19をMac OS X(Darwin localhost 7.4.0 Darwin Kernel Version 7.4.0: Wed May 12 16:58:24 PDT 2004; root:xnu/xnu-517.7.7.obj~7/RELEASE_PPC  Power Macintosh powerpc)な環境でmakeしようとしたらエラーが出る。
+調べてみたら CFLAGS の -ansi ってのがあるとだめらしい。
+
+ので Makefile の 43行目あたりにある 
+
+<blockquote class="quote">
+CFLAGS = -Wall -ansi -pedantic -fsigned-char $(RELCFLAGS)
+</blockquote>
+
+ってのを
+
+<blockquote class="quote">
+CFLAGS = -Wall -pedantic -fsigned-char $(RELCFLAGS)
+</blockquote>
+
+にしてコンパイルしなおしたら、問題なく通った。
+わからない方がいたら是非。 

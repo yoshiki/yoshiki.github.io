@@ -1,0 +1,41 @@
+---
+layout: post
+title: How to add virtual method on Template Toolkit
+mt_id: 598
+date: 2005-12-11 23:39:14.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://www.tt2.org/">Template Toolkit</a>でvirtual methodを追加したいと思ったんですが、ドキュメントを読んでもどうも簡単なやり方が見付からない。仕方がないので最初に下記のようにやりました。
+
+<pre class="code">$Template::Stash::LIST_OPS-&gt;{ foo } = \&amp;foo;</pre>
+
+こうしなけりゃならないのかな？他になにか方法あるのでしょうか…。
+<font color="#ff0000" style="font-weight:bold;">追記：</font>はてブでハテナオヤさんが質問してましたが、このエントリで伝えたいことは、vmethodを追加する方法としては、上記の方法やdefine_methodを使うのが正当な方法なのかどうかということと、他の人はどう追加しているのかなという部分になります。
+
+下記のようにインスタンス生成時に追加とかできればいいのに…。
+
+<pre class="code">Template-&gt;new(STASH => {
+    LIST_OPS =&gt; { 
+        foo =&gt; \&amp;foo
+    }
+);</pre>
+
+と思ったら、Template::Stash::define_vmethodという関数がありました(podに書いてない？)。これをTemplate::Context::define_vmethod経由で呼ぶことができるようです。例えばスカラの値に対して1文字ずつスペースを空けるvirtual method(仮にadd_spaceとする)を定義したかったら、テンプレート(vmethod_test.tt)を
+
+<pre class="code">[&#37; str.add_space &#37;]</pre>
+
+としておいて、
+
+<pre class="code">my $tt = Template-&gt;new();
+my $vars = { str => 'chowww,omawww' };
+$tt-&gt;context-&gt;define_vmethod('scalar', 'add_space', sub { join(' ', split('', $_[0])) });
+$tt-&gt;process('vmethod_test.tt', $vars);</pre>
+
+という感じにdefine_vmethodを使って<strong>define_vmethod('virtual methodの種類', '名前', このvmethodのコードリファレンス)</strong>と定義してやればよい。出力結果は、
+
+<pre class="code">c h o w w w , o m a w w w</pre>
+
+となります。ちなみにvirtual methodの種類は「scalar」と「item」がSCALARとして、「hash」がHASHとして、「list」と「array」がARRAYとして定義するために用意されているようです。と、ここまで書いたのですがdefine_methodはpodに書いてないから使うべきじゃないのかな…いやでも先頭に「_」は付いてないしプライベートメソッド的でもないんじゃないの？…とかちょと悶々としてみた。。。どうなんだろ？
+
+Sledgeでこれを使いたいなぁと思ったんですが、Sledge::Template::TT::outputまではTTのオブジェクトは作らない仕様となっているため、やるとしたらこれをオーバーライドしたクラスを作るか、一番最初に挙げた例($Template::Stash::LIST_OPS->{ foo }にコードリファレンスを代入)を使う必要があります。 

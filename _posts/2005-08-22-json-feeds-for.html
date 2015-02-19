@@ -1,0 +1,72 @@
+---
+layout: post
+title: JSON feed for MovableType
+mt_id: 520
+date: 2005-08-22 17:54:18.000000000 +09:00
+author: clouder
+category: MovableType
+---
+<a href="http://del.icio.us/" target="_blank">del.icio.us</a>で<a href="http://del.icio.us/doc/feeds/json/" target="_blank">自分のブックマークのフィードがJSON形式で取れる</a>ようになってますね。これってJavaScriptと親和性が高いので、XMLで書かれているものをXPathやDOMでごにょごにょやるのに比べたら、Ajaxとかでいじったりする場合にはとても楽ですし、Perl使いとしてはこの形式(JSON)がなんとなく見易いので重宝しそうです。ということで、MTでもこれと同じようにJSON形式でフィードを出せるようにするプラグインを作ってみた。<br /><br />
+
+
+作ったプラグインは、<a href="http://clouder.jp/src/mt_plugin/mt-jsonfeed.pl">mt-jsonfeed.pl</a>です。RSSフィードと同じようにファイルに書き出すために簡単なテンプレートを作らなければならないのが、ちょっとめんどくさいのですが。。。<br /><br />
+
+インストール方法は下記。<br /><br />
+
+<ol>
+<li>まず上記のプラグインをダウンロードして$MT_HOME/plugins/以下に配置します。</li>
+
+<li>次に必要なモジュールをCPANからインストールしておきましょう。必要なものは<a href="http://search.cpan.org/dist/JSON/">JSON</a>と<a href="http://search.cpan.org/dist/Jcode/">Jcode</a>です。</li>
+
+<li>次に適当な名前を付けてテンプレートを1つ追加します。テンプレートの内容は下記のような感じ。charset_fromとcharset_toは元のコードと出力コード(デフォルトは両方utf-8)、obj_nameは出力するjsに使うオブジェクト名、numは出力するエントリの数です。</li>
+
+<pre class="code">
+&lt;$MTJSONFeed charset_from=&quot;euc&quot; charset_to=&quot;utf8&quot; obj_name=&quot;JSONFeed&quot; num=&quot;10&quot;$&gt;
+</pre>
+
+<li>最後に上記で作成したテンプレートを作成すると、JSON形式のフィードが出力されます。</li>
+</ol>
+
+あとは、これを下記のようにJavaScriptから読み込めるようにすればどこでもくっつきフィードが簡単に使えます。<br />
+
+<pre class="code">
+&lt;div id=&quot;container&quot;&gt;&lt;h2&gt;my json feeds&lt;/h2&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot; src=&quot;http://example.com/jsonfeed.js&quot; charset=&quot;UTF-8&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+var ul = document.createElement('ul')
+for (var i=0, post; post = JSONFeed.posts[i]; i++) {
+        var li = document.createElement('li')
+        var a = document.createElement('a')
+        a.setAttribute('href', post.permalink)
+        a.appendChild(document.createTextNode(post.title))
+        li.appendChild(a)
+        ul.appendChild(li)
+}
+document.getElementById('container').appendChild(ul)
+&lt;/script&gt;
+</pre>
+
+ちなみに自分の環境だと&lt;script&gt;タグにcharsetを指定してやらないと日本語が入ってる場合にはブラウザで文字コードが解析できず、JavaScriptエンジンでコケました。でもSafariだとcharsetを指定してやってもだめっぽいです。charsetを指定する以外にもJSONのjsを出力するときのヘッダのContent-Typeにcharset=を付けてもイケます。
+
+表示例は続きにありますです。 
+<br />
+<style type="text/css">
+#container { border: 2px solid #eee; padding: 0.5em; margin: 1em; width: 30em  }
+#container h2 { font-size: 100&#37;; margin: 0; padding: 0}
+.bright { color: #900; }
+pre.code { background-color:#f2f2f2; padding-left: 1em }
+</style>
+<div id="container"><h2>my json feeds</h2></div>
+<script type="text/javascript" src="http://clouder.jp/yoshiki/mt/jsonfeed.js" charset="euc-jp"></script>
+<script type="text/javascript">
+var ul = document.createElement('ul');
+for (var i=0, post; post = ClouderFeed.posts[i]; i++) {
+	var li = document.createElement('li');
+	var a = document.createElement('a');
+	a.setAttribute('href', post.permalink);
+	a.appendChild(document.createTextNode(post.title));
+	li.appendChild(a);
+	ul.appendChild(li);
+}
+document.getElementById('container').appendChild(ul);
+</script>

@@ -1,0 +1,55 @@
+---
+layout: post
+title: Cocoaで日本語のGETを飛ばそう！
+mt_id: 39
+date: 2003-01-23 17:15:10.000000000 +09:00
+author: clouder
+category: Cocoa
+---
+最近技術的な話ばかりで、見てる人が減りそうなのですが…。
+CocoaのNSURLというクラスがあるのですが、これで日本語の文字列を使って、
+GETを投げたいとかなり前から悩んでいたのですが、やっと解決したのでここに記しておきます。
+ 
+まぁ、Cocoaってのは、日本語を扱うときの基本は UTF-8 なんです。
+なので、GETで渡す先のサイトがUTF-8に対応していないと、一旦Shift_JISなり
+EUCなりに変換して渡さなきゃならない。
+
+でも、NSString クラスには一応<A href="http://www.big.or.jp/~crane/cocoa/strEncode.html">文字変換の関数</A>があるのですが、
+変換するときは、NSString -> NSData 又は、 NSData -> NSString になってしまう。
+まぁ、NSString は UTF-8 しか扱えないので、あたりまえなのですが…、こうだと
+NSURLを NSData から生成しなければならない。
+
+でも NSData(GETで渡す値) と NSString(GETを飛ばすURL) を使って、NSURL
+のインスタンスを生成する方法がないようなのです…。
+(もしかしてあるのかもしれないですがみつかりませんでした…)
+
+そこで苦節うんヶ月、NSString をそのまま 文字変換 + URI Escape して、
+NSString に変換する方法がわかりました。
+その方法とは、やはり Core Foundation にありました。
+結論から言うと、
+
+
+NSString *url, *encodedUrl;
+/* url に http://example.com/hoge.cgi?param=ホゲホゲ を入れて */
+encodedUrl = (NSString *) CFURLCreateStringByAddingPercentEscapes
+		(NULL, (CFStringRef) url, NULL, NULL, kCFStringEncodingMacJapanese);
+
+
+こうすれば、url がうまいこと URI Escape されて encodedUrl に入るという
+すんぽうである。すげぇ…。
+
+ちなみに、<A href="http://developer.apple.com/techpubs/macosx/CoreFoundation/URLServices/URL_Services/Functions/Miscellaneou39456789101112.html#//apple_ref/c/func/CFURLCreateStringByAddingPercentEscapes">CFURLCreateStringByAddingPercentEscapes</A>の説明は、リンクを御覧下さい。
+kCFStringEncodingMacJapanese ってのは、変換する元の言語を指定するようです。
+
+これは、通常のシステムであれば、
+
+/System/Library/Frameworks/CoreFoundation.framework/Versions/A/Headers/CFStringEncodingExt.h
+
+の中に記述されているはずです。
+
+これで、もうURL関係はなんでもありですな。ふぅ…。
+ちなみに、User-Agent などを偽装する方法は、
+
+[ handle writeProperty : @"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" forKey : @"User-Agent" ];
+
+こんなかんじ。handle は NSURLHandle である。

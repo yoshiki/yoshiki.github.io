@@ -1,0 +1,28 @@
+---
+layout: post
+title: mod_loadaverage_redirect
+mt_id: 720
+date: 2006-10-27 15:01:34.000000000 +09:00
+author: clouder
+category: Unix
+---
+milanoさんから始まった空前のload averageブーム！かどうかわからないけど、各所で話題になっているので自分もApacheモジュールを練習がてら作ってみました。ちなみにこのモジュールはmilanoさんがやりたそうな複雑なものにはまだ対応していません。。。
+
+<a href="http://svn.clouder.jp/repos/public/mod_loadaverage_redirect/trunk/">http://svn.clouder.jp/repos/public/mod_loadaverage_redirect/trunk/</a>
+
+LoadAverageRedirectThresholdで指定した数よりもそのマシンのload averageが高くなったら、LoadAverageRedirectURLで指定したURLにリダイレクトをするというものです。インストールは、make && make install でオッケイ。あとは、httpd.confに
+
+<pre class="code">LoadModule loadaverage_redirect_module libexec/mod_loadaverage_redirect.so
+LoadAverageRedirect On
+LoadAverageRedirectThreshold 0.1
+LoadAverageRedirectURL http://www.livedoor.com/</pre>
+
+と書いておけば、なんとなく動きます。
+
+この例では、load average が 0.1 より大きくなったときに http://www.livedoor.com/ にリダイレクトするようになっています。
+load averageを求めるコードは<a href="http://d.hatena.ne.jp/spiritloose/20061027/1161887325">spiritlooseのはてなダイアリー</a>からしっけいしました。
+
+もうちょっといろんな昨日を付ければ結構便利になりそうな予感もする。
+パス毎に設定ができたりとかすぐできそうなので、後で実装してみようかな。あとはApache2にも対応したりしたい。
+
+＃コードが汚い or おかしい部分はご指摘ください。まだ修行中の身なのでご容赦の程…。 

@@ -1,0 +1,75 @@
+---
+layout: post
+title: gitのmake docがめんどくさかった
+mt_id: 1131
+date: 2010-07-20 19:29:35.000000000 +09:00
+author: clouder
+category: Git
+---
+gitを手動でmakeしたんですが、コマンド系はさくっとmakeできるのに、make docがなにやらいろんな用意が必要で、めんどくさかったのでメモっておきます。(<a href="http://d.hatena.ne.jp/gfx/">id:gfx</a>に言われて書いてみたけど、正直参考になるかわかりませんｗ)<br /><br />
+ちなみに、ここに書いてあることはMac OS X 10.6.4でしか試してません。<br /><br />
+
+あと、今回make docをする上で以下のサイトを参考にしました。<br />
+Tigerのときのメモっぽいけど...。<br />
+<a href="mailto:https://wincent.com/wiki/Installing_Git_1.5.2.3_on_Mac_OS_X_Tiger">https://wincent.com/wiki/Installing_Git_1.5.2.3_on_Mac_OS_X_Tiger</a><br /><br />
+
+まずは、make docに必要なソフトウェア。(あ、もしかしたらこれ以外に元々入ってて気付かなかったものがあるかもしれません...)<br />
+
+<ul>
+<li>asciidoc</li>
+<li>gettext(getoptに必要)</li>
+<li>getopt(xmltoに必要)</li>
+<li>xmlto</li>
+</ul>
+
+最初のasciidocは、<a href="http://sourceforge.net/projects/asciidoc/">http://sourceforge.net/projects/asciidoc/</a>からダウンロードして、./configure; make; sudo make install で普通にいけます。<br /><br />
+
+問題なのはxmlto。<br />
+こちらは最初に紹介したサイトを参考に以下のような感じでmakeしました。<br /><br />
+
+まずは、依存するgettextをインストールします。<br />
+こちらは普通にmakeできました。<br />
+<a href="http://www.gnu.org/software/gettext/">http://www.gnu.org/software/gettext/</a> からダウンロードして、./configure; make; sudo make install でいけます。<br /><br />
+
+で、その次のgetoptですが、<a href="http://software.frodo.looijaard.name/getopt/">http://software.frodo.looijaard.name/getopt/</a> からダウンロードしてきて解凍したら、Makefile の<br />
+
+<pre class="code">LDFLAGS=</pre>
+
+を<br />
+
+<pre class="code">LDFLAGS=-lintl</pre>
+
+と修正をしてmake; sudo make install でインストールできるはず。<br /><br />
+
+そして、一番めんどかったのがxmltoのmakeです。<br />
+xmltoをmakeする前にいろいろと準備が必要でした。<br /><br />
+
+まず、前述のサイトを参考に<br />
+
+<pre class="code">sudo mkdir /etc/xml
+sudo xmlcatalog --noout --create /etc/xml/catalog
+sudo mkdir -p /usr/local/share/docbook/xsl
+cd /usr/local/share/docbook/xsl
+sudo wget http://docbook.sourceforge.net/release/xsl/1.75.2.tar.bz2
+sudo tar xjvf 1.75.2.tar.bz2
+
+sudo xmlcatalog --noout --add 'nextCatalog' '' 'file:///usr/local/share/docbook/xsl/1.75.2/catalog.xml' --create /etc/xml/catalog</pre>
+
+とxsl用のカタログを作ります(てか、実はこれがなんだかよくわかってないｗ)。<br />
+ちなみに前述のサイトよりも、ちょっとバージョンが新しめ。<br /><br />
+
+次にxmlのカタログも作ります。<br />
+
+<pre class="code">cd /usr/local/share/docbook
+sudo mkdir -p xml/4.5
+cd xml/4.5
+sudo curl -O http://www.oasis-open.org/docbook/xml/4.5/docbook-xml-4.5.zip
+sudo unzip docbook-xml-4.5.zip
+sudo xmlcatalog --noout --add 'nextCatalog' '' 'file:///usr/local/share/docbook/xml/4.2/catalog.xml' --create /etc/xml/catalog</pre>
+
+これが終わったら、xmltoを <a href="http://cyberelk.net/tim/software/xmlto/">http://cyberelk.net/tim/software/xmlto/</a> あたりからダウンロードして、解凍して、./configure --with-getopt=/usr/local/bin/getopt; make; make install をすると、warningが出つつも、なんとかmakeできます。<br /><br />
+
+で、最後に git のディレクトリにいって、make doc; sudo make install-doc とすると、たぶんドキュメントができるはず(warningは出ます)。なぜか、makeにけっこう時間かかります。(使ってるマシンが非力だったからかも)<br /><br />
+
+ということで、あまり参考にはならないかもですがメモということで書いておきます。<br />
+ 

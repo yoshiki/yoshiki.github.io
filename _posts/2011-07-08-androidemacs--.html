@@ -1,0 +1,86 @@
+---
+layout: post
+title: Android開発にも役立つEmacsの補完プラグイン - ajc-java-complete
+mt_id: 1141
+date: 2011-07-08 11:13:55.000000000 +09:00
+author: clouder
+category: Emacs
+---
+最近Androidの開発をしていまして、例にもれずEclipseが体に合わないため(というかEmacsが好きなため？)、Emacsで開発をしています。<br /><br />
+
+しかし、いままでJavaで本格的に開発したことなかったのでEmacsにおけるJavaの開発環境がまったく整備されていないので、EmacsでもうちょっとJavaの開発がしやすくする便利なモードないのかなと調べてみました。<br /><br />
+
+いろいろ調べてみたら、<a href="http://jdee.sourceforge.net/">JDEE　−　Java Development Environment for Emacs</a>ってのがあったのですがなんかごてごてしていて、そんなモリモリの機能いらないんだよなぁと思っていたら「<a href="http://www.emacswiki.org/emacs/AutoJavaComplete">ajc-java-complete</a>」っていうのをみつけました。<br /><br />
+
+ajc-java-completeは名前の通りauto-completeやyasnippetと連携して補完することをメインにしたものになっていて、今も開発が継続しているようでなかなかよさげ。ということでさっそくインストールしてみました。<br /><br />
+
+<ul>
+<li>auto-complete のインストール<br /><br />
+
+<a href="http://cx4a.org/software/auto-complete/">http://cx4a.org/software/auto-complete/</a> からダウンロードしてきて、<a href="http://cx4a.org/software/auto-complete/manual.html#Installation">この辺</a>を参考にインストール。<br /><br />
+
+.emacsに以下のような設定をしておくとよいでしょう。<br />
+
+<pre class="code">(require 'auto-complete)
+(global-auto-complete-mode t)
+(define-key ac-complete-mode-map "\C-n" 'ac-next)
+(define-key ac-complete-mode-map "\C-p" 'ac-previous)</pre>
+<br />
+</li>
+<li>yasnippet のインストール<br /><br />
+
+http://code.google.com/p/yasnippet/ からダウンロードしてきて、<a href="http://yasnippet.googlecode.com/svn/trunk/doc/index.html#installation">この辺</a>を参考にインストール。<br /><br />
+
+.emacsに以下のような設定をしておくとよいでしょう($PATH_TO_SNIPPETはsnippetをインストールしたディレクトリね)。<br />
+
+<pre class="code">(require 'yasnippet-bundle)
+(yas/initialize)
+(yas/load-directory "$PATH_TO_SNIPPET/snippets")</pre>
+<br />
+</li>
+<li>ajc-java-complete のインストール<br /><br />
+
+<a href="https://github.com/jixiuf/ajc-java-complete">https://github.com/jixiuf/ajc-java-complete</a>からcloneしてきて、<a href="http://www.emacswiki.org/emacs/AutoJavaComplete#toc1">この辺</a>を参考にajc-java-complete自体をインストール。<br /><br />
+
+なお、ajc-java-completeは、auto-completeに付属するpopup.elにパッチをあてないといけないらしく、ajc-java-completeのパッケージに付随するpopup.elを、すでにインストールしたauto-completeのpopup.elと入れ替える必要があります。<br /><br />
+
+あと、Javaのクラスを補完させるためにタグファイルを生成する必要があります。そのためのJavaのプログラムが添付されているので、それを以下のようにjavacでコンパイルしてから実行する必要があります。<br />
+
+<pre class="command">&#37; javac Tags.java
+&#37; env CLASSPATH=$PATH_TO_ANDROID_HOME/platforms/android-11/android.jar:/System/Library/Frameworks/JavaVM.framework/Classes/classes.jar:. java Tags</pre>
+<br />
+
+この例ではAndroid開発もしたいのでAndroidのSDKのパッケージも含めています。<br />
+(なお、classes.jarのパスはMac OS X用なので適宜自分の環境に合わせて変えてください)<br /><br />
+
+んで、最後に.emacsに以下のように書きます。<br />
+
+<pre class="code">(require 'ajc-java-complete-config)
+(add-hook 'java-mode-hook 'ajc-java-complete-mode)</pre>
+<br />
+</li>
+</ul>
+
+以上でインストールが完了しました。<br /><br />
+
+あとはEmacsを起動してFoo.javaとかやってみると補完がきくようになります。<br /><br />
+
+補完以外の機能で言うと、「C-c i」でインポートしていないものを自動でインポートして(ファイルの上部に「import com.example.foo;」って挿入して)くれたり、クラス名のところにカーソルをもってきて「C-c m」とやるとそのクラスをインポートしてくれたりするものがあります。(ただし、なぜかextendsの後に書いたクラスはインポートしてくれず...)<br /><br />
+
+ちなみに、さきほど補完用にタグファイルを生成したのですが、あれがけっこうな容量になっていて、それを起動時に読み込むため、初回のみですがちょっと時間がかかるようです。これ直したいとajc-java-completeをいまいじってるところです。なにかいい案があったらまたお知らせします。(っていうかpull requestしたい)<br /><br />
+
+それともう1つ、自分はMac OS XのEmacsでインポート機能を使うとダイアログがウィンドウで出てうざい(のとEmacs自体が固まったりする)ので以下のパッチをあててます。<br />
+
+<pre class="code">--- old/ajc-java-complete.el	2011-07-08 00:00:28.000000000 +0900
++++ new/ajc-java-complete.el	2011-07-08 00:00:12.000000000 +0900
+@@ -938,7 +938,8 @@
+ before that it will use y-or-n-p ask user to confirm "
+   (let ((import-class-buffer "*ajc-import-java-class*")
+         (import-class-window) (user-confirmed-class-items-list)
+-        (java-buffer (current-buffer))(java-window))
++        (java-buffer (current-buffer))(java-window)
++        (last-nonmenu-event t))
+     (setq case-fold-search nil)
+     (if (and import-class-items-list (> (length import-class-items-list) 0))
+         (progn</pre>
+ 

@@ -1,0 +1,33 @@
+---
+layout: post
+title: Mac OS Xのアカウント(Accounts.prefPane)が開かない
+mt_id: 589
+date: 2005-11-15 16:33:41.000000000 +09:00
+author: clouder
+category: Mac
+---
+ひさびさにMac OS Xネタでも。
+
+最近はめっきり踏み台サーバ化しているオフィスに置いてあるMac OS Xですが、ひさかたぶりにアカウント管理なぞをいじる必要があり、環境からそれを呼び出そうとしました。だが何度やってもその画面が開かない…。なんじゃこりゃと思ってConsoleを見たら
+
+<pre class="code">*** -[NSCFString replaceCharactersInRange:withString:]: nil argument</pre>
+
+なんていうエラーが…。なんじゃこりゃと思ってググってみたら下記のページを発見。
+
+<blockquote><a title="tancred.com: Malte Tancred's Weblog: Archives: 2004-04-06" href="http://tancred.com/malte/blog/2004/04/06.html">tancred.com: Malte Tancred's Weblog: Archives: 2004-04-06</a>
+
+I seldom mess around in the Accounts Preference Pane but yesterday I had reason to do so, only to rediscover a long time problem I've had with this preference pane. For some reason an exception was thrown when the pane was activated, making it almost unusable. According to console.log the exception was raised because a nil string (or other) argument was passed to NSCFString's -replaceCharactersInRange:withString:. The whole thing was driving me mad.</blockquote>
+
+どうやら、今までに作成したアカウントの中にrealnameプロパティが設定されてないアカウントがあるとエラーになって、アカウント管理が開けなくなるというのがわかったので、下記のone-linerで設定されてないアカウントをチェック。nidumpとかniutilとか久々に使ったみた。
+
+<pre class="code">for i in `niutil -list / /users | cut -d' ' -f2`; do REALNAME=`niutil -readprop / /users/${i} realname 2>&1`; echo $i $REALNAME; done</pre>
+＃とりあえず全部のアカウントを出力するようにしてますが、別に必要ないか…。
+
+そんで設定していないアカウントはエラーがでてると思うので、そのアカウントのrealnameを下記のように設定しました。
+自分はqmail用のアカウントをコマンドラインで作成したのでrealnameが設定されていなかったようです…。
+
+<pre class="code">for i in qmaild qmails qmailr qmaill alias qmailq qmailp; do echo $i; sudo niutil -createprop / /users/${i} realname ${i}; done</pre>
+
+これでアカウント管理が開くようになりまた。めでたしめでたし。
+
+ 

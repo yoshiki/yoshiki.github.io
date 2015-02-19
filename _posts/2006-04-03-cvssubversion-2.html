@@ -1,0 +1,23 @@
+---
+layout: post
+title: cvsからsubversionに移行するときにやったこと その2
+mt_id: 654
+date: 2006-04-03 01:36:47.000000000 +09:00
+author: clouder
+category: Software
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000639.html">前回はcvsからsubversionにリポジトリを移行するまでを書きました。</a>
+
+今のままだとローカルマシンからしか使えないのでとりあえずネット対応をしようと思います。
+ネット対応する方法として、大きく分けて次の2つの方法があるようです。
+
+<ul>
+<li>svnserveを使う</li>
+svn://svn.example.com/repos/ もしくは ssh を絡めて svn+ssh://svn.example.com/repos/ なんかでアクセスができるようになるものです。利点としては導入の手間が少なく簡単にネット経由で subversion を使いたいときなどにはよいでしょう。また sshを絡めればセキュリティも確保でき、ユーザ認証を ssh で行なうことができます。欠点は ssh を絡めないとセキュリティ的に問題があることや、
+<li>Apacheを使う</li>
+http://svn.example.com/repos/ でアクセスができるようになるものです。利点としては、Apacheのセキュリティとスケーラビリティを活用できるというのと、認証にも対応しています。セキュリティに関してはSSLを利用することができるようです。でもやっぱり使い慣れてるというのが一番の利点かと思います。
+</ul>
+
+<ul>まずは、svnserve を使う方法から。
+
+自分のやりたいことがすぐできるというのと自分の持っている知識という点から、一番合っていた方法は Apache を使う方法でした。 

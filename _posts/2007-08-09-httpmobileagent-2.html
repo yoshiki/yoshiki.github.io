@@ -1,0 +1,39 @@
+---
+layout: post
+title: HTTP::MobileAgentでbotをモバイルと判定させたい
+mt_id: 982
+date: 2007-08-09 17:45:48.000000000 +09:00
+author: clouder
+category: Perl
+---
+tokuhiromさんがIRCで、
+
+<pre class="code">Nokia6820/2.0 (4.83) Profile/MIDP-1.0 Configuration/CLDC-1.0 (compatible; Googlebot-Mobile/2.1; +http://www.google.com/bot.html)</pre>
+
+みたいなモバイル用のgooglebotがくるんだけど、これがH::MAではis_non_mobileになっちゃうというのを聞いたので、それをis_non_mobileじゃなくす実装をした。それと同時に以前Kamikuraさんから要望として来ていた
+
+<pre class="code">J-Phone/5.0/J-SH03 (compatible; Mozilla 4.0; MSIE 5.5; YahooSeeker)</pre>
+
+という、キャリアの名前が「J-PHONE」じゃなくて「J-Phone」になってる微妙なYahooSeekerもモバイルとして認識するように実装しました。
+
+まだCPANには上げてませんが、<a href="http://clouder.jp/src/cpan/HTTP-MobileAgent-0.26_1.tar.gz">ここからダウンロード</a>できます。
+
+
+ていうか、この対応はかなりad hocな対応なので今後こんなヘンテコなUAのbotが増えたら、その都度対応しなきゃならないなんてめんどくさすぎる。
+
+そこで対応策をいくつか考えてみた。
+
+<ul>
+<li>案1</li>
+H::MA::BotみたいなのつくってBot関連はすべて隠蔽。そんで、基本的にはH::MA::{DoCoMo,EZweb,Vodafone}として振舞うけどis_botがtrueになるみたいな実装。
+<li>案2</li>
+IRCで宮川さんが言ってたけど、そもそもH::MAのキャリア毎に扱うのやめて、H::MAのクラスのオブジェクトにして全部メソットやプロパティで扱う。つまり、キャリアを意識しないクラス構造にするみたいな実装
+<li>案3</li>
+とりあえず、is_non_mobileじゃなければいいんだから、is_non_mobile内でこれはモバイルだよっていう判定関数を作って、それにガシガシ正規表現を追加していく(追加できる機構にする)
+<li>案4</li>
+ごりごり対応していく。
+</ul>
+
+とりあえず考えたのはこんくらいです。
+どれにしようかはもう少し考えてみますが、とりいそぎは今の実装で数日中にCPANにアップする予定です。
+ 

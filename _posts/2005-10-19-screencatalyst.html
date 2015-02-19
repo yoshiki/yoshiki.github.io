@@ -1,0 +1,17 @@
+---
+layout: post
+title: screenの小技！(Catalyst入門としてのお作法についてについて)
+mt_id: 552
+date: 2005-10-19 20:09:12.000000000 +09:00
+author: clouder
+category: Software
+---
+<blockquote><a title="UnknownPlace. - Catalyst もりあがり" href="http://www.unknownplace.org/blosxom/coding/471.html">UnknownPlace. - Catalyst もりあがり</a>
+
+あと、コンソールの文字コード云々は、GNU screen 使って server.pl うごかす window だけ :encoding utf8 とかでどうすか！ 最近というか今日知ったんですが。</blockquote>うほ！これ知りせんでした！目から鱗が溢れました。
+これがあれば_logを書換える必要なしですね。ちなみに細かく書くと、screenの画面で Ctrl-t : (Ctrl-tのコマンド文字部分は自分のに置き換えてください)とやるとvimみたいに「:」のプロンプトがでるのでそこで、encoding utf8と書いてリターンを押せばばいいみたい。
+
+あと共通して使うのだったらばCatalystのプラグインにしたら？ってのは確かに書いた方が楽でいいですよね…。ただあまりCatalystを使いきれてないから、それがほんとに必要なのかどうかが微妙に迷ったりする今日この頃。
+
+なんか方々でCatalystネタが上ってたり、話題がscreenに飛んだり、そういうの見てると面白い。そんでCatalyst(+α)のノウハウが貯まるのはよいことですよね。
+ 

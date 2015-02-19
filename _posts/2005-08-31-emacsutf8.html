@@ -1,0 +1,33 @@
+---
+layout: post
+title: EmacsでUTF-8
+mt_id: 528
+date: 2005-08-31 16:44:21.000000000 +09:00
+author: clouder
+category: Emacs
+---
+最近はなにかとEmacsでUTF-8を扱いたいことが多くなってきたのですが、基本的にアプリはeucで書いていたのでUTF-8は必要なときになんとかすりゃいいやと思ってました。
+
+でもこないだ、あるアプリを作ろうとやっているときにふと、「あーこのアプリはフルUTF-8で書こうかな」と思い立ち、さてどうしたものかと考えました。
+
+自分のつたない知識で、「emacsでUTF-8を扱うにはMule-UCSというパッケージをインストールしなきゃならない」というのがあって、やっぱこれしかないのかなぁめんどくさいなと思っていつつも他に方法ないのかよということで、調べたり聞いたりしたところ、どうやらemacsのcvs版だとネイティブにUTF-8を対応しているらしいということがわかり、さっそく<a href="http://savannah.gnu.org/cvs/?group_id=40" target="_blank">cvs版のemacsをcheckout</a>してきて、makeしてみました。
+
+そして$HOME/.emacsに<pre class="code">(utf-translate-cjk-mode t)</pre>と書き加えます。(詳しくは→<a href="http://www.nijino.com/ari/emacs/utf-cjk.html" target="_blank">http://www.nijino.com/ari/emacs/utf-cjk.html</a>)
+
+そしたら、普通にUTF-8が使えるし！これはベンーリ。UTF-8のファイルを開いて編集して、保存して。なんとも普通。eucのファイルだったらそのまま保存もeucになる。ほほぉ、すごいねこれ。
+
+んで、eucのファイルをUTF-8にするにはどうするのか調べてみたら、C-x RET fで変換したいエンコードを指定することができるので、それで変換して保存することができる。なんとも便利。(追記：C-x RET fは古いemacsでも使えます)
+
+ちなみにCVSからもってきてmakeしたemacsのバージョンは下記です。
+<strong>GNU Emacs 22.0.50.1 (i686-pc-linux-gnu) of 2005-08-30 on colinux</strong>
+
+余談ですが、keyswapというkey configを変えるために使ってたパッケージがobsoluteになっているのが判明…。代替のパッケージがあるのかがわからず、とりあえず下記にように.emacsの設定を変更してむりくり使っている。
+
+(load-library "term/keyswap")
+↓
+(load-library "obsolete/keyswap")
+
+
+
+<div class="amazlet-box" style="margin-bottom:0px;"><div class="amazlet-image" style="float:left;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900834/clouder-22" name="amazletlink" target="_blank"><img src="http://images-jp.amazon.com/images/P/4900900834.09.MZZZZZZZ.jpg" alt="入門GNU Emacs" style="border: none;" /></a></div><div class="amazlet-info" style="float:left;margin-left:15px;line-height:120&#37;"><div class="amazlet-name" style="margin-bottom:10px;line-height:120&#37;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900834/clouder-22" name="amazletlink" target="_blank">入門GNU Emacs</a><div class="amazlet-powered-date" style="font-size:7pt;margin-top:5px;font-family:verdana;line-height:120&#37;">posted with <a href="http://www.amazlet.com/browse/ASIN/4900900834/clouder-22" title="入門GNU Emacs" target="_blank">amazlet</a> at 05.08.31</div></div><div class="amazlet-detail">デボラ キャメロン エリック レイモンド ビル ローゼンブラッド Debra Cameron Eric Raymond Bill Rosenblatt 福崎 俊博 <br />オライリー・ジャパン (1999/09)<br />売り上げランキング: 137,832<br /></div><div class="amazlet-review" style="margin-top:10px; margin-bottom:10px"><div class="amazlet-review-average" style="margin-bottom:5px">おすすめ度の平均: <img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5" /></div><img src="http://images-jp.amazon.com/images/G/09/x-locale/common/customer-reviews/stars-5-0.gif" alt="5" /> 明快な語り口調で・・・<br /></div><div class="amazlet-link" style="margin-top: 5px"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4900900834/clouder-22" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div><div class="amazlet-footer" style="clear: left"></div></div>
+ 

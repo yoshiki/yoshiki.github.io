@@ -1,0 +1,49 @@
+---
+layout: post
+title: Module::Installのconfigure_requires()とかについて
+mt_id: 1055
+date: 2008-07-07 20:29:44.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://code.google.com/apis/chart/#qrcodes">Google Chart APIでQRコードが作成可能となり</a>劣勢に立たされている気がしないでもないImager::QRCodeを作っているclouderです。<br /><br />
+
+こんにちは。<br /><br />
+
+以前からImager::QRCodeでCPAN Testerからエラーレポートがあがってきたのを先日一気にfixして上げたのですが、そのときに苦労した点がいくつかあったので記しておきます。<br /><br />
+
+<ul>
+<li>
+<p>苦労した点その1</p>
+Imager::QRCodeでは<a href="http://megaui.net/fukuchi/works/qrencode/">libqrencode</a>というCのライブラリを使ってQRコードを作成しているのですが、このlibqrencodeのAPIがちょっと見ない間に変っていて(関数の名前とか引数の数とか)、あるバージョン以降のlibqrencodeをインストールした環境ではImager::QRCodeが動かなくなっていました。<br /><br />
+
+どうもあるメジャーバージョンアップの際に関数名の変更が行なわれたっぽいのですが、それを有り難く使わせて頂いているこちらとしては変ってしまったものはしかたがないので、libqrencodeのあるバージョン以前のときはこうして、あるバージョン以降はこうするみたいなことをしなければなりませんでした。<br /><br />
+
+そこで今回の修正では<span style="font-weight: bold;">Makefile.PLの中でそのAPIが使えるかどうかのテストをしてバージョンを判定し、XSをコンパイル時に「-DFOO_BAR」というdefineを付けるようにし、QRCode.xsの中で「#ifdef〜#else〜#endif」でコードを分ける</span>ようにしました。<br /><br />
+
+この苦労した点の肝はCのライブラリのバージョンをチェックする方法です。最初libqrencode.soとかをstringsしてバージョン情報とかないかなぁとかいろいろ考えてみたのですが有効な手段がなく、結果的にその関数を使った一時プログラムを作って実際に使えるかどうかテストするしかないなという結論に至りました。<br /><br />
+
+ちなみにこの方法が正しいのかどうかわかりません＞＜<br /><br />
+</li>
+<li>
+<p>苦労した点その2</p>
+Imager::QRCodeのMakefile.PLでは、XSのコンパイルオプションに必要なImagerのtypemapなどが定義されたImager::ExtUtilsが必要になります。しかし、以前のバージョン(0.02以前)では<a href="http://search.cpan.org/src/KURIHARA/Imager-QRCode-0.02/Makefile.PL">Makefile.PL</a>に「use Imager::ExtUtils;」が書いてあり、元々Imagerがインストールされていない環境では当然「perl Makefile.PL」でコケていました。<br /><br />
+
+でもMakefile.PLで使うモジュールの依存関係を、そのMakefile.PLに書いてはたしてちゃんとCPAN shellがちゃんとインストールしてくれるか疑問だったのですが、今回はインストールのためのモジュールをModule::Installに変更して、<span style="font-weight: bold;">configure_requires()という依存関係を記述する関数を使ってImagerをdependencyに加えた</span>ところ上手くいきました。<br /><br />
+
+ちなみにconfigure_requires()は、<a href="http://search.cpan.org/src/ADAMK/Module-Install-0.75/Changes">Module::InstallのChanges</a>をみたところ、下記のように0.69からサポートされた関数で、それ以前は関数名はあったものの動いてなかったようです。<br /><br />
+
+<pre class="code">0.69 Sat 15 Mar 2008 - Adam Kennedy
+	- Enabling configure_requires support (ADAMK)</pre>
+
+この関数がなにをするかというと、Makefile.PLを実行する前に指定されたモジュールをインストールするものらしいです。ただ、100％のCPANクライアント(ほぼCPAN shellのことかな？)がサポートするとは限らない(Module::InstallがPerl 5.004以降のみをサポートしてるからとの記述あり)と書いてあるので、通常はbuild_requires()でやった方がよさげです。<br /><br />
+
+ここについては、まだ正しい解がわかっていないのですが、いまのところconfigure_requires()でちゃんと動いています。<br /><br />
+
+あと今回この問題に付随して1つ疑問があって、<span style="font-weight: bold;">CPAN shellでインストールする際にちゃんと依存関係のモジュールも問題なくインストールできるのかどうかをテストしたい場合、CPANにそのモジュールを上げる以外で確認する方法があるのか</span>なのですが、そもそもそのような方法がないのだとしたら一旦作ったモジュールをCPANに上げて世界中に迷惑かけながらテストしなきゃならないのでしょうか…。<br /><br />
+</li>
+</ul>
+
+ということで、今回こんな苦労がありました。<br /><br />
+
+＃いくつか疑問を残しているのが気持ち悪いので継続して調査したいのですが、もしこれらの疑問を知っている方がもしおられましたら、御教授頂けたらと思います。<br /><br />

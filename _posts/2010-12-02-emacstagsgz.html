@@ -1,0 +1,17 @@
+---
+layout: post
+title: emacsでTAGSの参照先が.gzファイルだった場合の対処法
+mt_id: 1136
+date: 2010-12-02 14:35:20.000000000 +09:00
+author: clouder
+category: Emacs
+---
+emacsでTAGSを使ってるんですが、環境によっては参照先のファイルがfoo.el.gzってなってたりするとfind-tagしたときに見られないようです。<br /><br />
+
+そんなときは、.emacsに下記のようにしてあらかじめjka-comprという圧縮ファイルを操作するライブラリをロードしておくと見られるようになります。<br />
+
+<pre class="code">(load "jka-compr")</pre>
+
+ちなみにemacsは、このようにloadをしなくてもgzip圧縮されたファイルを開くときは勝手にjka-comprを使ってるようです。<br /><br />
+
+ 

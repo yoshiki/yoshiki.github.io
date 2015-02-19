@@ -1,0 +1,38 @@
+---
+layout: post
+title: termcap/terminfoでAlternate Screen Bufferをオフにする方法
+mt_id: 1120
+date: 2009-10-06 14:37:34.000000000 +09:00
+author: clouder
+category: Unix
+---
+自分はずっと環境変数TERMにvt100を設定していたのですがvt100だとemacsとか使ったときに色が付かないというのがあってここしばらくはxterm-colorを設定していたんです。
+
+でも、xterm-colorだとAlternate Screen Bufferといって、lessやmanやviなどの使用時に使う前の画面状態を覚えておいて、それらが終了したときに元の画面に戻すという機能あって、それがが有効になってしまい、これをどうやったら回避できるのかずっと悩んでいました。
+
+これが有効になってると、直前まで見てたファイルを参考にコマンドを打ったりしたいのにそれが消えてしまい開発効率半減、いや半減以下になってしまうのです(個人的に)。
+
+ということで昨日ずっとその解決法を探していたら、やっとみつけました。
+
+<a href="http://slashdot.jp/~doda/journal/438524">http://slashdot.jp/~doda/journal/438524</a>
+
+
+詳しくは上記のページを参照してほしいのですが、やり方としては
+
+<pre class="command">&#37; infocmp &gt; xterm-color.ti</pre>
+
+と、やって現在のterminfoを出力して「rmcup=ふんふん,」と「smcup=ほんほん,」の部分を削除。
+
+<pre class="command">&#37; tic -o $HOME/.terminfo xterm-color.ti</pre>
+
+とやることで、ホームディレクトリに.terminfo/というディレクトリが出き、その中に編集したterminfoの設定が生成されます。
+
+これでいまわしきAlternate Screen BufferがOFFになるというわけです。
+
+ちなみに自分はtermcapの方は設定してませんが今のところ問題ありません。
+でも、termcapを見るソフトだとそちらも設定だめかもしれませんね。
+
+もし今後困ったらそっちも設定してみようと思います。
+
+
+ 

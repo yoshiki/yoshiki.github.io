@@ -1,0 +1,146 @@
+---
+layout: post
+title: Sledge Internals
+mt_id: 442
+date: 2005-06-15 20:23:24.000000000 +09:00
+author: clouder
+category: Perl
+---
+ソースを見るのが一番早く、正確に理解ができると思うのですが、その前のとっかかりとしてSledgeの内部について少し書いてみたいと思います。
+
+SledgeにはSledge::Pages::Baseというモジュールがあり、このモジュールにはSledgeのライフサイクルの根幹となるメソッド群が定義されています。Sledgeの内部を調べたりAPIを調べる際には、まずここから調べ始めるべきです。
+
+Sledgeのライフサイクルを<strong>ものすごく</strong>単純にすると、下記のような感じになります。 
+　<a href="#init">init</a>
+　<a href="#HOOK">[AFTER_INIT]</a>
+　<a href="#dispatch">dispatch</a>
+　　　　<a href="#init_dispatch">init_dispatch</a>
+　　　　<a href="#HOOK">[BEFORE_DISPATCH]</a>
+　　　　<a href="#dispatch_foo">post_dispatch_foo</a>
+　　　　<a href="#dispatch_foo">dispatch_foo</a>
+　　　　<a href="#HOOK">[AFTER_DISPATCH]</a>
+　　　　<a href="#output_content">output_content</a>
+　　　　<a href="#HOOK">[AFTER_OUTPUT]</a>
+
+このライフサイクルでなにが行なわれているかというと、まずクライアントがhttp://example.com/foo.cgi(foo.cgiのコードは下記にあります)というURIをリクエストすることにより、それがトリガーとなって該当のPagesクラス(下記の場合はProject::Pages::Root)のdispatch()メソッドが呼ばれます。dispatch()が呼ばれると、五月雨式に上記のライフサイクルが上から順に実行され、「パラメータの調整」「ビジネスロジック」「テンプレートの準備」「アウトプットの調整」「ヘッダとコンテンツの出力」等の処理を行います。
+
+foo.cgiのコード
+
+<pre class="code">#!/usr/local/bin/perl
+ 
+use strict;
+use Project::Pages::Root;
+ 
+Project::Pages::Root->new->dispatch('foo');</pre>
+
+それでは、もう少し各フェーズの中で、なにが行なわれているのかを簡単に見ていきたいと思います。
+
+<a name="init"></a>
+<strong>・init　(Sledge::Pages::Base::init)</strong>
+Sledgeに必要な各オブジェクトのインスタンスの生成を行なっています。具体的には、リクエスト(Sledge::Pages::ApacheもしくはSledge::Pages::CGI)、オーソライザ(Sledge::Authorizer)、セッションマネージャ(Sledge::SessionManager)、キャラセット(Sledge::Charset)のインスタンスをProject::Pages(sledge-setupコマンドによって自動生成)に書かれたcreate_****に応じて生成しています。
+
+<a name="dispatch"></a>
+<strong>・dispatch　(Sledge::Pages::Base::dispatch)</strong>
+Sledgeの処理の根幹と言ってもいいメソッドです。この中では、初期化処理、ビジネスロジック処理、コンテンツ生成、最終的な出力まで行なっています。
+
+次に、dispatchの中で行なう処理を見ていきます。
+
+<ul>
+<a name="init_dispatch"></a><li>init_dispatch　(Sledge::Pages::Base::init_dispatch)</li>
+ビジネスロジック処理のための初期化処理になります。具体的には、「テンプレート名等の決定に使われるpageの初期化」「セッションの初期化(セッション未設定時のみ)」「認証処理」「クエリの文字コードの変換」「テンプレートオブジェクトの初期化」「フォームのフィルインの初期化(ポスト時のみ)」が順番に行なわれます。この辺の処理はとてもシンプルに実装されていますので、一度ソースを見ておいた方がよいでしょう。
+
+<a name="dispatch_foo"></a><li>dispatch_foo、post_dispatch_foo</li>
+自分でコーディングするビジネスロジックが呼ばれる部分になります。dispatch_fooとpost_dispatch_fooの違いですが、dispatch_fooはGET、POSTでのリクエスト時に、post_dispatch_fooはPOSTでのリクエスト時のみ呼ばれます。なぜこのようなフローになっているかというと、Sledgeでは、(必ずしもそう実装する必要はないですが)POSTでのリクエスト(例えばフォーム等でsubmitを押した)時にその時表示しているURIと同様のURIにPOSTするフローを推奨しています。つまり、formタグのactionにはそのページ自分自身を指定します。そうすることで、POSTを実行した際にpost_dispatch_foo→dispatch_fooという順番で呼ばれるため、post_dispatch_fooでは入力値のバリデーションを行ない、入力値の正当性が確認できた場合には次のフェーズのURIにredirectをして、正当ではなかった場合にはdispatch_fooが呼ばれ、同様の画面にてバリデーションエラーを表示するというフローになっています。
+
+<blockquote>
+ここでURIの流れがでたので、少しそれについて説明します。典型的な入力のフロー「入力(input.cgi)」「確認(confirm.cgi)」「完了(finish.cgi)」をSledgeで実装する場合には、下記のような流れになります。
+
+1 GET index.cgi[dispatch_index]
+↓
+2 POST index.cgi[post_dispatch_index]
+↓バリデーション不正→GET index.cgi[dispatch_index]
+3 GET confirm.cgi[dispatch_confirm]
+↓
+4 POST conform.cgi[post_dispatch_confirm](DBへ接続しインサート)
+↓
+5 GET finish.cgi[dispatch_finish]
+
+こういった流れにすることにより、2の部分でバリデーションをし正当の場合にはフォームの内容をセッション等に格納しconfirm.cgiへリダイレクト、不正の場合はフィルイン処理(POSTの場合はSledgeが勝手に処理してくれる)をしてindex.cgiをそのまま表示という流れができます。また、4の時点でDBへインサート後にfinish.cgiにリダイレクトすることによりデータの重複登録を防いだりする効果もあります。
+</blockquote>
+
+<a name="output_content"></a><li>output_content　(Sledge::Pages::Base::output_content)</li>
+このフェーズでは、アウトプット前にコンテンツを生成(Sledge::Pages::Base::make_content)したり、出力前のフィルタ処理などを行ない、最終的にレスポンスを返します。コンテンツの生成は、テンプレートエンジンにテンプレートとdispatch_foo、post_dispatch_foo等で$self-&gt;tmpl-&gt;param()にて設定をした値を渡し、アウトプットするコンテンツを生成という流れになります。フィルタに関しては、$self-&gt;{filters}に渡したコードリファレンスを順に実行します。そして最終にヘッダーと出来上がったコンテンツを吐いて、ページが表示されます。
+
+</ul>
+
+<a name="HOOK"></a><strong>・フック　(AFTER_INIT、BEFORE_DISPATCH、AFTER_DISPATCH、AFTER_OUTPUT)</strong>
+Sledgeには、内部処理フェーズの各部分に簡単に独自の処理を挟むことのできる機構を供えています。その機能はフックという形で実装されていて、現在4つのフックが用意されています。各フックがいつ処理されるかは下記の通りですが、より詳細に処理されるタイミングを知りたい場合にはSledge::Pages::Baseのソースを見た方がよいでしょう。
+<ul><li>AFTER_INIT</li>initの直後
+<li>BEFORE_DISPATCH</li>dispatchの直前
+<li>AFTER_DISPATCH</li>dispatchの直後
+<li>AFTER_OUTPUT</li>outputの直後</ul>
+フックは下記のように登録することができます。下記の例は、BEFORE_DISPATCHフックにてTemplate-ToolkitのINCLUDE_PATHを追加しています。
+
+<pre class="code">__PACKAGE__->register_hook(
+    BEFORE_DISPATCH => sub {
+        my $self = shift;
+        $self->tmpl->add_option(INCLUDE_PATH => '/foo/bar/baz');
+    },
+);
+</pre>
+
+このフックを使って「Sledgeのインストールと設定方法」で書いたWebアプリケーションを使って、ちょっと遊んでみました。
+前回作成したHello::Pages::Rootを下記のように書換えました。(今回は便宜上、行数を付けました)
+
+<pre class="code">  1 package Hello::Pages::Root;
+  2
+  3 use strict;
+  4 use base qw(Hello::Pages);
+  5 use Acme::MorningMusume;
+  6 use Acme::Monta;
+  7
+  8 __PACKAGE__->tmpl_dirname('.');
+  9 __PACKAGE__->register_hook(
+ 10     BEFORE_DISPATCH => sub {
+ 11         my $self = shift;
+ 12         $self->tmpl->add_option(FILTERS => {
+ 13             montaize => sub {
+ 14                 my $text = shift;
+ 15                 my $monta = Acme::Monta->new;
+ 16                 return $monta->montaize($text);
+ 17             },
+ 18         });
+ 19     },
+ 20 );
+ 21
+ 22 sub dispatch_index {}
+ 23
+ 24 sub dispatch_quiz {
+ 25     my $self = shift;
+ 26     my $musume = Acme::MorningMusume->new;
+ 27     my @members = $musume->members;
+ 28     $self->tmpl->param(members => \@members);
+ 29 }
+ 30
+ 31 1;</pre>
+
+今回追加された部分は、5〜6行目、9〜20行目、24〜29行目になります。
+5〜6行目は、単にこのPagesクラスで使用するモジュールをuseしているだけになります。
+9〜20行目は、フックの登録になります。今回はTTのFILTERSに今流行りの<strong>もんたメソッド</strong>を使用するための<a href="http://search.cpan.org/~yappo/Acme-Monta-0.01/" target="_blank">Acme::Monta</a>を使用したmontaizeというフィルタを追加しています。
+24〜29行目は、ちょっと前に話題になった<a href="http://search.cpan.org/~kentaro/Acme-MorningMusume-0.04/" target="_blank">Acme::MorningMusume</a>からメンバーの一覧を取得し、TTへ配列リファレンスを渡しています。
+
+この結果は <a href="http://sledge.clouder.jp/quiz.cgi" target="_blank">http://sledge.clouder.jp/quiz.cgi</a> で確認することができます。
+
+ちなみにテンプレートのmemberを表示している部分のソースは下記になります。文字コード変換に<a href="http://search.cpan.org/~kurihara/Template-Plugin-Jcode-0.02/" target="_blank">T::P::Jcode</a>を、ランダム表示に<a href="http://search.cpan.org/~miyagawa/Template-Plugin-Shuffle-0.01/" target="_blank">T::P::Shuffle</a>を使っています。
+
+<pre class="code">[&#37; USE Jcode &#37;]
+[&#37; USE Shuffle &#37;]
+[&#37; FOREACH musume = members.shuffle -&#37;]
+[&#37; IF loop.last -&#37;]
+[&#37; '&lt;monta&gt;' _ musume.name_ja.jcode.euc _ '&lt;/monta&gt;' | montaize &#37;]&lt;br /&gt;
+[&#37; ELSE -&#37;]
+[&#37; musume.name_ja.jcode.euc &#37;]<br />
+[&#37;- END # END IF &#37;]
+[&#37;- END # END FOREACH &#37;]</pre>
+
+ということで、非常に簡単ですがSledgeのライフサイクルについて説明してきました。この基本の流れを知っていると、Sledgeでページがうまく表示されなかったり、予期しない動作が起った場合にも、対処をすることができるようになるのではないかと思います。

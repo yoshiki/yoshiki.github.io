@@ -1,0 +1,149 @@
+---
+layout: post
+title: Subversion と Trac のインストール方法とハマりポイントのまとめ
+mt_id: 734
+date: 2007-01-19 15:03:41.000000000 +09:00
+author: clouder
+category: Unix
+---
+<a href="http://d.hatena.ne.jp/naoya/20070116/1168935694">はてなと時期を同じく</a>して clouder.jp も自宅サーバからさくらインターネットに移行しまして、Subversion と Trac をインストールしたのですが結構苦労したので覚え書きとして残しておきます。<br /><br />
+
+とりあえず、Subversion と Trac のインストールに必要なソフトウェアは以下です。今回インストールしたバージョンも記しておきます。<br />
+ちなみに今回インストールしたサーバはFreeBSD 6.1で、Perl、Python、Ruby はインストール済。でも Trac は Python だけあれば動きますので、Perl と Ruby はインストールされてなくてもよいです。<br />
+
+<ul>
+<li>Subversion関連</li>
+neon-0.25.5.tar.gz<br />
+swig-1.3.31.tar.gz<br />
+subversion-1.4.2.tar.gz<br />
+<br />
+<li>Trac関連</li>
+httpd-2.0.59.tar.gz<br />
+sqlite-3.3.10.tar.gz<br />
+pysqlite-2.3.3.tar.gz<br />
+clearsilver-0.10.3.tar.gz<br />
+trac-0.10.3.tar.gz<br />
+</ul>
+
+具体的なインストール方法は以下になります。<br /> 
+<strong>apache2</strong>
+<pre class="code">&#37; ./configure --with-mpm=prefork --prefix=/usr/local/apache2 --enable-modules=most --enable-proxy --enable-rewrite
+&#37; make
+&#37; sudo make install</pre>
+
+<strong>neon</strong>
+<pre class="code">&#37; ./configure
+&#37; make
+&#37; sudo make install</pre>
+
+<strong>swig</strong>
+<pre class="code">&#37; ./configure --with-python=/usr/local/bin/python --with-perl5=/usr/local/bin/perl --with-ruby=/usr/local/bin/ruby
+&#37; make
+&#37; sudo make install</pre>
+
+<strong>subversion</strong>
+<pre class="code">&#37; ./configure --with-apxs=/usr/local/apache2/bin/apxs</pre>
+
+ここでMakefileを編集。<br />
+なぜなら、このまま make をすると Trac を使用する際に 「/usr/local/lib/libsvn_ra_dav-1.so.0: Undefined symbol "gss_delete_sec_context"」や「Undefined symbol "xmlCreatePushParserCtxt"」というエラーが出るからで、それは libgssapi や libxml2 をリンクするための記述が Makefile にないかららしい。そこで Makefile で以下のような変更を加える。
+
+<pre class="code">SVN_APR_LIBS =  /usr/local/apache2/2.0.59/lib/libapr-0.la -lm -lcrypt</pre>
+↓
+<pre class="code">SVN_APR_LIBS =  /usr/local/apache2/2.0.59/lib/libapr-0.la -lm -lcrypt -lgssapi `krb5-config --libs` `xml2-config --libs`</pre>
+
+と
+
+<pre class="code">SVN_APR_INCLUDES =  -I/usr/local/apache2/2.0.59/include</pre>
+↓
+<pre class="code">SVN_APR_INCLUDES =  -I/usr/local/apache2/2.0.59/include `krb5-config --cflags` `xml2-config --cflags`</pre>
+
+その後
+
+<pre class="code">&#37; make
+&#37; sudo make install</pre>
+
+あと、Pythonバインディングのライブラリもインストールします。
+
+<pre class="code">&#37; make swig-py
+&#37; sudo make install-swig-py</pre>
+
+で、ここでインストールしたものは、/usr/local/lib/svn-python というディレクトリにインストールされるのでこれを Python から見えるようにしなければなりません。そこで Python のライブラリが置いてある /usr/local/lib/python2.4/site-packages に subversion.pth というファイルを作って、中に以下のように記述しておく必要があります。
+
+<pre class="code">/usr/local/lib/svn-python</pre>
+
+こうすることで、Python で svn などのライブラリを使用できるようになります。<br /><br />
+
+<strong>sqlite</strong>
+<pre class="code">&#37; ./configure
+&#37; make
+&#37; sudo make isntall</pre>
+
+<strong>pysqlite</strong>
+<pre class="code">&#37; sudo ./setup.py install</pre>
+
+<strong>clearsilver</strong>
+<pre class="code">&#37; ./configure --with-apache=/usr/local/apache2 --disable-ruby
+&#37; make
+&#37; sudo make install</pre>
+
+<strong>trac</strong>
+<pre class="code">&#37; sudo ./setup.py install</pre>
+
+ここまでインストールしたら、apache2 の conf (/usr/local/apache2/conf/httpd.conf) に以下のように LoadModule を記述。
+
+<pre class="code">LoadModule dav_svn_module     modules/mod_dav_svn.so
+LoadModule authz_svn_module   modules/mod_authz_svn.so
+LoadModule python_module modules/mod_python.so</pre>
+
+また、http://trac.example.com/ で見られるように以下のように VH を切る。
+
+<pre class="code">&lt;VirtualHost *:80&gt;
+ServerName trac.example.com
+DocumentRoot /path/to/trac/project
+
+&lt;Location /&gt;
+SetHandler mod_python
+PythonHandler trac.web.modpython_frontend
+PythonOption TracEnv /path/to/trac/project
+PythonOption TracUriRoot /
+&lt;/Location&gt;
+
+&lt;Location &quot;/login&quot;&gt;
+AuthType Basic
+AuthName &quot;Trac&quot;
+AuthUserFile /path/to/trac/project/.htpasswd
+Require valid-user
+&lt;/Location&gt;
+&lt;/VirtualHost&gt;</pre>
+
+あとは以下のように普通に Trac のプロジェクトを作ってやればよい。 
+
+<pre class="code">trac-admin /path/to/trac/project initenv</pre>
+
+ちなみに、今回は旧サーバからの移行だったので initenv などはせず元の Trac のデータをコピーただけです。ただ、今回の移行で Trac のバージョンを 0.9.6 から 0.10.3 に上げたので、その場合には db のスキーマなどが変っているっぽく upgrade のための処理が必要でした。まぁ、Trac にアクセスすると upgrade しろってエラーが出るのでそのエラー通りに
+
+<pre class="code">&#37; trac-admin /path/to/trac/project upgrade</pre>
+
+とやるだけです。あと今回 sqlite のバージョン2で作られたデータベースをバージョン3に移行するということもやったのですが、その時には以下のようにするとサクっとできるようです。
+
+<pre class="code">&#37; sqlite dbfile .dump | sqlite3 newdbfile</pre>
+
+とりあえず、今回はこんな感じで Trac を移行できました。<br />
+ちなみに、subversion のデータの移行は、以下のようにすればサクっといけます。<br /><br />
+
+<strong>旧サーバ</strong><br />
+まず今のリポジトリをダンプ。
+<pre class="code">&#37; svnadmin dump /path/to/svn/repos > repos.dump</pre>
+
+ダンプしたものを新サーバへもっていく。<br /><br />
+
+<strong>新サーバ</strong><br />
+まずリポジトリを作成して、旧サーバからもってきたダンプを流し込むだけ。
+<pre class="code">&#37; svnadmin create /path/to/svn/repos
+&#37; svnadmin load /path/to/svn/repos &lt; repos.dump</pre>
+
+こんな感じでサクっといけるはず。<br /><br />
+
+ということで Subversion と Trac の移行をまとめてみました。<br />
+Trac がなかなか動かなくて苦労したのですが、ソフトウェア同士の相性とかもあるのでもし動かないなぁと思ったらバージョンを下げてみるのも手かも。
+

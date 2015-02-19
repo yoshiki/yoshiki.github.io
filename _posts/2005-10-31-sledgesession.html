@@ -1,0 +1,61 @@
+---
+layout: post
+title: Sledge::Sessionに便利なアクセサ追加するには
+mt_id: 578
+date: 2005-10-31 02:17:41.000000000 +09:00
+author: clouder
+category: Perl
+---
+<blockquote><a title="subtechグループ - tokuhiromの日記 - Sledge::SessionManager にアクセサ追加" href="http://subtech.g.hatena.ne.jp/tokuhirom/20051028/1130478226">subtechグループ - tokuhiromの日記 - Sledge::SessionManager にアクセサ追加</a>
+User の ID をセッションに入れとく場合、
+
+my $user = Project::Data::User->retrieve($self->session->param('id'));
+
+とか毎回書くのはダルいので
+
+my $user = $self->session->user;
+
+と書きたいのだが</blockquote>確かに。セッションから直で取れるのを設定できると楽だな～。宮川さんがコメントしているように簡単にSledge::Sessionに追加できるプラグインがあってもいいと思いますが、今のところ自分がよくやる方法としては下記の2つの方法があります。
+
+<ul>
+<li><strong>方法1：Authorizerに定義する</strong></li>
+Project::Authorizer::Loginとかで認証する際に、
+
+<pre class="code">sub authorize {
+    #...
+    my $user = Project::Data::User->retrieve($user_id);
+    $self->session->param(user => $user);
+    #...
+}</pre>
+
+という様にしてセッションにuserという名前でProject::Data::Userオブジェクトを入れてしまう。そしてProject::Pages::Baseとか作って、
+
+<pre class="code">sub user {
+    my $self = shift;
+    $self->session->param('user');
+}</pre>
+
+と定義しておいて、Pagesクラスは全部これを継承して作るようにすれば、Pagesクラスでは$self->userで取れるようになる。
+
+<li><strong>方法2：Project::Pages::Baseに定義</strong></li>
+Authorizerとかで定義するのもメンドイなぁと思うときは、上記の方法をちょと変更してProject::Pages::Baseに
+
+<pre class="code">use Project::Data::User;
+sub user {
+    my $self = shift;
+    my $id = $self->session->param('user_id');
+    $self->session->param(user => Project::Data::User->retrieve($id))
+        if $id && !$self->session->param('user');
+    return $self->session->param('user');
+}</pre>
+
+と定義して、セッションにuser_idというのがあったらそれを元にProject::Data::Userオブジェクトをretrieveしてきて、userというセッションに入れてそれをリターンするって方法。
+微妙に、なんでもかんでもuser_idってセッションがあったらretrieveしちゃうので、作ってるアプリでuser_idが絶対ユーザIDだという保証がない場合は危険なのでやめた方がいいですね…。
+</ul>
+
+この2つの方法の弱点としたら、Pages以外のクラスではPagesが渡ってなければ$self->userが取れないというところ。といってもそもそもPagesクラスが取れなけりゃセッションも取れないわけで…、$self->session->userとかもできないか…。
+
+<strong style="color:#ff0000">追記:</strong>
+コメントにも書きましたが、SledgeではどこでもPagesを取れるような機構が用意されてるのを失念していました。取り方は下記のようにします。
+<pre class="code">my $page = Sledge::Registrar::context();</pre>
+ 

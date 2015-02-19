@@ -1,0 +1,40 @@
+---
+layout: post
+title: sshの公開鍵をリモートホストに簡単に持っていく方法
+mt_id: 964
+date: 2007-06-18 14:11:01.000000000 +09:00
+author: clouder
+category: Unix
+---
+※下に追記あり
+
+<a href="http://digg.com/">digg</a>をみてて、「公開鍵をリモートホストに登録する簡単な方法」を発見しました。
+
+今まで公開鍵を登録するときにはローカルで .ssh/id_rsa.pub をコピーして、それをリモートの .ssh/authorized_keys にペーストしてたんですが、下記のように ssh-copy-id ってコマンドを使うとさくっとできるみたい。これは知らなかったよ。
+
+これがあればforを使ってワンライナーで一気に複数サーバに登録できる！
+
+<blockquote>
+<a title="VentureCake » Blog Archive » 10 Linux Shell Tricks You Don't Already Know. Really, we swear." href="http://www.venturecake.com/10-linux-shell-tricks-you-dont-already-know-for-once/">VentureCake » Blog Archive » 10 Linux Shell Tricks You Don't Already Know. Really, we swear.</a>
+
+6. Add Your Public Key to Remote Machines the Easy Way
+In order to perform key based logins to a new machine, you need to get a copy of a public key to the remote machine yourself. Sure, you could do this manually - which gets a bit boring after a while (why doesn't SSH have an authorized_keys.d anyway?), but why waste time when SSH comes with it the tool to do it?
+Just run:
+
+    ssh-copy-id -i .ssh/id_rsa.pub hostname
+
+After being prompted to enter your password for the last time, SSH will say:
+Now try logging into the machine, with "ssh 'hostname'", and check in:
+
+.ssh/authorized_keys
+
+to make sure we haven't added extra keys that you weren't expecting.
+
+Try it. No more passwords!
+</blockquote>
+
+<font color="#ff0000">追記(Tue Jun 19 02:10:51 2007)</font>
+どうやらotsuneさんのコメントの通り、ssh-copy-idの中身はmushaさんのシェルスクリプトみたい。
+ま、せっかく用意されてることだし使おっかーっていうぐらいのものみたいですね。
+
+ 

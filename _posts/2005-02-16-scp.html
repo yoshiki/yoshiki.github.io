@@ -1,0 +1,48 @@
+---
+layout: post
+title: scpの裏技
+mt_id: 283
+date: 2005-02-16 20:15:59.000000000 +09:00
+author: clouder
+category: Unix
+---
+今回、コマンドラインでどうやるんだろうということ困ったことがありました。
+同僚の人に教えてもらって解決したのですが、内容は下記のようなものです。
+
+あるAというサーバに下記のようなディレクトリ・ファイル構造があったとします。
+
+<pre class="code">
+foo/bar/file1_log.00000000.gz
+foo/bar/file2_log.00000000.gz
+foo/bar/file3_log.00000000.gz
+foo/file4_log
+foo/file5_log
+</pre>
+
+この中で
+
+<pre class="code">
+foo/file4_log
+foo/file5_log
+</pre>
+
+この2つだけをBサーバにもっていきたかったのです。
+scpでやろうとして、
+
+<pre class="code">&#37;　scp -r foo/*_log B:/path/to/dir</pre>
+
+とやっていたのですが、
+
+tcsh: scp: No match.
+
+などと言われてしまいます。同僚に聞いたところ
+
+<pre class="code">&#37;　scp -r "foo/*_log" B:/path/to/dir</pre>
+
+こうすることで出来ることを知りました。
+ようは foo/*_log を先にshellで解釈してもらうということですね。んで、この逆に、
+
+<pre class="code">&#37;　scp -r B:"foo/*_log" /path/to/dir</pre>
+
+という風なこともできます。
+って、これって常識？ 

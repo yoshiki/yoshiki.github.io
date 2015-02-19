@@ -1,0 +1,61 @@
+---
+layout: post
+title: Imager-0.53でGIFアニメーションのループをさせるためのパッチ
+mt_id: 702
+date: 2006-08-26 00:24:53.000000000 +09:00
+author: clouder
+category: Perl
+---
+最近マイブームの Perl でイメージを扱うモジュール <a href="http://search.cpan.org/dist/Imager/">Imager</a> ですが、最新バージョンの 0.53 では GIF アニメーションの生成がうまくできないようです。原因は <a href="http://sourceforge.net/projects/libungif">giflib</a> の問題らしいのですが、giflib の最新バージョン(現時点では4.1.4)ではその問題が直っているっぽいのですが、まだ Imager のバージョンアップがされないようなので patch を作ってみました。<br /><br />
+
+このパッチを適用する場合には、giflibのバージョン4.1.4以降を入れておく必要がありますので注意して下さい。
+
+<pre class="code">diff -u Imager-0.53/gif.c Imager-0.53.new/gif.c
+--- Imager-0.53/gif.c   2006-06-30 12:54:56.000000000 +0900
++++ Imager-0.53.new/gif.c       2006-08-20 00:10:34.000000000 +0900
+@@ -1387,13 +1387,12 @@
+      If giflib's callback interface wasn't broken by default, I'd
+      force file writes to use callbacks, but it is broken by default.
+   */
+-#if 0
+   /* yes this was another attempt at supporting the loop extension */
+   int loop_count;
+   if (i_tags_get_int(&img->tags, "gif_loop", 0, &loop_count)) {
+     unsigned char nsle[12] = "NETSCAPE2.0";
+     unsigned char subblock[3];
+-    if (EGifPutExtension(gf, 0xFF, 11, nsle) == GIF_ERROR) {
++    if (EGifPutExtensionFirst(gf, APPLICATION_EXT_FUNC_CODE, 11, nsle) == GIF_ERROR) {
+       gif_push_error();
+       i_push_error(0, "writing loop extension");
+       return 0;
+@@ -1401,18 +1400,19 @@
+     subblock[0] = 1;
+     subblock[1] = loop_count &#37; 256;
+     subblock[2] = loop_count / 256;
+-    if (EGifPutExtension(gf, 0, 3, subblock) == GIF_ERROR) {
++    if (EGifPutExtensionLast(gf, APPLICATION_EXT_FUNC_CODE, 3, subblock) == GIF_ERROR) {
+       gif_push_error();
+       i_push_error(0, "writing loop extention sub-block");
+       return 0;
+     }
++#if 0
+     if (EGifPutExtension(gf, 0, 0, subblock) == GIF_ERROR) {
+       gif_push_error();
+       i_push_error(0, "writing loop extension terminator");
+       return 0;
+     }
+-  }
+ #endif
++  }
+   return 1;
+ }
+
+@@ -1491,6 +1491,7 @@
+ */
+
+ static void gif_set_version(i_quantize *quant, i_img **imgs, int count) {
++  EGifSetGifVersion("89a");
+   /* the following crashed giflib
+      the EGifSetGifVersion() is seriously borked in giflib
+      it's less borked in the ungiflib beta, but we don't have a mechanism
+</pre> 

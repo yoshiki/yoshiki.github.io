@@ -1,0 +1,122 @@
+---
+layout: post
+title: MovableTypeのSearchをAjaxでやってみる
+mt_id: 337
+date: 2005-03-01 14:07:02.000000000 +09:00
+author: clouder
+category: Technique
+---
+MovableTypeの検索を改造してAjaxで画面遷移なしで<a href="http://clouder.jp/mt/mt-search.cgi?IncludeBlogs=2&Template=ajax" target="_blank">検索</a>できるようにしました。<br />
+とりあえず、実装の仕方をまとめてみました。変なとこあったら言ってください。<br />
+ 
+基本的には、$MT_HOME/search_template/default.tmpl のコピーを下記の名前で保存。<br />
+$MT_HOME/search_template/ajax.tmpl<br />
+$MT_HOME/search_template/result.tmpl<br />
+<br />
+ajax.tmplにはAjaxでのコードを書き(<a href="#code">後述</a>)、result.tmplにはヘッダーとかフッターを除いた検索結果を出すように体裁を整えます。<br />
+また、これらをテンプレートとして使えるように $MT_HOME/mt.cfg の中身に下記を追加しました。<br />
+<br />
+<pre class="code">
+AltTemplate ajax ajax.tmpl
+AltTemplate result result.tmpl
+</pre>
+
+こうすることにより、検索ページのテンプレートを 
+http://example.com/mt-search.cgi?IncludeBlogs=1&Template=ajax
+として、Templateというクエリに指定して使用することができるようになります。
+<a name="code"></a>
+ajax.tmplの中身は、下記のようになってます。
+
+<pre class="code">
+       1 &lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+       2
+       3 &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+       4 &lt;head&gt;
+       5 &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=&lt;$MTPublishCharset$&gt;&quot; /&gt;
+       6 &lt;meta name=&quot;generator&quot; content=&quot;http://www.movabletype.org/&quot; /&gt;
+       7
+       8 &lt;title&gt;&lt;MT_TRANS phrase=&quot;Search Results&quot;&gt;&lt;/title&gt;
+       9 &lt;link rel=&quot;stylesheet&quot; href=&quot;&lt;$MTBlogURL$&gt;styles-site.css&quot; type=&quot;text/css&quot; /&gt;
+      10 &lt;script language=&quot;JavaScript&quot; type=&quot;text/javascript&quot; src=&quot;xmlhttprequest.js&quot;&gt;&lt;/script&gt;
+      11 &lt;script language=&quot;JavaScript&quot; type=&quot;text/javascript&quot;&gt;
+      12 &lt;!---
+      13 function doSearch() {
+      14         var http = new XMLHttpRequest();
+      15         if (http) {
+      16                 http.onreadystatechange = function(){
+      17                         var result = document.getElementById('result');
+      18                         result.innerHTML = '&lt;img src=&quot;progress.gif&quot; /&gt;';
+      19                         if (http.readyState == 4 &amp;&amp; http.status == 200) {
+      20                                 removeresult();
+      21                             result.innerHTML = http.responseText;
+      22                         }
+      23                 };
+      24                 var q = document.getElementById('q');
+      25                 http.open('GET', 'http://clouder.jp/mt/mt-search.cgi?IncludeBlogs=<$MTBlogID$>&amp;Template=result&amp;search=' + q.value);
+      26                 http.send(null);
+      27         }
+      28 }
+      29 function removeresult() {
+      30         var result = document.getElementById('result');
+      31         result.innerHTML = &quot;&quot;;
+      32 }
+      33 //---&gt;
+      34 &lt;/script&gt;
+      35 &lt;/head&gt;
+      36
+      37 &lt;body&gt;
+      38
+      39 &lt;div id=&quot;banner&quot;&gt;
+      40 &lt;a href=&quot;&lt;$MTBlogURL$&gt;&quot; accesskey=&quot;1&quot;&gt;&lt;$MTBlogName$&gt;&lt;/a&gt;
+      41 &lt;span class=&quot;description&quot;&gt;&lt;$MTBlogDescription$&gt;&lt;/span&gt;
+      42 &lt;/div&gt;
+      43
+      44 &lt;div class=&quot;content&quot;&gt;
+      45
+      46 &lt;div class=&quot;blog&quot;&gt;
+      47
+      48 &lt;form method=&quot;post&quot; action=&quot;&lt;$MTCGIPath$&gt;&lt;$MTSearchScript$&gt;&quot; onsubmit=&quot;doSearch(); return false;&quot;&gt;
+      49 &lt;input type=&quot;hidden&quot; name=&quot;IncludeBlogs&quot; value=&quot;&lt;$MTBlogID$&gt;&quot;&gt;
+      50
+      51 &lt;div class=&quot;blogtitle&quot;&gt;&lt;MT_TRANS phrase=&quot;Search this site:&quot;&gt;&lt;/div&gt;
+      52
+      53 &lt;div class=&quot;blogbody&quot;&gt;
+      54 &lt;p&gt;&lt;input type=&quot;text&quot; size=&quot;30&quot; name=&quot;search&quot; value=&quot;&lt;$MTSearchString$&gt;&quot; id=&quot;q&quot; /&gt; &lt;input type=&quot;button&quot; value=&quot;&lt;MT_TRANS phrase=&quot;Search&quot;&gt;&quot; onClick=&quot;doSearch();&quot; /&gt;&lt;/p&gt;
+      55
+      56 &lt;/form&gt;
+      57 &lt;/div&gt;
+      58
+      59 &lt;div id=&quot;result&quot;&gt;
+      60 &lt;/div&gt;
+      61 &lt;/div&gt;
+      62
+      63 &lt;/div&gt;
+      64
+      65 &lt;/body&gt;
+      66 &lt;/html&gt;
+</pre>
+また、result.tmplに関してはヘッダーやフッターを適当取って、検索結果だけを表示するようにしておいてください。<br />
+<br />
+次に、以前<a href="http://clouder.jp/yoshiki/mt/archives/000286.html" target="_blank">紹介した</a>サイトからxmlhttprequest.jsを取ってきて、それを適当なディレクトリに置いて10行目のように読み込みます。<br />
+そして11行目から34行目の間にようにjavascriptを記述します。<br />
+このjavascriptには2つの関数が書かれています。doSearch()という関数は検索のリクエストを投げる関数。removerequest()という関数は表示された検索結果を一旦削除する関数になります。<br />
+<br />
+doSearch()の中では、http という変数に XMLHttpRequestオブジェクトのインスタンスを入れて、http.open()で、FORMタグで言うところの「method」と「action」を指定して、http.send()によってリクエストを飛ばしています。actionの指定するURLは「http://example.com/mt-search.cgi?IncludeBlogs=<$MTBlogID$>&Template=result&search=検索文字列」となります。<br />
+<br />
+http.onreadystatechange というのに、無名の関数を代入していますが、これは http.send() で飛ばした際のハンドラになります。http.send()したあとのリクエストのフェーズ毎にこの関数が呼ばれるようです。<br />
+<br />
+フェーズの数字については、<br />
+0 = uninitialized<br />
+1 = loading<br />
+2 = loaded<br />
+3 = interactive<br />
+4 = complete<br />
+このようになっているようです。<br />
+<br />
+そして、結果が帰ってきて http.readyStateが4(complete)になったときには、idがresultというdivタグで囲まれた空白の部分が59行目付近に用意してありますので、そちらに innnerHTML を使って結果を貼り付けています。<br />
+<br />
+ちなみに18行目のinnerHTMLは、プログレスバーを表示しているだけで、結果を表示する際には一旦 removeresult()が呼ばれて消されるようになっています。<br />
+<br />
+こうやって使ってみると、もっと他の使い方がいろいろできそうだなと思いました。<br />
+これだけだとすごくつまらない使い方しかしてない気になってきた…。<br />
+また時間をみつけてなにかやってみようと思います。<br />

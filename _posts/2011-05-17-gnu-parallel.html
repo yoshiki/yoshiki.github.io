@@ -1,0 +1,32 @@
+---
+layout: post
+title: GNU Parallel いいかもね
+mt_id: 1140
+date: 2011-05-17 16:58:20.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://blog.riywo.com/2011/04/19/022802">GNU Parallelがすごすぎて生きるのがつらい</a>を見て使ってみました。<br /><br />
+
+そもそも複数のサーバのaccess_logをtail -fで一括で見たかったからです。<br /><br />
+
+<a href="http://www.gnu.org/software/parallel/">GNU Parallel</a>からダウンロードして
+<pre class="command">&#37; ./configure
+&#37; make
+&#37; make install</pre>
+でインストールは終了。簡単！<br /><br />
+
+Perlで書かれてるんでコンパイルとか必要ないっす。<br /><br />
+
+インストールしたら目的のサーバ群に対して tail -f /path/to/access_log を発行するだけ。
+
+<pre class="command">％　parallel -u ssh {} 'tail -f /path/to/access_log' :::: /path/to/server_list.txt</pre>
+
+こうするとserver_list.txtに列挙されてるサーバに対してtail -f /path/to/access_logが実行されます。<br /><br />
+
+-u っていうオプションを付けないと出力がバッファリングされちゃうので、tail -f するときは -u を付けないとだめです。<br /><br />
+
+ちょっと引数にクセがあるけど慣れですね。<br />
+マニュアルは man parallel で見られます。<br /><br />
+
+他にもこういうのあるけど、Perlで書かれてて使い易かったのでしばらく使ってみようと思います。<br /> 

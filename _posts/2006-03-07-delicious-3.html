@@ -1,0 +1,98 @@
+---
+layout: post
+title: del.icio.usでプライベートブックマークする方法の 説明が間違ってました
+mt_id: 643
+date: 2006-03-07 11:26:32.000000000 +09:00
+author: clouder
+category: Webservice
+---
+
+すみません、昨日紹介した「<a href="http://clouder.jp/yoshiki/mt/archives/000640.html">del.icio.usでプライベートブックマークする方法</a>」ですが、<strong>間違っていました</strong>。コメントでmomoさんから教えて頂きました。<br />
+ネット上の説明をみつつ実際にやって確認していたのですが、どうも勘違いして出来たと思い込んでいたようです。<br /><br />
+
+正しいやり方は、プライベートブックマークをする専用のbookmarkletを作ってくれる <a href="http://sandbox.sourcelabs.com/priv.at/">http://sandbox.sourcelabs.com/priv.at/</a> のページにて bookmarklet を作成し、それを使ってブックマークを行なうことでプライベートなブックマークを作ることができます。<br /><br />
+
+んで、なぜそんなことができるのかというと、上記のbookmarkletを作成してくれるサイトの方が private.bookmarks というユーザアカウントを取得して、そのユーザアカウントにて for:username ( username はあなたの del.icio.us アカウント)というタグでブックマークすることにより、http://del.icio.us/for/usernameでのみブックマークを閲覧することができるようになるということですね。for:username の機能をうまく利用した技です。<br /><br />
+
+手間はちょっとかかるけど、同じことをアナログでやれば、このサイトのbookmarkletを使わずとも同じことができると思います。まったく違う別アカウントを作成して、そのアカウントでブックマークをして、タグを「for:本当のdel.icio.usアカウント」にすればよいわけです。<br />
+これで削除などが自由にできるプライベートブックマークができるということですね。正確にはプライベートではないですが…。<br /><br />
+
+ここまで書いたついでに、上記のサイトがやっていることと同じことをするプログラムを書いたので晒しておきます。たいしたロジックではありませんし、エラーハンドリングもやってないので、その辺はご了承下さい。<br /><br />
+
+使い方は、「http://example.com/foo.cgi?title=foobar&url=http://foo.example.com/」といった感じに url と title のクエリを渡せば、priv_usernameで指定したユーザのブックマークに 「for:real_username」 というタグでブックマークをすることができます。<br /><br />
+
+
+
+ 
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use CGI;
+use HTTP::Cookies;
+use URI;
+use URI::QueryParam;
+use WWW::Mechanize;
+use constant DELICIOUS =&gt; sub { 'http://del.icio.us' . shift };
+
+my $real_username = 'realusername';
+my $priv_username = 'privusername';
+my $priv_password = 'privpassword';
+
+my $q = new CGI;
+do_post();
+
+sub do_post {
+    my $url = $q-&gt;param('url');
+    my $title = $q-&gt;param('title');
+
+    if ($url) {
+        my $cookie_jar = HTTP::Cookies-&gt;new(
+            file =&gt; '/tmp/del.icio.us_cookie.jar',
+            autosave =&gt; 1,
+        );
+        my $mech = WWW::Mechanize-&gt;new(cookie_jar =&gt; $cookie_jar);
+        $mech-&gt;agent_alias('Windows IE 6');
+        $mech-&gt;get(DELICIOUS-&gt;());         # get top page
+        $mech-&gt;get(DELICIOUS-&gt;('/login')); # get login page
+        $mech-&gt;submit_form(                # do login
+            form_number =&gt; 1,
+            fields      =&gt; { user_name =&gt; $priv_username, password  =&gt; $priv_password },
+        );
+
+        my $uri = URI-&gt;new(DELICIOUS-&gt;(&quot;/$priv_username&quot;));
+        $uri-&gt;query_form_hash({ title =&gt; $title, url =&gt; $url, v =&gt; 3 });
+        $mech-&gt;get($uri-&gt;as_string);       # get to post page
+
+        my $fields = $mech-&gt;content =~ /originally posted/ ? {
+            url         =&gt; $url,
+            description =&gt; $title || undef,
+            notes       =&gt; undef,
+            tags        =&gt; &quot;for:$real_username&quot;,
+        } : {
+            oldurl      =&gt; $url,
+            url         =&gt; $url,
+            description =&gt; $title || undef,
+            notes       =&gt; undef,
+            tags        =&gt; &quot;for:$real_username&quot;,
+            date        =&gt; $mech-&gt;value('date'),
+        };
+
+        $mech-&gt;submit_form(                # post url
+            form_number =&gt; 1,
+            fields      =&gt; $fields,
+        );
+    }
+    else { done('You must specify url.') }
+    done();
+}
+
+sub done {
+    my $msg = shift || 'Private Bookmark Done';
+    print $q-&gt;header;
+    print &lt;&lt;&quot;HTML&quot;;
+&lt;html&gt;
+$msg
+&lt;/html&gt;
+HTML
+    ;
+}</pre>

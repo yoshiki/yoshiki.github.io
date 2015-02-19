@@ -1,0 +1,14 @@
+---
+layout: post
+title: mod_extract_forwarded
+mt_id: 192
+date: 2004-07-26 16:36:23.000000000 +09:00
+author: clouder
+category: Unix
+---
+<blockquote class="quote"><a title="mod_extract_forwarded" href="http://web.warhound.org/mod_extract_forwarded/" target="_blank">mod_extract_forwarded</a>
+
+mod_extract_forwarded hooks itself into Apache's header parsing phase and looks for the X-Forwarded-For header which some (most?) proxies add to the proxied HTTP requests. It extracts the IP from the X-Forwarded-For and modifies the connection data so to the rest of Apache the request looks like it came from that IP rather than the proxy IP.</blockquote>
+internet - reverse proxy - web app なんて構成のときに内側までリモートIPを届かせるためのapacheモジュール。
+X-Forwarded-For を ROMOTE_ADDR にすげかえるぽ。
+結構有名なの？？ 

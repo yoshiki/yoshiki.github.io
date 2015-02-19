@@ -1,0 +1,20 @@
+---
+layout: post
+title: 初めてのBookmarklet
+mt_id: 248
+date: 2004-12-29 00:23:49.000000000 +09:00
+author: clouder
+category: Bookmarklet
+---
+<a href="javascript:void(function(){function&#37;20a(t){d=document;e=d.getElementsByTagName(t);for(i=0;i<e.length;i++){e[i].outerHTML+='<b><font color=blue>['+e[i].type+']</font><font color=red>['+e[i].name+']</font></b>';}}a('SELECT');a('INPUT');a('TEXTAREA');})();">フォームのtypeとnameを表示</a>するBookmarkletを作ってみた。
+IE限定ですが…。
+
+開発をしている人にはちょっとだけ便利かなーと。
+いや便利じゃないかな…。
+
+INPUTにはinnerHTMLがきかないらしく、それで苦労しました。
+いろいろ検索したらouterHTMLなるものがあることを知り、それを使ってみた。
+
+これをネスケ系で作るにはどうしたらいいかわからん…。
+outerHTMLみたいなことできるのかな？
+ 

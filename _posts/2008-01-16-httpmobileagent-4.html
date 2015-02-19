@@ -1,0 +1,33 @@
+---
+layout: post
+title: HTTP::MobileAgent::Plugin::LocatorをCPANに上げたよ
+mt_id: 1015
+date: 2008-01-16 12:17:20.000000000 +09:00
+author: clouder
+category: Perl
+---
+あまりにも書いてなかったので、こっちに書いてみる。<br /><br />
+
+いろいろと物議を醸し出していたHTTP::MobileAgent::Plugin::LocatorをさっきCPANに上げました。もうしばらくしたらインデックスされると思います。<br /><br />
+
+ちなみに、このモジュールはCodereposで管理しているため、なんかバグなど発見したら修正をしてもらっておkです。すでにリリースまでの間にid:tokuhiromがいろいろと修正してくれました。tokuhirom++。Coderepos++。<br /><br />
+
+で、このモジュールはなんのためのモジュールかというと仕様の違う携帯4キャリアの位置情報を透過的に扱えるようにするためのものです。使い方は以下のようにするだけで簡単に緯度経度が取得できます。<br /><br />
+
+<pre class="code">use CGI;
+use HTTP::MobileAgent;
+use HTTP::MobileAgent::Plugin::Locator;
+
+my $q = CGI->new;
+my $agent = HTTP::MobileAgent->new;
+my $location = $agent->get_location( $q );
+
+print "lat is " . $location->lat;
+print "lng is " . $location->lng;</pre>
+
+この例ではCGI.pmのインスタンスをget_location()に渡してますが、paramメソッドがあるクラスのインスタンスであればget_location()の引数として渡せるので、Apache::Requestなどでも渡せます。<br /><br />
+
+あと、egというディレクトリにlocation.incとrewrite.confというファイルがありますが、location.incは<a href="http://tt2.org/">TT</a>のシンタックスで書かれたファイルで、4キャリアでの位置情報を取得するためのページのフォームを出力するためのテンプレートになります。URIなどを適宜変更して使ってください。もう1つのrewrite.confはauで位置情報を取得する際の返ってくるURLをクエリ付きで渡すと、?が2つになってしまうというクソ仕様にApacheのrewriteで対応するためのconfになります。auで使う場合には必須です。<br /><br />
+
+ということで、バグレポートじゃなかったコミット待っています。<br />
+ 

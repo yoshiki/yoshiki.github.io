@@ -1,0 +1,32 @@
+---
+layout: post
+title: require, import instead of use
+mt_id: 184
+date: 2004-06-02 02:34:32.000000000 +09:00
+author: clouder
+category: Perl
+---
+今日わかったperlの不思議。
+perl でモジュールを use しますが、時としてクラス名を動的に生成して use したい時があります。
+そんなときは以下のようにします。
+
+<blockquote>
+my $class = "Foo::Bar::$baz";<br>
+eval qq(require $class; import $class);
+</blockquote>
+
+よくやる間違いは、
+
+<blockquote>
+my $class = "Foo::Bar::$baz";<br>
+eval { require $class; import $class };
+</blockquote>
+
+これをやっても use されないようだ。この eval の用法はエラーをトラップしたりするときに使用するものです。最初の例は、引数を perl の構文として評価するもの(だと思っている…)
+ようは、eval EXPR はシンタックスエラーを実行時に $@ に返すのに対し、 eval BLOCK はシンタックスエラーをコンパイル時に返す点が異なる(らしいw)
+
+require $class; import $class を perl の構文として評価するといいらしい。
+なじぇ？ 
+どうやら、require は bareword でないとだめなようだ。
+だから、eval qq() とかやると require に bareword を渡すことができるんだろな。
+これは、perldoc -f require に詳しくでてる。

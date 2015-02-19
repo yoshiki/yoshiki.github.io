@@ -1,0 +1,36 @@
+---
+layout: post
+title: 使用コマンドランキング
+mt_id: 713
+date: 2006-09-23 22:30:57.000000000 +09:00
+author: clouder
+category: Unix
+---
+idea * idea の<a href="http://www.ideaxidea.com/archives/2006/09/unix.html">エントリ</a>にあったのでやってみた。
+sudoが多いのは、モジュールインストールしたりapacheの設定いじったり再起動したりかな。cdが以外と少ないのは、自分はcdせずに目的にファイルへのパスを書いてなにかをしてしまうことが多いからですね。よく目的のファイルのあるディレクトリに毎回cdしてそこでコマンドを叩く人がいますが、それって面倒じゃない？？と思ってしまう派。
+
+&#37; history | awk '{print $3}' | awk 'BEGIN {FS="|"} {print $1}' | sort | uniq -c | sort -r
+    163 sudo
+    133 ls
+    127 screen
+     61 cd
+     53 less
+     35 perldoc
+     16 apt-cache
+     14 svn
+     13 make
+     13 cat
+     12 locate
+     11 tail
+     11 grep
+     11 df
+     10 vi
+     10 tar
+     10 psgrep
+     10 ./configure
+      9 wget
+      8 ps
+      7 zgrep
+      7 host
+以下略
+ 

@@ -1,0 +1,22 @@
+---
+layout: post
+title: SMTPの不正中継チェック方法
+mt_id: 170
+date: 2004-04-04 03:41:18.000000000 +09:00
+author: clouder
+category: Unix
+---
+<blockquote class="quote"><a title="＠IT：Security Tips > スパム中継防止のため、第三者中継をチェックする" href="http://www.atmarkit.co.jp/fsecurity/rensai/securitytips/005checkmail.html" target="_blank">＠IT：Security Tips > スパム中継防止のため、第三者中継をチェックする</a>
+
+メールの第三者中継（Third-Party Mail Relay）をチェックするには、relay-test.mail-abuse.orgのサービスを使うのが手軽でよい。第三者中継とは、多くのスパムメールが行っている方法で、メール送信者がその本人とは無関係の第三者のメールサーバを不正に中継し、身元を偽ってメールを送信することをいう。</blockquote>
+これは便利。
+
+うちのqmailだと
+
+:Relay test: #Test 11
+>>> mail from: <spamtest@foo.com>
+<<< 250 ok
+>>> rcpt to: <"nobody&#37;mail-abuse.org">
+<<< 250 ok
+
+これは通らないぽ。でもそれでも大丈夫みたい。(ほんとか？) 

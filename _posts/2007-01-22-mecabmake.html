@@ -1,0 +1,45 @@
+---
+layout: post
+title: mecabのmakeでてこずる…
+mt_id: 736
+date: 2007-01-22 01:52:48.000000000 +09:00
+author: clouder
+category: Unix
+---
+mecab を make しようと思って、
+
+<pre class="code">&#37; ./configure --with-charset=utf8</pre>
+
+とやったのだが、libiconv を認識してくれない。いろいろ調べた結果環境変数を指定しないといけないらしい。ということで、
+
+<pre class="code">&#37; ./configure --with-charset=utf8 LIBS=-liconv CPPFLAGS=-I/usr/local/include LDFLAGS='-L/usr/local/lib -R/usr/local/lib'</pre>
+
+とやったら認識したので、喜び勇んで make すると普通に make 完了。
+んじゃ、ということで次にipadicの辞書を make する。こちらは
+
+<pre class="code">&#37; ./configure --with-charset=utf8</pre>
+
+として、make したら無事 make 完了。
+
+んでさっそくわかちがきをしてみる。だが、どうも辞書が utf8 になっていない。なんでやねん！と思い、またいろいろ調べてみる。
+
+libiconv を使ったサンプルコード(configure 内のテストコードから抜粋)を作ってコンパイルして実行してみると、「utf8」という文字コードを指定して変換を行なおうとするとコアダンプするので、なんでだろーと man libiconv を見ると「UTF-8」と文字コードが書いてあるので、「utf-8」とハイフン付けてできちゃったりして？と思い試してみたら、今度はコアダンプしない！どうやらlibiconvは、「utf8」ではなく「utf-8」(ハイフン付) じゃないとだめっぽい。なんだかなぁ…。
+
+ということで、以下が正解。
+
+mecab
+<pre class="code">&#37; ./configure --with-charset=utf-8 LIBS=-liconv CPPFLAGS=-I/usr/local/include LDFLAGS='-L/usr/local/lib -R/usr/local/lib'</pre>
+
+mecab-ipadic
+<pre class="code">&#37; ./configure --with-charset=utf-8</pre>
+
+これでやっと utf8 の辞書が出来上がって、正常にわかちがきができるようになりました！
+mecab の Makefile がだめなのかな。。。
+
+ちなみに、今回使用した mecab と mecab-ipadic と libiconv のバージョンは以下の通り。
+mecab-0.93
+mecab-ipadic-2.7.0-20060707
+libiconv-1.11
+
+最近オフは make ばかりしているなぁ。そして必ずハマる…。
+ 

@@ -1,0 +1,55 @@
+---
+layout: post
+title: Module::Installを使ったプロジェクトのincディレクトリについて
+mt_id: 1006
+date: 2007-10-12 02:00:20.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://search.cpan.org/dist/Module-Install/">Module::Install</a>を使ったCPANモジュールはincというディレクトリがあって、その中にinc::Module::Installなどのファイルが同梱されています。なぜ、inc::Module::Installなどが含まれているかというと、これによってModule::Installがインストールされていないマシンでも、そのモジュールをインストールできるという利点があります。<br /><br />
+
+Module::Installを使ったモジュールのプロジェクトを作るのは意外と簡単で、<a href="http://search.cpan.org/dist/Module-Starter/">module-starter</a>などでプロジェクトの雛形を作り、以下のような感じでMakefile.PLをModule::Install用に書き換えてやるだけでいいのです(module-starterはテンプレート機能があるので、$HOME/.module-starter/の設定で最初からMakefile.PLをModule::Install用で出力することも可能)。<br />
+
+<pre class="code">use strict;
+use warnings;
+use inc::Module::Install;
+
+name     'Sample::Module';
+author   'Foo Bar &lt;foo@example.com&gt;';
+all_from 'lib/Sample/Module.pm';
+
+auto_install;
+WriteAll;</pre>
+
+<br />
+Makefile.PLをModule::Install用に書き換えたら、いつもCPANモジュールをインストールするときと同じようにperl Makefile.PLを実行すると、Makefileや前述のincディレクトリなどのインストールに必要なファイルが生成されるというわけです。<br /><br /><br />
+
+
+で、ここからが本題です。<br /><br />
+
+他の人と同様に自分もモジュールを作る際にソースをsubversionで管理しているのですが、管理しているモジュールのリポジトリにincディレクトリがコミットしてあると、そのモジュールのデバッグ時にperl Makefile.PLとやることで毎回incディレクトリが再生成され、incディレクトリ内のsubversion用の.svnディレクトリが消されてしまいます。<br /><br />
+
+当然この状態でsvn updateやsvn commitをすると、<br />
+
+<pre class="command">&#37; svn up
+svn: Directory 'inc/.svn' containing working copy admin area is missing</pre>
+
+<br />とか<br />
+
+<pre class="command">&#37; svn commit
+svn: Commit failed (details follow):
+svn: Directory '/path/to/inc/.svn' containing working copy admin area is missing</pre>
+
+<br />
+とおこられちゃいます。<br /><br />
+
+なぜincディレクトリがperl Makefile.PLするごとに再生成されてしまうのかというと、incディレクトリに「.author」という空のディレクトリがあり、これがあることによってModule::Installがauthor mode(作成者モード)で動くため、毎回Makefile.PLの中身を判別して必要なModule::Installのモジュールをincディレクトリにコピーするためです(その辺はinc::Module::Installのperlpodに書いてあります)。<br /><br />
+
+author mode でincディレクトリを再生成してくれるのはとてもありがたいのですが、「デバッグ→コミット→デバッグ→コミット」とスムーズな開発がしたいのに、毎回.svnが消されることにより「デバッグ→incディレクトリを消す→svn updateでincディレクトリを最新にする→コミット→デバッグ→incディレクトリを消す→svn updateでincディレクトリを最新にする→コミット」と、とてもめんどくさいことになってしまいます…。<br /><br /><br />
+
+ということで長々と書いてしまいましたが、モジュールのプロジェクトをsubversionで管理するときに、incディレクトリ内の.authorディレクトリまで管理した方がよいのか、それとも.authorディレクトリはsubversionで管理せずに必要な時に適宜自分で.authorディレクトリを生成してincディレクトリを再生成させた方がよいのか、どちらがいいのでしょうか。<br /><br /><br />
+
+このエントリを見ている人で、こうしてますっていう人がいたら是非教えてほしいです。<br /><br />
+
+<a href="http://coderepos.org/share">CodeRepos</a>とかみると、あんまりModule::Installを使ってる人がいないので、あんまりModule::Installって使われてないのかな？<br />
+→<span style="color:#ff0000">追記</span>：<a href="http://unknownplace.org/memo/2007/10/12#e001">http://unknownplace.org/memo/2007/10/12#e001</a> いくつかのモジュールを見て判断してしまいましたが、Module::Install使ってる人は結構いるようですね。失礼しました。 

@@ -1,0 +1,32 @@
+---
+layout: post
+title: MacのFirefoxでのタブキーの挙動
+mt_id: 1034
+date: 2008-03-11 12:53:00.000000000 +09:00
+author: clouder
+category: Mac
+---
+MacBook Airを使い始めて2週間目ですが、Firefoxのタブキーを押したときの挙動にいらいらする毎日でした。だって、テキストフィールド以外のフォームにフォーカスが移動しないんですもの。<br /><br />
+
+ということで、調べたり社内のIRCやTwitter系で叫んでみたら、数人の方から accessibility.tabfocus という設定項目があるというのを教えて頂きました。<br /><br />
+
+早速ロケーションバーでabout:configを開いて、accessibility.tabfocusを2に設定したら思い通りの挙動になりました。<br /><br />
+
+accessibility.tabfocusの取り得る値は以下のページに詳しく書いてあります。<br /><br />
+
+<a href="http://kb.mozillazine.org/Accessibility.tabfocus">http://kb.mozillazine.org/Accessibility.tabfocus</a><br /><br />
+
+「1」だとテキストフィールド、「2」だとフォーム、「4」だとリンクになるようです。<br /><br />
+
+WindowsのFirefoxと挙動が違うのが、なんでやねんという感じです。<br />
+マカーならマウスを使うだろうという前提でこうなってるんですかね。<br /><br />
+
+最近はマカーのエンジニアが増えてるので、Windowsと同じ挙動でもいいような気がしますね。<br /><br />
+
+追記：<br />
+ブクマでHolyGrailさんやyoggyさんなどが書いてある通り、フルキーボードアクセスを有効にすることでも同じ設定(というかこっちの方がOSのあらゆるところで対応できる)ができるようです。是非以下も参照してみてください。<br /><br />
+
+HolyGrail - [mac] ソフトウェア使わなくても「フルキーボードアクセスを有効にする」でできますよー。参考：<a href="http://d.hatena.ne.jp/HolyGrail/20080305/1204729899">http://d.hatena.ne.jp/HolyGrail/20080305/1204729899</a><br />
+yoggy - [configuration][firefox][mac][osx][tips] ここも参照のこと＞<a href="http://www.mozilla-japan.org/kb/solution/2041">http://www.mozilla-japan.org/kb/solution/2041</a><br />
+
+ 

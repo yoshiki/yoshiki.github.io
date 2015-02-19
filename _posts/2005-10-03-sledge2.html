@@ -1,0 +1,24 @@
+---
+layout: post
+title: Sledge2に思いを馳せて
+mt_id: 540
+date: 2005-10-03 20:40:33.000000000 +09:00
+author: clouder
+category: Perl
+---
+ちょっと前に<a href="http://blog.shebang.jp/">#!shebang.jpさん</a>が「<a href="http://blog.shebang.jp/archives/50188614.html">Sledgeで気になるとこ</a>」というエントリを書いてましたが、これに被せる形で、Sledge2で個人的にやりたいと思ってるものを書いてみたいと思います。
+
+<ul>
+<li>Sledge::Helperを導入</li>
+qootas.orgのせきむらさんが<a href="http://qootas.org/blog/archives/2005/04/sledge_helper.html">作ってらっしゃったSledge::Helper</a>をマージしたいなぁ。
+<li>Pagesをもうちょっと実際のページ生成ロジックと離したい</li>
+Sledgeで開発していて困るのが、Pagesに書いたコードをスクリプトから呼びたいときなどむりくりやらなければならない。なぜならSledgeはビジネスロジックがほぼPagesと等価となっているからである。そこをもう少し離してやりたい。
+<li>redirectのあとのコードを実行しないように</li>
+にぽたん研究所所長も、#!shebang.jpの方も言ってましたが、だれもが思うところですね。現状のSledgeでは、Pagesで$self->redirect('/foo');とやったあともコードが実行されてしまいます。それをどうにかしたし。バグの温床にもなりやすいですし。
+<li>プラグインの機構を盛り込みたい</li>
+現状Sledgeのプラグインは import ベースなものが多いです。たしかにこれはperlの利点なんだけど、importとか使わなくても最初からプラグインを追加できる機構を盛り込みたいなと思います。個人的には、CatalystのNEXTみたいなやつカッコイイななんて思います。チェイン オブ レスポンシビリティ？(よくわかってない…)
+</ul>
+
+今のところ思うところはこんな感じです。
+＃思い付いたものを貯めこまないで、排出してみるベースで書きました。
+ 

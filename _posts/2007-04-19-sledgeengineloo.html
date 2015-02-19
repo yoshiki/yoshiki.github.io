@@ -1,0 +1,83 @@
+---
+layout: post
+title: Sledge::Engineのlookup_static()をこうして欲しい！
+mt_id: 903
+date: 2007-04-19 10:25:04.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://search.cpan.org/dist/Sledge-Engine/">Sledge::Engine</a>で、テンプレートとそれに対応するクラスはあるけれど、そのテンプレートに対応したdispatch_***()がなかったときに、その関数を自動生成するlookup_staticっていう関数があって、これすごく便利なんです。ただ、対応するクラスすらなかったときは404になります。まぁ当たり前ですね。<br /><br />
+
+でもクラスも自動生成してくれるようにな機能があったらいいなと思って、というか業務で必要だったのでlookup_static()を以下のようにしてみました。<br /><br />
+
+追加したのは最後のelse節です。なかったらその場で動的にクラスを作っています。多分PerlSetVarとかで有効・無効を制御した方がいいかもしれません。<br /><br />
+
+下にpatchも貼っておきます。<a href="http://blog.shebang.jp/">作者のshebangさん</a>にメールしてみる、というか直接話すｗ
+
+<pre class="code">
+sub lookup_static {
+    my($self, $path) = @_;
+    my($page, $dir, $suf) =
+        File::Basename::fileparse($path, $StaticExtension);
+    return if index($page, '.') >= 0;
+    $page ||= 'index';
+    my $class;
+    if ($dir eq '/') {
+        my $appname = ref $self;
+        for my $subclass(qw(Root Index)) {
+            $class = join '::', $appname, 'Pages', $subclass;
+            last if $class->require;
+        }
+    }
+    else {
+        $dir =~ s{^/}{};
+        $dir =~ s{/$}{};
+        $class = join '::',
+            ref($self), 'Pages', map { camelize($_) } split '/', $dir;
+    }
+    if ((Class::Inspector->loaded($class) || $class->require) &&
+            -e $class->guess_filename($page)) {
+        no strict 'refs';
+        *{"$class\::dispatch_$page"} = sub {}
+            unless $class->can("dispatch_$page");
+        my &#37;action = (class => $class, page => $page);
+        $self->ActionMap->{$path} = \&#37;action;
+        return \&#37;action;
+    }
+    else {
+        no strict 'refs';
+        push @{"$class\::ISA"}, "${appname}::Pages";
+        *{"$class\::dispatch_$page"} = sub {}
+            unless $class->can("dispatch_$page");
+        $class->tmpl_dirname($dir);
+        return unless -e $class->guess_filename($page);
+
+        my &#37;action = (class => $class, page => $page);
+        $self->ActionMap->{$path} = \&#37;action;
+        return \&#37;action;
+    }
+}
+</pre>
+<pre class="code">
+--- Sledge-Engine-0.03/lib/Sledge/Engine.pm     2006-11-16 17:53:53.000000000 +0900
++++ Sledge-Engine-0.03_new/lib/Sledge/Engine.pm 2007-04-19 10:39:02.310000000 +0900
+@@ -140,6 +140,18 @@
+         $self->ActionMap->{$path} = \&#37;action;
+         return \&#37;action;
+     }
++    else {
++        no strict 'refs';
++        push @{"$class\::ISA"}, "${appname}::Pages";
++        *{"$class\::dispatch_$page"} = sub {}
++            unless $class->can("dispatch_$page");
++        $class->tmpl_dirname($dir);
++        return unless -e $class->guess_filename($page);
++
++        my &#37;action = (class => $class, page => $page);
++        $self->ActionMap->{$path} = \&#37;action;
++        return \&#37;action;
++    }
+ }
+
+ sub run {
+</pre> 

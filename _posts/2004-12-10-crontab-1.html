@@ -1,0 +1,17 @@
+---
+layout: post
+title: crontabで月末に実行させたし
+mt_id: 239
+date: 2004-12-10 21:29:33.000000000 +09:00
+author: clouder
+category: Unix
+---
+crontabで、月末に処理をしたいというものがあってそのソリューションを探していたら
+こんなのを発見したので、ご紹介。
+
+<pre class="code">55　23　28-31 * * /usr/bin/test $( date -d '+1 day' +&#37;d ) -eq 1 && /path/to/script</pre>
+
+ようは、testにて、次の日が1日かどうかを確認して、OKだったら/path/to/scriptを実行させる。
+時分はご自由にどうぞ。28-31はとりあえずしかたないな。
+
+と、こんなこと調べてたけど、実は最近のcrontabだとそういう指定がピロっとできたりしたらショックだな…。 

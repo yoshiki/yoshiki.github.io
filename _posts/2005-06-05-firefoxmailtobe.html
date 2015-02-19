@@ -1,0 +1,19 @@
+---
+layout: post
+title: Firefoxでmailto:リンクをクリックした時にBeckyを開く
+mt_id: 429
+date: 2005-06-05 00:39:11.000000000 +09:00
+author: clouder
+category: Software
+---
+Firefoxでmailto:リンクをクリックするとなにも設定していない場合にはOutlookが開いて、毎回標準のメーラーにしますかの確認が開いたり、そもそもOutlook使いませんから！状態だったので、この開くソフトをBeckyに変えたいと思って調べました。
+
+方法は簡単で、コンパネ→フォルダオプション→ファイルの種類といって(なし)URL:MailToプロトコルにて、「詳細設定」を開き「open」を選択し、「編集」ボタンを押す。次に、「DDEを使う」のチェックを外してから、アクションを実行するアプリケーションに「"C:\Program Files\RimArts\B2\B2.exe" &#37;1」と入力すればオッケイ。
+
+詳しくは、こちらの<a href="http://www.mozilla-japan.org/support/firefox/faq#email" target="_blank">Firefox FAQ</a>をご覧下さい。
+
+ちなみにUNIXな環境でemacsでwanderlustを使っている場合には、下のようなscriptを用意しておいて、それを呼ぶようにすればよいらしい。ちなみに wl-mailto-compose-message-from-mailto-url はutils/wl-mailto.el に定義してあります。それにしても長い関数だな…。
+
+<pre class="code">#! /bin/sh
+emacsclient -e "(wl-mailto-compose-message-from-mailto-url \"mailto:$1\")" </pre>
+ 

@@ -1,0 +1,55 @@
+---
+layout: post
+title: このフォルダ以下のメールを既読にする - Beckrb用Rubyスクリプトその1
+mt_id: 581
+date: 2005-11-02 10:28:23.000000000 +09:00
+author: clouder
+category: Ruby
+---
+先日<a href="http://clouder.jp/yoshiki/mt/archives/000565.html">bkbsfilterのネタ</a>を書きましたが、その時にインストールしたBecky!上で<a href="http://www.ruby-lang.org/ja/">Ruby</a>を動かす、<a href="http://www.tietew.net/becky/beckrb/">Beckrb</a>用のスクリプトを書いてみました。Rubyでまともにプログラムするのは初めてなので、これでいいんかいな的な感じで作ってるので変なとこあったらコメント下さい。<br /><br />
+
+作成したのは表題の通り、「このフォルダ以下のメールを既読にする」スクリプトです。選択されているフォルダ以下にあるすべてのメールを既読にしてくれます。また下の階層にフォルダがあれば、その中も再帰的に見るようになっています。
+これをmark_as_read.rbとか(まぁファイル名はなんでもいいけど)で保存して、スクリプトの割当てで右クリックメニューに出すようにしておくと便利。でもそんなしょっちゅう必要になる機能ではないかもね...。<br /><br />
+
+<pre class="code">require "nkf"
+
+def mark_as_read folder
+	# set current folder
+	Becky.set_current_folder(folder.folder_id)
+	
+	Becky.each_mail { |mail, sel|
+		begin
+			if (mail.status & Becky::MESSAGE_READ) == 0 # mark if unread
+				if /^subject\:(.*)$/i =~ mail.headers.gsub(/\r\n\s+/, " ") then
+					subject = NKF.nkf('-s', Becky.mime_decode($1)[0].strip)
+					Becky.status = 'processing... ' + subject
+				end
+				mail.set_status(Becky::MESSAGE_READ)
+			end
+		rescue ArgumentError
+		end
+	}
+end
+
+def crawl_folder folder
+	Becky.set_current_folder(folder.folder_id) # set current folder
+	mark_as_read(folder) # mark_as_read
+	
+	folder.each_child { |child_folder|
+		if child_folder.unread > 0
+			mark_as_read(child_folder) # mark_as_read
+		end
+		crawl_folder(child_folder) # crawl folder
+	}
+end
+
+crawl_folder(Becky.current_folder)
+Becky.status = 'marked as read.'</pre>
+<br />
+そんなに詳しくドキュメントを見ないで書いているので変数のスコープとか変なとことかありそう。てかRubyにはPerlで言うところのmyみたいなのないのかな？(そういうのいらねーよとかいう設計なのかな？)<br /><br />
+
+あと変数にPerlで言うところの$fooとか@fooが付いてないのでscalarなのかarrayなのかすぐにわからじ。でもいくつかrubyのスクリプトの例を見たら@fooっていうのがあるなーと思ったら、これは配列ではなくクラスの<strong>インスタンス変数</strong>らしい。ふむふむ。<br /><br />
+
+といくつかPerlとの違い的なことを書いてみましたが、文法的にPerlっぽいところもありPerl書く人には入りやすいのかなとか思ったりする。<br /><br />
+
+ 

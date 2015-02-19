@@ -1,0 +1,19 @@
+---
+layout: post
+title: ApacheであるURIだけ認証したくないときの設定
+mt_id: 700
+date: 2006-08-04 16:20:34.000000000 +09:00
+author: clouder
+category: Software
+---
+自分用メモ。<br /><br />
+
+もし、/はBasic認証したいけど、/fooと/barだけは制限をかけたくないという場合は、Locationディレクティブに以下のようにすればよい。<br />
+<pre class="code">
+&lt;Location ~ ^/(?!foo|bar)/&gt;
+AuthType Basic
+AuthUserFile foobar.htpasswd
+AuthName BasicAuth
+require valid-user
+&lt;/Location&gt;
+</pre> 

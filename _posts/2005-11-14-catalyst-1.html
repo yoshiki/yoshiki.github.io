@@ -1,0 +1,76 @@
+---
+layout: post
+title: Catalystのデータクラスについて
+mt_id: 588
+date: 2005-11-14 17:30:32.000000000 +09:00
+author: clouder
+category: Perl
+---
+<div style="color:#ff0000;"><a href="#postscript">2005-11-15 03:24に追記があります。</a></div>
+Catalystには、Catalyst::Helper::Model::CDBIというデータクラスを自動生成するためのヘルバーモジュールがデフォルトで付いてきます。これを使って作成されるデータクラス(例えばMyApp::M::CDBI)の親クラスはCatalyst::Model::CDBIとなっていて、その上の親クラスはCatalyst::BaseとClass::DBIとなっています。図にすると下記のような感じ<br /><br />
+
+<pre>
+Catalyst::Base, Class::DBI
+&nbsp;&nbsp;↑
+Catalyst::Model::CDBI
+&nbsp;&nbsp;↑
+MyApp::M::CDBI
+</pre>
+
+<br />
+あるとき僕は<strong>このデータクラスをコマンドラインで実行するスクリプトから読み込んで使おうとしたときに困ってしまいました</strong>。なぜなら、CatalystはWebで使うのを前提に設計されていて、コマンドラインからの実装は想定されていないさそうだからです。<br /><br />
+
+生成されたMyApp::M::CDBIに下記のようなコードを付け加えて、その下にあるスクリプトのようにやればCatalyst関係のモジュールを使用しないで読み込めるので、むりくり実行させられなくもないのですが。。。<br />
+<br />
+<pre class="code">sub new_from_command {
+    my $class = shift;
+    my $self = bless $class->_config, $class;
+    $self->{namespace}               ||= ref $self;
+    $self->{additional_base_classes} ||= ();
+    push @{ $self->{additional_base_classes} }, ref $self;
+    eval { $self->loader( Class::DBI::Loader->new(&#37;$self) ) };
+    for my $class ( $self->loader->classes ) {
+        $class->autoupdate(1);
+        no strict 'refs';
+        *{"$class\::new"} = sub { bless {&#37;$self}, $class };
+    }
+
+    return $self;
+}</pre>
+<br />
+<pre class="code">
+my $cdbi = MyApp::M::CDBI->new_from_command;
+my $film = $cdbi->loader->find_class('film');
+my @rec = $film->search(foo => 'bar');
+</pre>
+<br />
+<br />
+この解決法として1つ思いついたのは、データクラスの親クラスからCatalyst::Baseを除くということです。これでCatalystとの依存がなくなるしすっきりだ！とか思ったのですが、<s>でもそれだとデータクラスを使うときには毎回useが必要になってくるし、</s>(←これは間違いで、useしなくていいのはCatalyst::Baseが親クラスだからではなく、Module::Pluggable::Fastを使っているからですね。<a href="#postscript">※1</a>)いろいろめんどくさいっちゃめんどくさいし、Catalyst的にどうなんだろう？と悩んでいるところです。<br />
+他のCatalystユーザは、データクラスをコマンドラインから使ったりしないのだろうか…。たぶんそんな使い方している人はあまりいないんだろうなぁ…。
+<br />
+<br />
+そんなことを考えてるときに、ふとこんなモジュールはどうだろうと思って、<a 
+href="http://clouder.jp/src/cpan/Catalyst-Helper-Model-CDBI-AnyDBD-0.01.tar.gz">Catalyst-Helper-Model-CDBI-AnyDBD-0.01.tar.gz</a>というモジュールを作ってみました。これは上で書いたことを解決するためのモジュールではないのですが…。自分はClass::DBI::mysqlなどのモジュールを使うのに慣れているせいか、Class::DBI::Loader使うのはなんかなぁと思ったのでこのモジュールを作ってみました。<br />
+<br />
+これはClass::DBI::Loaderを使わずに、Class::DBI::mysqlやClass::DBI::Pgなどを使用するデータクラスを生成するためのヘルパーです。生成されるデータクラスの構造は下記のようになります。<br />
+<br />
+<pre class="code">
+package MyApp::M::CDBI;
+
+use base qw(Class::DBI::mysql Catalyst::Base);
+__PACKAGE__->connect('dbi:mysql:db', 'user', 'password');
+
+package MyApp::M::CDBI::Film;
+
+use base qw(MyApp::M::CDBI);
+
+__PACKAGE__->set_up_table('film');
+</pre>
+<br />
+でも結局Catalyst::Baseが親クラスなんですけどね…。<br />
+<br /><br />
+
+<a name="postscript"></a>
+<div style="color:#ff0000;">2005-11-15 03:24追記：</div>
+※1で書いたんですが、MyApp::M::CDBIは必ずしも親クラスがCatalyst::Baseではなくてもよいようです。Catalyst::Baseを親クラスにする必要があるとしたら、config()、process()などのクラスメソッドを使う時か、controllerから$c-&gt;forward()などで呼び出したい時かなぁと思います。自分はあまりそのようなことを行なわないのですが、そのようなニーズってあるのでしょうか。あまり多そうでなければ、上で書いたモジュールで生成されるMyApp::M::CDBIの親クラスからCatalyst::Baseをはずしたものを作成して、CatalystのMLに投げてみようかと思います。
+ 

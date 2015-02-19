@@ -1,0 +1,15 @@
+---
+layout: post
+title: debianで、apt-getしたパッケージがインストールされたディレクトリ
+mt_id: 290
+date: 2005-02-23 14:21:42.000000000 +09:00
+author: clouder
+category: debian
+---
+なんとなくdebianのパッケージがインストールされたディレクトリが知りたくなったので、調べてもわからないので、同僚のY松さん経由でF井さんに聞いたら、快く教えてくれた。
+
+<pre class="code">&#37; dpkg -c /var/cache/apt/archives/package.deb</pre>
+
+これで一覧がでるようだ。ずっと「apt-ほにゃらら」でやろうとしてた…。
+マニアはdpkgなのね。
+ 

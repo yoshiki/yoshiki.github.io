@@ -1,0 +1,19 @@
+---
+layout: post
+title: apache installation on cygwin
+mt_id: 206
+date: 2004-09-18 02:11:48.000000000 +09:00
+author: clouder
+category: Windows
+---
+<blockquote>
+<a title="Cygwin なんでも掲示板" href="http://matsu-www.is.titech.ac.jp/~sohda/cygwin/treebbs/treebbs.cgi?kako=1&log=1639">Cygwin なんでも掲示板</a>
+
+&gt; 面倒を避けるには、make install ではなく手動でインストールしたほうが
+&gt; よいでかも。
+
+一応、定石として、少なくとも apache 1.3.x では
+
+        $ make install INSTALL='install -c'
+</blockquote>
+cygwinでapacheとかをインストールするにはこれが必要らしい。 

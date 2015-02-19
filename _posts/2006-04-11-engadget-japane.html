@@ -1,0 +1,27 @@
+---
+layout: post
+title: Engadget Japaneseで使われている日本語のエンティティの変換
+mt_id: 662
+date: 2006-04-11 01:00:23.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://japanese.engadget.com/">Engadget Japanese</a>というサイトのHTMLに書いてある日本語を euc-jp とか utf-8 にしたいのだけど、方法がわかりません。
+
+ここのサイトのHTMLの meta を見ると charset="iso-8859-1" だということがわかります。ふむふむと思って見てみてもエンティティになっているっぽく「&amp;#26684;&amp;#23433;」こんな感じになっています。実際これをHTMLで書くと下記のようになります。
+
+「&#26684;&#23433;」(←実際にはHTML内で「&amp;#26684;&amp;#23433;」こう書いてます)
+
+このように「<strong>格安</strong>」とブラウザ上には表示されます。。。うーむ。どうやってこのエンティティをeuc-jpやutf8にするのかと小一時間。
+
+<pre class="code">use Encode;
+use HTML::Entities;
+
+print decode('iso-8859-1', decode_entities('&amp;#26684;&amp;#23433;')), "\n";</pre>
+
+こんな感じにしてutf-8にしてみようと、やってみたりしたのですが、「Wide character in subroutine entry at /usr/lib/perl/5.8/Encode.pm line 166.」となってしまいます。。。
+
+まだ調査途中なのですが、煮詰まったのでエントリを書いてみるテスト。もうちょと調査してみます。
+
+<div style="color: #f00">Tue Apr 11 02:18:44 2006 追記</div>
+コメントでmiyagawaさんに教えてもらいました。decode_entitiesした時点でUnicodeになっているので、あとは utf-8 で出力したければ、encode('utf-8', decode_entities('&amp;#26684;&amp;#23433;')) したらよいようです。ちなみに euc-jp にしたけりゃ encode('eucjp', decode_entities('&amp;#26684;&amp;#23433;')); です。 

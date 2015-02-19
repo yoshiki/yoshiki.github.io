@@ -1,0 +1,46 @@
+---
+layout: post
+title: プレゼンをmarkdownで書いたらええやん
+mt_id: 1146
+date: 2012-03-19 12:18:18.000000000 +09:00
+author: clouder
+category: Perl
+---
+markdown2impressってのを書きました。<br /><br />
+
+<a href="https://github.com/yoshiki/markdown2impress">https://github.com/yoshiki/markdown2impress</a><br /><br />
+
+これはmarkdownで書いた文章を<a href="http://bartaz.github.com/impress.js">impress.js</a>に対応したHTMLに変換するものです。impress.jsっていうのは、CSS3をつかって文字とかをぎゅんぎゅん動かすことのできるプレゼンフレームワークです(prezi.comにインスパイアされて作ったらしい)。<br /><br />
+
+impress.jsを使ってプレゼンをゼロから作ってもいいんですが、HTMLをいちいち書くのめんどかったのでmarkdown形式で書いたものをそれ用に変換してくれたらいいなと思って書いてみました。基本的にはmarkdownで書いた文章の1つのセクションが1つのスライドになるようになっていて、githubのリポジトリのREADME.mdをこのプログラムで変換するとプレゼンに変換されます。<br /><br />
+
+使い方は簡単で、<br />
+
+<pre class="command">&#37; markdown2impress.pl README.md</pre>
+
+とやるだけでOK。<br /><br />
+
+こうするとカレントディレクトリにindex.html、js/impress.js、css/impress.cssの3つのファイルが生成されます。<br /><br />
+
+もしCSSを変えたければcss/impress.cssを直接編集してやればいいです。ちなみに生成されるcss/impress.cssは元のimpress.jsに含まれるcssをちょっとだけ加工してあります。<br /><br />
+
+markdown2impressは、なにも指定せずにmarkdownを変換してやるとスライドの位置(縦横幅や位置)を勝手に計算してくれるのですが、以下のようにセクション内にHTMLのコメント形式でimpress.jsが理解できる data-x や data-y などのアトリビュートを書くことでスライドの位置を変更することもできます。<br />
+
+<pre class="code">&lt;!-- data-x="1000" --&gt;</pre>
+
+もちろん data-xやdata-y以外のdata-z、data-rotate、data-scaleなども使えます。<br /><br />
+
+ちなみにコマンドラインのオプションとして以下が指定できるようになっています。<br />
+
+<ul>
+<li>--width<br />スライドの横幅(default: 1200)</li>
+<li>--height<br />スライドの縦幅(default: 800)</li>
+<li>--column<br />スライドの横の数(default: 5)</li>
+<li>--outputdir<br />出力ディレクトリ(default: current dir)</li>
+</ul>
+<br />
+
+興味があったら使ってみてください。<br /><br />
+
+※生成されるimpress.jsが最新ではない場合があるので、その場合は本家のjsとcssの最新版をコピってくれれば動くはずです。<br /><br />
+ 

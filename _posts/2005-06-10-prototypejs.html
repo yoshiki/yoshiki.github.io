@@ -1,0 +1,58 @@
+---
+layout: post
+title: prototype.js
+mt_id: 437
+date: 2005-06-10 04:31:28.000000000 +09:00
+author: clouder
+category: Language
+---
+今日JavaScriptでハマりました。自分はPerlが一番書けるので、他の言語を書くときにもPerlの文法を無意識のうちに使っていたりします。今日はJavaScriptをせっせと書いていたところ下記のようなミスをしました。
+
+<pre class="code">    new Ajax.Request('/modify?id=' + this.id, {
+      parameters: Form.serialize(form),
+      onLoading: function(request){
+        div.innerHTML = 'now changing...';
+      },
+      onComplete: function(request){
+        var res  = request.responseXML;
+        var id = res.getElementsByTagName('id')[0].firstChild.data;
+        var content = res.getElementsByTagName('content')[0].firstChild.data;
+        div.innerHTML = content;
+      },
+    } );</pre>
+どこがミスだかわかりますか？ 
+それは、下から2行目の }, の「,」です。
+perlだと、配列やハッシュの要素の後ろにカンマを付けても問題ないのですが、JavaScriptだと、そこでコケるようです。<a href="http://blog.livedoor.jp/nipotan/" target="_blank">にぽたん研究所な人</a>に聞いて初めて気付きました…。Perl使いにはありがちのミスでした(笑)
+
+ちなみに上記コードで使用されているAjax.Requestという関数は、<a href="http://prototype.conio.net/" target="_blank">prototype.js</a>に定義されているAjaxクラスを使ってます。このprototype.jsは、<a href="http://www.rubyonrails.com/" target="_blank">Ruby on Rails</a>のプロジェクトや、<a href="http://search.cpan.org/dist/Catalyst/" target="_blank">Catalyst</a>でもインプリメントされているjsのライブラリで、Ajaxの一連の動作を1つの関数にまとめてくれているため、その関数を呼び出すだけでサーバと簡単に通信できるようになっています。
+
+Ajax.Requestの他にもAjax.Updaterという関数もあるのですが、こちらはリクエスト投げたあとに、呼び出し元のフォームとかを自動でごにょごにょしたいときなどに使うのですが、そんな余計なことは今のところしないので、もっぱらAjax.Requestを使ってます。
+
+Ajax.Reqeustの関数の使い方は
+
+<pre class="code">Ajax.Request(URL, OPTION);</pre>
+
+です。OPTIONの中はPerlで言うところのハッシュのような感じで、下記のオプションを設定できます。(どのように指定するかは先に書いたコードを参照してください。)
+
+<ul>
+<li>parameters</li>
+URLに渡すクエリを指定します。基本は、Form.serialize(form)でよい。
+<li>asynchronous</li>
+同期にするか非同期にするか。1 or 0
+<li>method</li>
+GET or　POST
+<li>onUninitialized onLoading onLoaded onInteractive onComplete</li>
+各イベント時に実行する無名関数
+</ul>
+
+これらが指定できるようです。あと、クロスブラウザ対応については、あんま細かくは見ていない模様。単純にブラウザ毎のxmlhttprequestオブジェクトを生成させてみて、だめだったら次、だめだったら次みたいな感じになってます。
+
+<pre class="code">  getTransport: function() {
+    return Try.these(
+      function() {return new ActiveXObject('Msxml2.XMLHTTP')},
+      function() {return new ActiveXObject('Microsoft.XMLHTTP')},
+      function() {return new XMLHttpRequest()}
+    ) || false;
+  },</pre>
+
+prototype.jsは、Ajaxの他にもいくつかの機能を提供していたりします。そちらも使い方はソースを見たらなんとなくわかると思います。<a href="http://dev.conio.net/repos/prototype/test/" target="_blank">http://dev.conio.net/repos/prototype/test/</a>　こちらにサンプルがあります。

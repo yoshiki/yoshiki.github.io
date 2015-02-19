@@ -1,0 +1,47 @@
+---
+layout: post
+title: Tomblooでlivedoorクリップへクリップできない場合の対処法
+mt_id: 1099
+date: 2009-02-11 16:12:17.000000000 +09:00
+author: clouder
+category: Firefox
+---
+<a href="http://wiki.github.com/to/tombloo">Tombloo</a>を愛用しているのですが、
+最新にしてから20_model.jsの<br />
+1909行でエラるようになってしまいました。<br /><br />
+
+調べてみると原因はpostkeyというのをlivedoorクリップから<br />
+取得するときにちゃんとクエリを渡せてないからでした。<br /><br />
+
+具体的にはlinkというクエリに<br /><br />
+
+http&#37;3A&#37;2F&#37;2Ftombloo/<br /><br />
+
+を渡してて、最後の「/」がエスケープされてないので<br />
+livedoorクリップがコケます。<br /><br />
+
+ということで、<br /><br />
+
+http&#37;3A&#37;2F&#37;2Ftombloo&#37;2F<br /><br />
+
+に修正してやると問題なく動きます。<br />
+記事下にpatchを置いておきます。<br /><br /><br />
+
+
+ちなみにTomblooは、githubでソース管理をしてるんだけど、<br />
+こういった修正はどうお報せするのがいいんですかね。<br /><br />
+github使ってるならこうしたら早いよ！っていうのがあれば教えて欲しいです。<br /><br />
+
+<pre class="code">--- 20_model.js.orig	2009-02-11 16:05:00.000000000 +0900
++++ 20_model.js	2009-02-11 16:03:48.000000000 +0900
+@@ -1901,7 +1901,7 @@
+ 		
+ 		case 'changed':
+ 			var self = this;
+-				return request(LivedoorClip.POST_URL+'?link=http&#37;3A&#37;2F&#37;2Ftombloo/').addCallback(function(res){
++				return request(LivedoorClip.POST_URL+'?link=http&#37;3A&#37;2F&#37;2Ftombloo&#37;2F').addCallback(function(res){
+ 					if(res.responseText.match(/"postkey" value="(.*)"/)){
+ 						self.token = RegExp.$1;
+ 						return self.token;</pre>
+
+ 

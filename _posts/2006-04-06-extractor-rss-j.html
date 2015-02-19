@@ -1,0 +1,54 @@
+---
+layout: post
+title: Extractor が RSS と JSON の出力をサポート
+mt_id: 658
+date: 2006-04-06 01:36:37.000000000 +09:00
+author: clouder
+category: Webservice
+---
+<a href="http://extractor.47objects.com/">Extractor</a> に RSS と JSON の出力機能を追加しました。
+
+使い方は簡単で、今まで「http://extractor.47objects.com/url?url=対象の URL 」とやってコメント一覧を見ていたと思いますが、この「/url?url=対象の URL 」の部分を「/<strong>rss</strong>/url?url=対象の URL 」もしくは「/<strong>json</strong>/url?url=対象の URL 」とするだけで各形式に変換されたリストが出力されます。
+
+たとえば、今まで Extractor(http://extractor.47objects.com/) というページに対するコメントは下記のようなURLで見ていました。
+
+<a href="http://extractor.47objects.com/url?url=http&#37;3A&#37;2F&#37;2Fextractor.47objects.com&#37;2F">http://extractor.47objects.com/url?url=http&#37;3A&#37;2F&#37;2Fextractor.47objects.com&#37;2F</a>
+
+これを RSS 形式ならば、↓
+
+<a href="http://extractor.47objects.com/rss/url?url=http&#37;3A&#37;2F&#37;2Fextractor.47objects.com&#37;2F">http://extractor.47objects.com/rss/url?url=http&#37;3A&#37;2F&#37;2Fextractor.47objects.com&#37;2F</a>
+
+JSON 形式ならば、↓
+
+<a href="http://extractor.47objects.com/json/url?url=http&#37;3A&#37;2F&#37;2Fextractor.47objects.com&#37;2F">http://extractor.47objects.com/json/url?url=http&#37;3A&#37;2F&#37;2Fextractor.47objects.com&#37;2F</a>
+
+とするだけでそれぞれ形式でリストが出力されます。
+
+出力される内容ですが、RSS は del.icio.us の RSS と同形式になっています。JSON に関しては下記のような形式になっています。
+
+<ul>
+<li>url</li>
+ブックマーク対象のページのURL
+<li>extractor_url</li>
+ExtractorのURL
+<li>comments</li>
+各コメントのリスト
+<ul>
+<li>aggregator</li>
+取得対象のソーシャルブックマークサービス名
+<li>creator</li>
+ブックマークしたユーザ名
+<li>date</li>
+ブックマークされた日付
+<li>tag</li>
+付けられたタグをスペース区切りにしたもの
+<li>description</li>
+コメント内容
+</ul>
+</ul>
+
+サービスの性質上、最初のアクセスに関してだけはコメントを集めてくるために多少ロード時間がかかると思いますが、1度ロードしてしまえば、1時間はキャッシュされますので早いと思います。
+
+利用方法ですが、気になるページの RSS を RSS リーダーや Bloglines などに登録して新着のコメントを調べるとか、JavaScriptなどを使って自分のブログがブックマークされたらそのコメントを表示するとかいろいろとありそう。
+
+ってまぁ、はてダもdel.icio.usもRSSを吐いてるので、それを使えばいいって話はおいといて…。一緒になってることに意味があると。。。 

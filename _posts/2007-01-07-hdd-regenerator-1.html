@@ -1,0 +1,52 @@
+---
+layout: post
+title: HDD Regeneratorを使って壊れたHDDが直った！
+mt_id: 731
+date: 2007-01-07 01:03:38.000000000 +09:00
+author: clouder
+category: Software
+---
+あけましておめでとうございます。
+今年も焦らずゆっくり書きたいときに書けることを書いていこうと思います。
+
+さて、正月休みは実家に行っていたのですが、家に帰ってきたところclouder.jpのHDDが逝ってしまっていました。起動してブートプロセスの途中のfsckのチェックで10&#37;ぐらいいくと止ってしまう。
+
+もうデータはある程度犠牲にしてこれはKNOPPIXとかでブートしてfsckかなぁとか思ってたのですが、最近malaがフレパ日記で使ってるというのを聞いたり、以前GIGAZINEなどでも<a href="http://gigazine.net/index.php?/news/comments/20060811_hdd_regenerator/">紹介</a>されていた<a href="http://www.dposoft.net/#b_hddhid">HDD Regenerator</a>を試してみました。
+
+ブートのためのフロッピーやディスクを作る方法はマニュアルを見てください。以下はスキャンしているプロセスをキャプチャしたものです。
+
+<ul>
+<li>まずHDD Regeneratorで作ったブートディスクでブートするとこの画面がでてきた。壊れたHDDを選ぶ。今回は1つしかないのでリターンを押す。</li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator01.html"><img src="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator01.jpg" width="200" height="150" class="photo" /></a>
+
+<li>どのセクターから始めるのかを決める。もちろん最初からのなのでリターンを押す。</li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator02.html"><img src="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator02.jpg" width="200" height="150" class="photo" /></a>
+
+<li>するとスキャンが始まる。プログレスが動いてる。でもすんごい遅い。</li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator03.html"><img src="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator03.jpg" width="200" height="150" class="photo" /></a>
+
+<li>しばらく(1時間ぐらい？)経ったころに見てみると、bad sectorを1つ見つけたみたいだ！そしてrecoveredしてるってことは直してくれたみたい。その後しばらく見ていたのですが、どうも今日中に終らなそうなのでこのまま就寝…。80Gだと5時間ぐらいかかりそう。</li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator04.html"><img src="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator04.jpg" width="200" height="150" class="photo" /></a>
+
+<li>朝みてみたらプログレスが完了していて、スキャンが終ったと書いてある。</li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator05.html"><img src="http://clouder.jp/yoshiki/mt/archives/images/hdd_regenerator05.jpg" width="200" height="150" class="photo" /></a>
+</ul>
+
+ということで、1セクターだけ悪かったみたい。それを直してくれたみたいなのでドキドキしながら起動を試みてみると…。
+
+
+
+
+普通に起動した！直ってる！！！！SUGEEEEEEEEEEEEEEEEEEEEEE
+とりあえず、いくつかのファイルやデータを速攻でバックアップした。
+
+
+
+
+公称だと60&#37;の確立で直ると書いてあるので、期待半分だったのですが直ってしまいました。
+ということで、個人的にはこれオススメです。
+
+
+でもこのHDDをこのままずっと使い続けるのはなんか気分悪いので、そのうち新しいのに変える予定。
+やっぱりこのソフトは壊れたHDDのデータをサルベージするなどの用途として使う方がいいと思います。
+ 

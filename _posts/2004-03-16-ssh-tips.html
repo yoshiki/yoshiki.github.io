@@ -1,0 +1,25 @@
+---
+layout: post
+title: ssh tips
+mt_id: 167
+date: 2004-03-16 18:03:35.000000000 +09:00
+author: clouder
+category: Unix
+---
+ssh で、.ssh/authorized_keysで以下の設定をすると、指定したホストからのアクセスのみで認証が行なわれるみたいです。
+
+from="000.000.000.000" 1024 35 foobarfoobarfoobarfoobarfoobar... foo@example.com
+
+通常の行の先頭に、from="pattern-list" を付けるだけです。pattern-listはIPアドレスとかです。また、そのIPアドレスとかの先頭に ! を付けるとそのホストからのアクセスのときは認証が行なわれません。
+
+次に command="example-command" を以下のように、
+
+command="ls" 1024 35 foobarfoobarfoobarfoobarfoobar... foo@example.com
+
+とやると、そのコマンドを実行してログアウトします。なので、ここにexitとかを書いておくとsshの認証ではログインできない模様(笑)
+
+上記の二つを指定することもできます。その場合は、「,」でつなげることでできます。
+
+from="000.000.000.000",command="ls" 1024 35 foobarfoobarfoobarfoobarfoobar... foo@example.com
+
+こんな感じ。 

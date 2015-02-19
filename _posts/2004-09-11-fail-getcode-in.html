@@ -1,0 +1,18 @@
+---
+layout: post
+title: fail getcode in Jcode
+mt_id: 205
+date: 2004-09-11 18:56:15.000000000 +09:00
+author: clouder
+category: Perl
+---
+MT3.11にして、RSS feedsが文字化けするって<a href="http://clouder.jp/yoshiki/mt/archives/000202.html" target="_blank">前書いた</a>んですが、
+これは Jcode plugin の中でやっている getcode がうまくいってなかった
+からみたいです。
+
+どうも utf8 を ascii と判定してしまっている。
+utf8とハードコードしたらうまくうごきました。
+
+今のところこれでいいかな。でもなんで getcode がうまくいかないんだろう…。
+Jcode ver0.86だとなんか Jcode の判定がいけてなかったらしいけど、
+Jcode ver0.87で直ったはずなんだけどなー…。 

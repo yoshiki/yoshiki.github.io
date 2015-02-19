@@ -1,0 +1,57 @@
+---
+layout: post
+title: gonzui-0.9がエラる
+mt_id: 370
+date: 2005-03-27 01:23:44.000000000 +09:00
+author: clouder
+category: Software
+---
+gonzui-0.9がリリースされて、perl対応となったのですが自分の環境でインストールすると動かない。下記のようなエラーが出る。<br />
+<br />
+<pre class="code">
+&#37; ./gonzui-import --cvs :pserver:foo@cvs.example.com:/usr/local/share/CVS module-name
+./gonzui/fetcher.rb:264:in `get_extractor': undefined method `assert_non_nil' for #<Gonzui::CVSFetcher:0x82d04f0> (NoMethodError)
+        from ./gonzui/fetcher.rb:33:in `new'
+        from ./gonzui/importer.rb:56:in `import'
+        from ./gonzui-import:119:in `import'
+        from ./gonzui-import:143:in `do_start'
+        from ./gonzui-import:142:in `each'
+        from ./gonzui-import:142:in `do_start'
+        from ./gonzui/cmdapp/app.rb:140:in `start'
+        from ./gonzui/cmdapp/app.rb:166:in `start'
+        from ./gonzui-import:152
+</pre>
+<br />
+なんでだろうとrubyのソースを必死こいて解析してみたら、下記のgonzuiの0.8と0.9の修正が問題みたい。<br />
+<br />
+<pre class="code">
+diff -u gonzui-0.8/gonzui/cmdapp/app.rb gonzui-0.9/gonzui/cmdapp/app.rb
+--- gonzui-0.8/gonzui/cmdapp/app.rb        Thu Mar  3 19:51:18 2005
++++ gonzui-0.9/gonzui/cmdapp/app.rb  Mon Mar 21 02:35:31 2005
+@@ -15,9 +15,9 @@
+ $KCODE = "u"
+
+ module Gonzui
+-  include Util
+-
+   class CommandLineApplication
++    include Util
++
+     def initialize
+       @config = Config.new
+
+@@ -71,7 +71,7 @@
+     def show_usage
+       do_show_usage
+       cache_size = @config.db_cache_size / 1024 ** 2
+-      puts "      --gnozuirc=FILE            specify alternate run control file"
++      puts "      --gonzuirc=FILE            specify alternate run control file"
+       puts "      --dump-config              dump configuration"
+       puts "  -d, --db-dir=DIR               use DB directory DIR"
+       puts "      --db-cache=NUM             use NUM megabytes of DB cache [#{cache_size}]"
+</pre>
+<br />
+この中で問題なのは、include Utilの位置が変っているところです。自分の環境(FreeBSD 4.9-RELEASE-p9, ruby 1.8.2 (2004-12-25) [i386-freebsd4])では、gonzui-0.8の位置でないと動かなかったです。rubyをよくわかってないのでアレですが、たぶんincludeする位置が実行しているプログラムから読めない部分に移動しちゃったので関数がロードできないんだろうと思います。自分の環境が特殊なのか、他の問題なのかわからない…。そして、この修正はたぶんなにかのバグを修正するために0.9でこうなったのだと思うのだけど、それを直してしまっていいのかの判断もつかず(笑)<br />
+<br />
+とりあえず、こういう問題があったということで。<br />
+<br /> 

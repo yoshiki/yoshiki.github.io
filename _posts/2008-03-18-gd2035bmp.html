@@ -1,0 +1,1094 @@
+---
+layout: post
+title: GD-2.0.35でbmpを扱うためのパッチ
+mt_id: 1036
+date: 2008-03-18 13:16:48.000000000 +09:00
+author: clouder
+category: Programming
+---
+仕事で<a href="http://www.libgd.org/">libgd</a>を使う機会があっていろいろ見てたのですがlibgdではbmpを扱うことができないません。<br />
+なんでやねんと思いつつ、libgdでbmpを扱う方法を探した結果libgdのcvsにbmpに対応しようとしている欠片を見つけました。<br /><br />
+
+<a href="http://cvs.php.net/viewcvs.cgi/gd/playground/gdbmp/">http://cvs.php.net/viewcvs.cgi/gd/playground/gdbmp/</a><br />
+(※今見たら2008年03月にも更新がされていたりするので、現在のファイルであればもしかしたら動くかもしれません。残念ながら自分が見たときには動きませんでした。)<br /><br />
+
+喜び勇んでこれを取り込んでみたのですがうまく動きませんでした…。しかたがないので、上記のプログラムを元に自分でいろいろ修正をして動くようにしました。せっかくなのでpatchを公開しておきます。<br /><br />
+
+ちなみに、このpatchは2.0.35用ですのでご注意ください。<br />
+（もうすぐ2.0.36がリリースされそうなのですけどね…。）<br /><br />
+
+あと以下のBTSでBMPの話題も出ていて、サポートしそうな雰囲気もありますし、先に紹介したcvsのファイルも更新が続けられているので、ここで公開するpatchはそれまでのつなぎということで。<br /><br />
+
+<a href="http://bugs.libgd.org/?do=details&task_id=61">http://bugs.libgd.org/?do=details&task_id=61</a><br /><br />
+
+言うまでもないですが、at your own riskでお願いします。<br /><br />
+
+patchは以下。<br /><br />
+
+ 
+<pre class="code">diff -urN gd-2.0.35/CMakeLists.txt gd-2.0.35.new/CMakeLists.txt
+--- gd-2.0.35/CMakeLists.txt	2007-06-15 04:51:41.000000000 +0900
++++ gd-2.0.35.new/CMakeLists.txt	2008-03-18 20:46:10.000000000 +0900
+@@ -116,6 +116,7 @@
+		gd_ss.c
+		gd_topal.c
+		gd_wbmp.c
++		gd_bmp.c
+		gdcache.c
+		gdfontg.c
+		gdfontl.c
+@@ -131,6 +132,7 @@
+		jisx0208.h
+		wbmp.c
+		wbmp.h
++                bmp.h
+	)
+
+	set(BUILD_SHARED_LIBS On)
+diff -urN gd-2.0.35/Makefile.am gd-2.0.35.new/Makefile.am
+--- gd-2.0.35/Makefile.am	2007-03-06 00:42:16.000000000 +0900
++++ gd-2.0.35.new/Makefile.am	2008-03-18 20:57:35.000000000 +0900
+@@ -17,7 +17,7 @@
+
+lib_LTLIBRARIES = libgd.la
+
+-libgd_la_SOURCES = gd.c gdfx.c gd_security.c gd_gd.c gd_gd2.c gd_io.c gd_io_dp.c gd_gif_in.c gd_gif_out.c gd_io_file.c gd_io_ss.c gd_jpeg.c gd_png.c gd_ss.c gd_topal.c gd_wbmp.c gdcache.c gdfontg.c gdfontl.c gdfontmb.c gdfonts.c gdfontt.c gdft.c gdhelpers.c gdhelpers.h gdkanji.c gdtables.c gdxpm.c jisx0208.h wbmp.c wbmp.h
++libgd_la_SOURCES = gd.c gdfx.c gd_security.c gd_gd.c gd_gd2.c gd_io.c gd_io_dp.c gd_gif_in.c gd_gif_out.c gd_io_file.c gd_io_ss.c gd_jpeg.c gd_png.c gd_ss.c gd_topal.c gd_wbmp.c gd_bmp.c gdcache.c gdfontg.c gdfontl.c gdfontmb.c gdfonts.c gdfontt.c gdft.c gdhelpers.c gdhelpers.h gdkanji.c gdtables.c gdxpm.c jisx0208.h wbmp.c wbmp.h bmp.h
+
+libgd_la_LDFLAGS = -version-info 2:0:0 $(XTRA_LDFLAGS)
+
+diff -urN gd-2.0.35/Makefile.in gd-2.0.35.new/Makefile.in
+--- gd-2.0.35/Makefile.in	2007-04-23 23:57:51.000000000 +0900
++++ gd-2.0.35.new/Makefile.in	2008-03-18 20:46:10.000000000 +0900
+@@ -77,7 +77,7 @@
+am_libgd_la_OBJECTS = gd.lo gdfx.lo gd_security.lo gd_gd.lo gd_gd2.lo \
+	gd_io.lo gd_io_dp.lo gd_gif_in.lo gd_gif_out.lo gd_io_file.lo \
+	gd_io_ss.lo gd_jpeg.lo gd_png.lo gd_ss.lo gd_topal.lo \
+-	gd_wbmp.lo gdcache.lo gdfontg.lo gdfontl.lo gdfontmb.lo \
++	gd_wbmp.lo gd_bmp.lo gdcache.lo gdfontg.lo gdfontl.lo gdfontmb.lo \
+	gdfonts.lo gdfontt.lo gdft.lo gdhelpers.lo gdkanji.lo \
+	gdtables.lo gdxpm.lo wbmp.lo
+libgd_la_OBJECTS = $(am_libgd_la_OBJECTS)
+@@ -344,7 +344,7 @@
+EXTRA_DIST = README-JPEG.TXT README.TXT configure.pl bdftogd demoin.png err.out index.html install-item makefile.sample readme.jpn entities.html entities.tcl
+include_HEADERS = gd.h gdfx.h gd_io.h gdcache.h gdfontg.h gdfontl.h gdfontmb.h gdfonts.h gdfontt.h entities.h
+lib_LTLIBRARIES = libgd.la
+-libgd_la_SOURCES = gd.c gdfx.c gd_security.c gd_gd.c gd_gd2.c gd_io.c gd_io_dp.c gd_gif_in.c gd_gif_out.c gd_io_file.c gd_io_ss.c gd_jpeg.c gd_png.c gd_ss.c gd_topal.c gd_wbmp.c gdcache.c gdfontg.c gdfontl.c gdfontmb.c gdfonts.c gdfontt.c gdft.c gdhelpers.c gdhelpers.h gdkanji.c gdtables.c gdxpm.c jisx0208.h wbmp.c wbmp.h
++libgd_la_SOURCES = gd.c gdfx.c gd_security.c gd_gd.c gd_gd2.c gd_io.c gd_io_dp.c gd_gif_in.c gd_gif_out.c gd_io_file.c gd_io_ss.c gd_jpeg.c gd_png.c gd_ss.c gd_topal.c gd_wbmp.c gd_bmp.c gdcache.c gdfontg.c gdfontl.c gdfontmb.c gdfonts.c gdfontt.c gdft.c gdhelpers.c gdhelpers.h gdkanji.c gdtables.c gdxpm.c jisx0208.h wbmp.c wbmp.h bmp.h
+libgd_la_LDFLAGS = -version-info 2:0:0 $(XTRA_LDFLAGS)
+libgd_la_LIBADD = $(LTLIBICONV)
+LDADD = ./libgd.la $(LIBICONV)
+@@ -583,6 +583,7 @@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gd_ss.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gd_topal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gd_wbmp.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gd_bmp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gdcache.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gdcmpgif.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gddemo.Po@am__quote@
+diff -urN gd-2.0.35/aclocal.m4 gd-2.0.35.new/aclocal.m4
+--- gd-2.0.35/aclocal.m4	2007-04-23 23:57:49.000000000 +0900
++++ gd-2.0.35.new/aclocal.m4	2008-03-18 20:49:59.000000000 +0900
+@@ -7441,7 +7441,7 @@
+# Call AM_AUTOMAKE_VERSION so it can be traced.
+# This function is AC_REQUIREd by AC_INIT_AUTOMAKE.
+AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION],
+-	 [AM_AUTOMAKE_VERSION([1.9.6])])
++	 [AM_AUTOMAKE_VERSION([1.9.2])])
+
+# AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
+
+diff -urN gd-2.0.35/bmp.h gd-2.0.35.new/bmp.h
+--- gd-2.0.35/bmp.h	1970-01-01 09:00:00.000000000 +0900
++++ gd-2.0.35.new/bmp.h	2008-03-18 20:46:10.000000000 +0900
+@@ -0,0 +1,110 @@
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/*
++	gd_bmp.c
++
++	Bitmap format support for libgd
++
++	* Written 2007, Scott MacVicar
++	---------------------------------------------------------------------------
++
++	Todo:
++
++	RLE4, RLE8 and Bitfield encoding
++	Add full support for Windows v4 and Windows v5 header formats
++
++	----------------------------------------------------------------------------
++ */
++
++#ifndef BMP_H
++#define BMP_H	1
++
++#define BMP_PALETTE_3 1
++#define BMP_PALETTE_4 2
++
++#define BMP_WINDOWS_V3 40
++#define BMP_OS2_V1 12
++#define BMP_OS2_V2 64
++#define BMP_WINDOWS_V4 108
++#define BMP_WINDOWS_V5 124
++
++#define BMP_BI_RGB 0
++#define BMP_BI_RLE8 1
++#define BMP_BI_RLE4 2
++#define BMP_BI_BITFIELDS 3
++#define BMP_BI_JPEG 4
++#define BMP_BI_PNG 5
++
++#define BMP_RLE_COMMAND 0
++#define BMP_RLE_ENDOFLINE 0
++#define BMP_RLE_ENDOFBITMAP 1
++#define BMP_RLE_DELTA 2
++
++/* BMP header. */
++typedef struct
++{
++	/* 16 bit - header identifying the type */
++	signed short int magic;
++
++	/* 32bit - size of the file */
++	signed int size;
++
++	/* 16bit - these two are in the spec but "reserved" */
++	signed short int reserved1;
++	signed short int reserved2;
++
++	/* 32 bit - offset of the bitmap header from data in bytes */
++	signed int off;
++
++} bmp_hdr_t;
++
++/* BMP info. */
++typedef struct
++{
++	/* 16bit - Type, ie Windows or OS/2 for the palette info */
++	signed short int type;
++	/* 32bit - The length of the bitmap information header in bytes. */
++	signed int len;
++
++	/* 32bit - The width of the bitmap in pixels. */
++	signed int width;
++
++	/* 32bit - The height of the bitmap in pixels. */
++	signed int height;
++
++	/* 8 bit - The bitmap data is specified in top-down order. */
++	signed char topdown;
++
++	/* 16 bit - The number of planes.  This must be set to a value of one. */
++	signed short int numplanes;
++
++	/* 16 bit - The number of bits per pixel. */
++	signed short int depth;
++
++	/* 32bit - The type of compression used. */
++	signed int enctype;
++
++	/* 32bit - The size of the image in bytes. */
++	signed int size;
++
++	/* 32bit - The horizontal resolution in pixels/metre. */
++	signed int hres;
++
++	/* 32bit - The vertical resolution in pixels/metre. */
++	signed int vres;
++
++	/* 32bit - The number of color indices used by the bitmap. */
++	signed int numcolors;
++
++	/* 32bit - The number of color indices important for displaying the bitmap. */
++	signed int mincolors;
++
++} bmp_info_t;
++
++#endif
++
++#ifdef __cplusplus
++}
++#endif
+diff -urN gd-2.0.35/configure gd-2.0.35.new/configure
+--- gd-2.0.35/configure	2007-04-23 23:57:52.000000000 +0900
++++ gd-2.0.35.new/configure	2008-03-18 20:46:10.000000000 +0900
+@@ -1,6 +1,6 @@
+#! /bin/sh
+# Guess values for system-dependent variables and create Makefiles.
+-# Generated by GNU Autoconf 2.61 for GD 2.0.34.
++# Generated by GNU Autoconf 2.61 for GD 2.0.35.
+#
+# Report bugs to <http://bugs.libgd.org>.
+#
+@@ -728,8 +728,8 @@
+# Identity of this package.
+PACKAGE_NAME='GD'
+PACKAGE_TARNAME='gd'
+-PACKAGE_VERSION='2.0.34'
+-PACKAGE_STRING='GD 2.0.34'
++PACKAGE_VERSION='2.0.35'
++PACKAGE_STRING='GD 2.0.35'
+PACKAGE_BUGREPORT='http://bugs.libgd.org'
+
+ac_unique_file="gd.c"
+@@ -1410,7 +1410,7 @@
+  # Omit some internal or obsolete options to make the list less imposing.
+  # This message is too long to be a string in the A/UX 3.1 sh.
+  cat <<_ACEOF
+-\`configure' configures GD 2.0.34 to adapt to many kinds of systems.
++\`configure' configures GD 2.0.35 to adapt to many kinds of systems.
+
+Usage: $0 [OPTION]... [VAR=VALUE]...
+
+@@ -1485,7 +1485,7 @@
+
+if test -n "$ac_init_help"; then
+  case $ac_init_help in
+-     short | recursive ) echo "Configuration of GD 2.0.34:";;
++     short | recursive ) echo "Configuration of GD 2.0.35:";;
+   esac
+  cat <<\_ACEOF
+
+@@ -1598,7 +1598,7 @@
+test -n "$ac_init_help" && exit $ac_status
+if $ac_init_version; then
+  cat <<\_ACEOF
+-GD configure 2.0.34
++GD configure 2.0.35
+generated by GNU Autoconf 2.61
+
+Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
+@@ -1612,7 +1612,7 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+-It was created by GD $as_me 2.0.34, which was
++It was created by GD $as_me 2.0.35, which was
+generated by GNU Autoconf 2.61.  Invocation command line was
+
+  $ $0 $@
+@@ -2126,7 +2126,7 @@
+
+GDLIB_MAJOR=2
+GDLIB_MINOR=0
+-GDLIB_REVISION=34
++GDLIB_REVISION=35
+GDLIBNAME=gd
+#Expanded by tests later in this file. TBB 2.0.26
+#2.0.28: GIF is standard now. Doesn't depend on anything else,
+@@ -2425,7 +2425,7 @@
+
+# Define the identity of the package.
+ PACKAGE='gd'
+- VERSION='2.0.34'
++ VERSION='2.0.35'
+
+
+cat >>confdefs.h <<_ACEOF
+@@ -24075,7 +24075,7 @@
+# report actual input values of CONFIG_FILES etc. instead of their
+# values after options handling.
+ac_log="
+-This file was extended by GD $as_me 2.0.34, which was
++This file was extended by GD $as_me 2.0.35, which was
+generated by GNU Autoconf 2.61.  Invocation command line was
+
+  CONFIG_FILES    = $CONFIG_FILES
+@@ -24128,7 +24128,7 @@
+_ACEOF
+cat >>$CONFIG_STATUS <<_ACEOF
+ac_cs_version="\\
+-GD config.status 2.0.34
++GD config.status 2.0.35
+configured by $0, generated by GNU Autoconf 2.61,
+  with options \\"`echo "$ac_configure_args" | sed 's/^ //; s/[\\""\`\$]/\\\\&/g'`\\"
+
+diff -urN gd-2.0.35/gd.h gd-2.0.35.new/gd.h
+--- gd-2.0.35/gd.h	2007-05-07 05:38:20.000000000 +0900
++++ gd-2.0.35.new/gd.h	2008-03-18 20:46:10.000000000 +0900
+@@ -288,6 +288,10 @@
+BGD_DECLARE(gdImagePtr) gdImageCreateFromJpegCtx (gdIOCtx * infile);
+BGD_DECLARE(gdImagePtr) gdImageCreateFromJpegPtr (int size, void *data);
+
++BGD_DECLARE(gdImagePtr) gdImageCreateFromBmp (FILE * inFile);
++BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpCtx (gdIOCtx * infile);
++BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpPtr (int size, void *data);
++
+/* A custom data source. */
+/* The source function must return -1 on error, otherwise the number
+        of bytes fetched. 0 is EOF, not an error! */
+diff -urN gd-2.0.35/gd_bmp.c gd-2.0.35.new/gd_bmp.c
+--- gd-2.0.35/gd_bmp.c	1970-01-01 09:00:00.000000000 +0900
++++ gd-2.0.35.new/gd_bmp.c	2008-03-18 20:46:10.000000000 +0900
+@@ -0,0 +1,768 @@
++/*
++	gd_bmp.c
++
++	Bitmap format support for libgd
++
++	* Written 2007, Scott MacVicar
++	---------------------------------------------------------------------------
++
++	Todo:
++
++	Bitfield encoding
++	Add full support for Windows v4 and Windows v5 header formats
++	Add write support
++
++	----------------------------------------------------------------------------
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include <stdio.h>
++#include <math.h>
++#include <string.h>
++#include <stdlib.h>
++#include "gd.h"
++#include "gdhelpers.h"
++#include "bmp.h"
++
++static int bmp_read_header(gdIOCtxPtr infile, bmp_hdr_t *hdr);
++static int bmp_read_info(gdIOCtxPtr infile, bmp_info_t *info);
++static int bmp_read_windows_v3_info(gdIOCtxPtr infile, bmp_info_t *info);
++static int bmp_read_os2_v1_info(gdIOCtxPtr infile, bmp_info_t *info);
++static int bmp_read_os2_v2_info(gdIOCtxPtr infile, bmp_info_t *info);
++
++static int bmp_read_direct(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header);
++static int bmp_read_1bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header);
++static int bmp_read_4bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header);
++static int bmp_read_8bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header);
++static int bmp_read_rle(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info);
++
++/* Byte helper functions, since added to GD 2.1 */
++static int gdBMPGetInt(signed int *result, gdIOCtx * ctx);
++static int gdBMPGetWord(signed short int *result, gdIOCtx * ctx);
++
++#define BMP_DEBUG(s)
++
++BGD_DECLARE(gdImagePtr) gdImageCreateFromBmp(FILE * inFile)
++{
++	gdImagePtr im = 0;
++	gdIOCtx *in = gdNewFileCtx(inFile);
++	im = gdImageCreateFromBmpCtx(in);
++	in->gd_free(in);
++	return im;
++}
++
++BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpPtr(int size, void *data)
++{
++	gdImagePtr im;
++	gdIOCtx *in = gdNewDynamicCtxEx(size, data, 0);
++	im = gdImageCreateFromBmpCtx(in);
++	in->gd_free(in);
++	return im;
++}
++
++BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpCtx(gdIOCtxPtr infile)
++{
++	bmp_hdr_t *hdr;
++	bmp_info_t *info;
++	gdImagePtr im = NULL;
++	int error = 0;
++
++	if (!(hdr= (bmp_hdr_t *)gdMalloc(sizeof(bmp_hdr_t)))) {
++		return NULL;
++	}
++	memset(hdr, 0, sizeof(*hdr));
++	if (bmp_read_header(infile, hdr)) {
++		return NULL;
++	}
++
++	if (hdr->magic != 0x4d42) {
++		return NULL;
++	}
++
++	if (!(info = (bmp_info_t *)gdMalloc(sizeof(bmp_info_t)))) {
++		return NULL;
++	}
++
++	memset(info, 0, sizeof(*info));
++	if (bmp_read_info(infile, info)) {
++		gdFree(hdr);
++		gdFree(info);
++		return NULL;
++	}
++
++	BMP_DEBUG(printf("Numcolours: &#37;d\n", info->numcolors));
++	BMP_DEBUG(printf("Width: &#37;d\n", info->width));
++	BMP_DEBUG(printf("Height: &#37;d\n", info->height));
++	BMP_DEBUG(printf("Planes: &#37;d\n", info->numplanes));
++	BMP_DEBUG(printf("Depth: &#37;d\n", info->depth));
++	BMP_DEBUG(printf("Offset: &#37;d\n", hdr->off));
++
++	if (info->depth >= 16) {
++		im = gdImageCreateTrueColor(info->width, info->height);
++	} else {
++		im = gdImageCreate(info->width, info->height);
++	}
++
++	if (!im) {
++		gdFree(hdr);
++		gdFree(info);
++		return NULL;
++	}
++
++	switch (info->depth) {
++		case 1:
++			BMP_DEBUG(printf("1-bit image\n"));
++			error = bmp_read_1bit(im, infile, info, hdr);
++		break;
++		case 4:
++			BMP_DEBUG(printf("4-bit image\n"));
++			error = bmp_read_4bit(im, infile, info, hdr);
++		break;
++		case 8:
++			BMP_DEBUG(printf("8-bit image\n"));
++			error = bmp_read_8bit(im, infile, info, hdr);
++		break;
++		case 16:
++		case 24:
++		case 32:
++			BMP_DEBUG(printf("Direct BMP image\n"));
++			error = bmp_read_direct(im, infile, info, hdr);
++		break;
++		default:
++			BMP_DEBUG(printf("Unknown bit count\n"));
++			error = 1;
++	}
++
++	gdFree(hdr);
++	gdFree(info);
++
++	if (error) {
++		gdImageDestroy(im);
++		return NULL;
++	}
++
++	return im;
++}
++
++static int bmp_read_header(gdIOCtx *infile, bmp_hdr_t *hdr)
++{
++	if(
++	!gdBMPGetWord(&hdr->magic, infile) ||
++	!gdBMPGetInt(&hdr->size, infile) ||
++	!gdBMPGetWord(&hdr->reserved1, infile) ||
++	!gdBMPGetWord(&hdr->reserved2 , infile) ||
++	!gdBMPGetInt(&hdr->off , infile)
++	) {
++		return 1;
++	}
++	return 0;
++}
++
++static int bmp_read_info(gdIOCtx *infile, bmp_info_t *info)
++{
++	/* read BMP length so we can work out the version */
++	if (!gdBMPGetInt(&info->len, infile)) {
++            BMP_DEBUG(printf("read len\n"));
++		return 1;
++	}
++
++	switch (info->len) {
++		/* For now treat Windows v4 + v5 as v3 */
++		case BMP_WINDOWS_V3:
++		case BMP_WINDOWS_V4:
++		case BMP_WINDOWS_V5:
++			BMP_DEBUG(printf("Reading Windows Header\n"));
++			if (bmp_read_windows_v3_info(infile, info)) {
++				return 1;
++			}
++		break;
++		case BMP_OS2_V1:
++                        BMP_DEBUG(printf("Reading OS2 V1\n"));
++			if (bmp_read_os2_v1_info(infile, info)) {
++				return 1;
++			}
++		break;
++		case BMP_OS2_V2:
++                        BMP_DEBUG(printf("Reading OS2 V2\n"));
++			if (bmp_read_os2_v2_info(infile, info)) {
++				return 1;
++			}
++		break;
++		default:
++			BMP_DEBUG(printf("Unhandled bitmap\n"));
++			return 1;
++	}
++	return 0;
++}
++
++static int bmp_read_windows_v3_info(gdIOCtxPtr infile, bmp_info_t *info)
++{
++	if (
++		!gdBMPGetInt(&info->width, infile) ||
++		!gdBMPGetInt(&info->height, infile) ||
++		!gdBMPGetWord(&info->numplanes, infile) ||
++		!gdBMPGetWord(&info->depth, infile) ||
++		!gdBMPGetInt(&info->enctype, infile) ||
++		!gdBMPGetInt(&info->size, infile) ||
++		!gdBMPGetInt(&info->hres, infile) ||
++		!gdBMPGetInt(&info->vres, infile) ||
++		!gdBMPGetInt(&info->numcolors, infile) ||
++		!gdBMPGetInt(&info->mincolors, infile)
++	) {
++		return 1;
++	}
++
++	if (info->height < 0) {
++		info->topdown = 1;
++		info->height = -info->height;
++	} else {
++		info->topdown = 0;
++	}
++
++	info->type = BMP_PALETTE_4;
++
++	if (info->width <= 0 || info->height <= 0 || info->numplanes <= 0 ||
++	  info->depth <= 0  || info->numcolors < 0 || info->mincolors < 0) {
++		return 1;
++	}
++
++	return 0;
++}
++
++static int bmp_read_os2_v1_info(gdIOCtxPtr infile, bmp_info_t *info)
++{
++	if (
++		!gdBMPGetWord(&info->width, infile) ||
++		!gdBMPGetWord(&info->height, infile) ||
++		!gdBMPGetWord(&info->numplanes, infile) ||
++		!gdBMPGetWord(&info->depth, infile)
++	) {
++		return 1;
++	}
++
++	/* OS2 v1 doesn't support topdown */
++	info->topdown = 0;
++
++	info->numcolors = 1 << info->depth;
++	info->type = BMP_PALETTE_3;
++
++	if (info->width <= 0 || info->height <= 0 || info->numplanes <= 0 ||
++	  info->depth <= 0 || info->numcolors < 0) {
++		return 1;
++	}
++
++	return 0;
++}
++
++static int bmp_read_os2_v2_info(gdIOCtxPtr infile, bmp_info_t *info)
++{
++	char useless_bytes[24];
++	if (
++		!gdBMPGetInt(&info->width, infile) ||
++		!gdBMPGetInt(&info->height, infile) ||
++		!gdBMPGetWord(&info->numplanes, infile) ||
++		!gdBMPGetWord(&info->depth, infile) ||
++		!gdBMPGetInt(&info->enctype, infile) ||
++		!gdBMPGetInt(&info->size, infile) ||
++		!gdBMPGetInt(&info->hres, infile) ||
++		!gdBMPGetInt(&info->vres, infile) ||
++		!gdBMPGetInt(&info->numcolors, infile) ||
++		!gdBMPGetInt(&info->mincolors, infile)
++	) {
++		return 1;
++	}
++
++	/* Lets seek the next 24 pointless bytes, we don't care too much about it */
++	if (!gdGetBuf(useless_bytes, 24, infile)) {
++		return 1;
++	}
++
++	if (info->height < 0) {
++		info->topdown = 1;
++		info->height = -info->height;
++	} else {
++		info->topdown = 0;
++	}
++
++	info->type = BMP_PALETTE_4;
++
++	if (info->width <= 0 || info->height <= 0 || info->numplanes <= 0 ||
++	 info->depth <= 0  || info->numcolors < 0 || info->mincolors < 0) {
++		return 1;
++	}
++
++
++	return 0;
++}
++
++static int bmp_read_direct(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header)
++{
++        int ypos = 0, xpos = 0, row = 0;
++	int padding = 0, alpha = 0, red = 0, green = 0, blue = 0;
++        short int data = 0;
++
++	switch(info->enctype) {
++		case BMP_BI_RGB:
++			/* no-op */
++		break;
++
++		case BMP_BI_BITFIELDS:
++			if (info->depth == 24) {
++				BMP_DEBUG(printf("Bitfield compression isn't supported for 24-bit\n"));
++				return 1;
++			}
++                        /*
++			BMP_DEBUG(printf("Currently no bitfield support\n"));
++			return 1;
++                        */
++		break;
++
++		case BMP_BI_RLE8:
++			if (info->depth != 8) {
++				BMP_DEBUG(printf("RLE is only valid for 8-bit images\n"));
++				return 1;
++			}
++		case BMP_BI_RLE4:
++			if (info->depth != 4) {
++				BMP_DEBUG(printf("RLE is only valid for 4-bit images\n"));
++				return 1;
++			}
++		case BMP_BI_JPEG:
++		case BMP_BI_PNG:
++		default:
++			BMP_DEBUG(printf("Unsupported BMP compression format\n"));
++			return 1;
++	}
++
++	/* There is a chance the data isn't until later, would be wierd but it is possible */
++	if (gdTell(infile) != header->off) {
++		/* Should make sure we don't seek past the file size */
++		gdSeek(infile, header->off);
++	}
++
++	/* The line must be divisible by 4, else its padded with NULLs */
++	padding = ((int)(info->depth / 8) * info->width) &#37; 4;
++	if (padding) {
++		padding = 4 - padding;
++	}
++
++
++	for (ypos = 0; ypos < info->height; ++ypos) {
++		if (info->topdown) {
++			row = ypos;
++		} else {
++			row = info->height - ypos - 1;
++		}
++
++		for (xpos = 0; xpos < info->width; xpos++) {
++			if (info->depth == 16) {
++				if (!gdBMPGetWord(&data, infile)) {
++					return 1;
++				}
++				BMP_DEBUG(printf("Data: &#37;X\n", data));
++				red = ((data & 0x7C00) >> 10) << 3;
++				green = ((data & 0x3E0) >> 5) << 3;
++				blue = (data & 0x1F) << 3;
++				BMP_DEBUG(printf("R: &#37;d, G: &#37;d, B: &#37;d\n", red, green, blue));
++			} else if (info->depth == 24) {
++				if (!gdGetByte(&blue, infile) || !gdGetByte(&green, infile) || !gdGetByte(&red, infile)) {
++					return 1;
++				}
++			} else {
++				if (!gdGetByte(&blue, infile) || !gdGetByte(&green, infile) || !gdGetByte(&red, infile) || !gdGetByte(&alpha, infile)) {
++					return 1;
++				}
++			}
++			/*alpha = gdAlphaMax - (alpha >> 1);*/
++			gdImageSetPixel(im, xpos, row, gdTrueColor(red, green, blue));
++		}
++		for (xpos = padding; xpos > 0; --xpos) {
++			if (!gdGetByte(&red, infile)) {
++				return 1;
++			}
++		}
++	}
++
++	return 0;
++}
++
++static int bmp_read_palette(gdImagePtr im, gdIOCtxPtr infile, int count, int read_four)
++{
++	int i;
++	int r, g, b, z;
++
++	for (i = 0; i < count; i++) {
++		if (
++		!gdGetByte(&b, infile) ||
++		!gdGetByte(&g, infile) ||
++		!gdGetByte(&r, infile) ||
++		(read_four && !gdGetByte(&z, infile))
++		) {
++			return 1;
++		}
++                BMP_DEBUG(printf("i: &#37;d, r: &#37;d, g: &#37;d, b: &#37;d, z: &#37;d\n", i, r, g, b, z));
++		im->red[i] = r;
++		im->green[i] = g;
++		im->blue[i] = b;
++		im->open[i] = 1;
++	}
++	return 0;
++}
++
++static int bmp_read_1bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header)
++{
++	int ypos = 0, xpos = 0, row = 0, index = 0;
++	int padding = 0, current_byte = 0, bit = 0, row_bytes = 0;
++
++	if (info->enctype != BMP_BI_RGB) {
++		return 1;
++	}
++
++	if (!info->numcolors) {
++		info->numcolors = 2;
++	} else if (info->numcolors < 0 || info->numcolors > 2) {
++		return 1;
++	}
++
++	if (bmp_read_palette(im, infile, info->numcolors, (info->type == BMP_PALETTE_4))) {
++		return 1;
++	}
++
++	im->colorsTotal = info->numcolors;
++
++	/* There is a chance the data isn't until later, would be wierd but it is possible */
++	if (gdTell(infile) != header->off) {
++		/* Should make sure we don't seek past the file size */
++		gdSeek(infile, header->off);
++	}
++
++	/* The line must be divisible by 4, else its padded with NULLs */
++        padding = info->width &#37; 4;
++	if (padding) {
++		padding = 4 - padding;
++	}
++
++        //each line bytes
++        row_bytes = floor((info->width * 1 + 31) / 32) * 4;
++
++	for (ypos = 0; ypos < info->height; ++ypos) {
++		if (info->topdown) {
++			row = ypos;
++		} else {
++			row = info->height - ypos - 1;
++		}
++
++		for (xpos = 0; xpos < row_bytes * 8; xpos += 8) {
++			/* Bitmaps are always aligned in bytes so we'll never overflow */
++			if (!gdGetByte(&current_byte, infile)) {
++				return 1;
++			}
++
++			for (bit = 0; bit < 8; bit++) {
++				/* No need to read anything extra */
++				if ((xpos + bit) >= info->width) {
++					break;
++				}
++				index = ((current_byte & (0x80 >> bit)) != 0 ? 0x01 : 0x00);
++                                //BMP_DEBUG(printf("&#37;d", index));
++				if (im->open[index]) {
++					im->open[index] = 0;
++				}
++				gdImageSetPixel(im, xpos + bit, row, index);
++			}
++                        //BMP_DEBUG(printf(" "));
++		}
++                //BMP_DEBUG(printf("\n"));
++	}
++	return 0;
++}
++
++static int bmp_read_4bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header)
++{
++	int ypos = 0, xpos = 0, row = 0, index = 0;
++	int padding = 0, current_byte = 0;
++
++	if (info->enctype != BMP_BI_RGB && info->enctype != BMP_BI_RLE4) {
++		return 1;
++	}
++
++	if (!info->numcolors) {
++		info->numcolors = 16;
++	} else if (info->numcolors < 0 || info->numcolors > 16) {
++		return 1;
++	}
++
++	if (bmp_read_palette(im, infile, info->numcolors, (info->type == BMP_PALETTE_4))) {
++		return 1;
++	}
++
++	im->colorsTotal = info->numcolors;
++
++	/* There is a chance the data isn't until later, would be wierd but it is possible */
++	if (gdTell(infile) != header->off) {
++		/* Should make sure we don't seek past the file size */
++		gdSeek(infile, header->off);
++	}
++
++	/* The line must be divisible by 4, else its padded with NULLs */
++	padding = ((int)ceil(0.5 * info->width)) &#37; 4;
++	if (padding) {
++		padding = 4 - padding;
++	}
++
++	switch (info->enctype) {
++		case BMP_BI_RGB:
++		for (ypos = 0; ypos < info->height; ++ypos) {
++			if (info->topdown) {
++				row = ypos;
++			} else {
++				row = info->height - ypos - 1;
++			}
++
++			for (xpos = 0; xpos < info->width; xpos += 2) {
++				if (!gdGetByte(&current_byte, infile)) {
++					return 1;
++				}
++
++				index = (current_byte >> 4) & 0x0f;
++				if (im->open[index]) {
++					im->open[index] = 0;
++				}
++				gdImageSetPixel(im, xpos, row, index);
++
++				/* This condition may get called often, potential optimsations */
++				if (xpos >= info->width) {
++					break;
++				}
++	
++				index = current_byte & 0x0f;
++				if (im->open[index]) {
++					im->open[index] = 0;
++				}
++				gdImageSetPixel(im, xpos + 1, row, index);
++			}
++
++			for (xpos = padding; xpos > 0; --xpos) {
++				if (!gdGetByte(&index, infile)) {
++					return 1;
++				}
++			}
++		}
++		break;
++
++		case BMP_BI_RLE4:
++		if (bmp_read_rle(im, infile, info)) {
++			return 1;
++		}
++		break;
++
++		default:
++			return 1;
++	}
++	return 0;
++}
++
++static int bmp_read_8bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp_hdr_t *header)
++{
++	int ypos = 0, xpos = 0, row = 0, index = 0;
++	int padding = 0;
++
++	if (info->enctype != BMP_BI_RGB && info->enctype != BMP_BI_RLE8) {
++		return 1;
++	}
++
++	if (!info->numcolors) {
++		info->numcolors = 256;
++	} else if (info->numcolors < 0 || info->numcolors > 256) {
++		return 1;
++	}
++
++	if (bmp_read_palette(im, infile, info->numcolors, (info->type == BMP_PALETTE_4))) {
++		return 1;
++	}
++
++	im->colorsTotal = info->numcolors;
++
++	/* There is a chance the data isn't until later, would be wierd but it is possible */
++	if (gdTell(infile) != header->off) {
++		/* Should make sure we don't seek past the file size */
++		gdSeek(infile, header->off);
++	}
++
++	/* The line must be divisible by 4, else its padded with NULLs */
++	padding = (1 * info->width) &#37; 4;
++	if (padding) {
++		padding = 4 - padding;
++	}
++
++	switch (info->enctype) {
++		case BMP_BI_RGB:
++		for (ypos = 0; ypos < info->height; ++ypos) {
++			if (info->topdown) {
++				row = ypos;
++			} else {
++				row = info->height - ypos - 1;
++			}
++
++			for (xpos = 0; xpos < info->width; ++xpos) {
++				if (!gdGetByte(&index, infile)) {
++					return 1;
++				}
++
++				if (im->open[index]) {
++					im->open[index] = 0;
++				}
++				gdImageSetPixel(im, xpos, row, index);
++			}
++			/* Could create a new variable, but it isn't really worth it */
++			for (xpos = padding; xpos > 0; --xpos) {
++				if (!gdGetByte(&index, infile)) {
++					return 1;
++				}
++			}
++		}
++		break;
++
++		case BMP_BI_RLE8:
++		if (bmp_read_rle(im, infile, info)) {
++			return 1;
++		}
++		break;
++
++		default:
++			return 1;
++	}
++	return 0;
++}
++
++static int bmp_read_rle(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info)
++{
++	int ypos = 0, xpos = 0, row = 0, index = 0;
++	int rle_length = 0, rle_data = 0;
++	int padding = 0;
++	int i = 0, j = 0;
++	int pixels_per_byte = 8 / info->depth;
++
++	for (ypos = 0; ypos < info->height && xpos <= info->width;) {
++		if (!gdGetByte(&rle_length, infile) || !gdGetByte(&rle_data, infile)) {
++			return 1;
++		}
++		row = info->height - ypos - 1;
++
++		if (rle_length != BMP_RLE_COMMAND) {
++			if (im->open[rle_data]) {
++				im->open[rle_data] = 0;
++			}
++
++			for (i = 0; (i < rle_length) && (xpos < info->width);) {
++				for (j = 1; (j <= pixels_per_byte) && (xpos < info->width) && (i < rle_length); j++, xpos++, i++) {
++					index = (rle_data & (((1 << info->depth) - 1) << (8 - (j * info->depth)))) >> (8 - (j * info->depth));
++					if (im->open[index]) {
++						im->open[index] = 0;
++					}
++					gdImageSetPixel(im, xpos, row, index);
++				}
++			}
++		} else if (rle_length == BMP_RLE_COMMAND && rle_data > 2) {
++			/* Uncompressed RLE needs to be even */
++			padding = 0;
++			for (i = 0; (i < rle_data) && (xpos < info->width); i += pixels_per_byte) {
++				int max_pixels = pixels_per_byte;
++
++				if (!gdGetByte(&index, infile)) {
++					return 1;
++				}
++				padding++;
++
++				if (rle_data - i < max_pixels) {
++					max_pixels = rle_data - i;
++				}
++
++				for (j = 1; (j <= max_pixels)  && (xpos < info->width); j++, xpos++) {
++					int temp = (index >> (8 - (j * info->depth))) & ((1 << info->depth) - 1);
++					if (im->open[temp]) {
++						im->open[temp] = 0;
++					}
++					gdImageSetPixel(im, xpos, row, temp);
++				}
++			}
++
++			/* Make sure the bytes read are even */
++			if (padding &#37; 2 && !gdGetByte(&index, infile)) {
++				return 1;
++			}
++		} else if (rle_length == BMP_RLE_COMMAND && rle_data == BMP_RLE_ENDOFLINE) {
++			/* Next Line */
++			xpos = 0;
++			ypos++;
++		} else if (rle_length == BMP_RLE_COMMAND && rle_data == BMP_RLE_DELTA) {
++			/* Delta Record, used for bmp files that contain other data*/
++			if (!gdGetByte(&rle_length, infile) || !gdGetByte(&rle_data, infile)) {
++				return 1;
++			}
++			xpos += rle_length;
++			ypos += rle_data;
++		} else if (rle_length == BMP_RLE_COMMAND && rle_data == BMP_RLE_ENDOFBITMAP) {
++			/* End of bitmap */
++			break;
++		}
++	}
++	return 0;
++}
++
++static int gdBMPGetWord(signed short int *result, gdIOCtx * ctx)
++{
++	int high = 0, low = 0;
++	low = (ctx->getC) (ctx);
++	if (low == EOF) {
++ 		return 0;
++	}
++
++	high = (ctx->getC) (ctx);
++	if (high == EOF) {
++ 		return 0;
++	}
++
++	if (result) {
++		*result = (high << 8) | low;
++	}
++
++	return 1;
++}
++
++static int gdBMPGetInt(signed int *result, gdIOCtx * ctx)
++{
++	int c = 0, r = 0;
++	c = (ctx->getC) (ctx);
++	if (c == EOF) {
++ 		return 0;
++	}
++	r |= c;
++
++	c = (ctx->getC) (ctx);
++	if (c == EOF) {
++ 		return 0;
++	}
++	r |= (c << 8);
++
++	c = (ctx->getC) (ctx);
++	if (c == EOF) {
++ 		return 0;
++	}
++	r |= (c << 16);
++
++	c = (ctx->getC) (ctx);
++	if (c == EOF) {
++ 		return 0;
++	}
++	r |= (c << 24);
++
++	if (result) {
++		*result = r;
++	}
++
++	return 1;
++}</pre>

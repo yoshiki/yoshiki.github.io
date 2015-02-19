@@ -1,0 +1,37 @@
+---
+layout: post
+title: 自作Alpha Geek Tracker(JSON版)
+mt_id: 521
+date: 2005-08-22 20:42:57.000000000 +09:00
+author: clouder
+category: Perl
+---
+以前、<a href="http://clouder.jp/yoshiki/mt/archives/000500.html" target="_blank">自作Alpha Geek Tracker</a>を作ったのですが、今回せっかくJSON feedを作ったので、その流れでAlpha Geek TrackerもJSON配信してみようと思い作成しました。URIは<a href="http://clouder.jp/~yoshiki/alpha_geek_tracker.js">http://clouder.jp/~yoshiki/alpha_geek_tracker.js</a>です。<br /><br />
+
+あと、だれも使ってないと思うけど、これと期に以前作ったRssTrackerもバージョンアップしました(笑)<br /><br />
+
+<a href="http://clouder.jp/src/perl_module/RssTracker-0.02.tar.gz">RssTracker-0.02.tar.gz</a><br /><br />
+
+これを使ってくっつきAlpha Geek Trackerが簡単にできるようになりました。下記のような感じです。<br /><br /> 
+<style type="text/css">
+#container { border: 2px solid #eee; padding: 0.5em; margin: 1em; width: 30em  }
+#container h2 { font-size: 100&#37;; margin: 0; padding: 0}
+.bright { color: #900; }
+pre.code { background-color:#f2f2f2; padding-left: 1em }
+</style>
+<div id="container"><h2>Alpha Geek Tracker</h2></div>
+<script type="text/javascript" src="http://clouder.jp/~yoshiki/alpha_geek_tracker.js" charset="UTF-8"></script>
+<script type="text/javascript">
+var ul = document.createElement('ul')
+for (var i=0; i < 20; i++) {
+        if (!AlphaGeekTracker.posts[i]) break;
+        var post = AlphaGeekTracker.posts[i];
+        var li = document.createElement('li')
+        var a = document.createElement('a')
+        a.setAttribute('href', post.link)
+        a.appendChild(document.createTextNode(post.title))
+        li.appendChild(a)
+        ul.appendChild(li)
+}
+document.getElementById('container').appendChild(ul)
+</script>

@@ -1,0 +1,31 @@
+---
+layout: post
+title: Safari の ~(チルダ)問題
+mt_id: 46
+date: 2003-02-01 02:38:36.000000000 +09:00
+author: clouder
+category: Mac
+---
+<blockquote class="quote"><a title="Hetima:Safari" href="http://he-com.hp.infoseek.co.jp/safari/index.html" target="_blank">Hetima:Safari</a>
+これはSafariに対するApplication Enhancer Moduleです。
+Safariパブリックベータ版(0.8.1 v51)で動作テストしています。
+テストはしていますが、正常に動作する保証はありません。自己責任で使用してください。 
+機能は以下の通り
+・テキストエンコーディングにCoreFoundationを使用する(URLのチルダがオーバーラインになるのを防ぐ)
+↑はHMDT mkinoさんのコードを参考にさせていただきました。多謝。
+（ただし、UTF-8のページに関してはText Encoding Converter を使用します。チルダは正常に表示されます） 
+・すべてのfaviconを無効にする
+・gzファイルをデコードしない　NEW
+・JavaScriptによるStatusBarへの描画を禁止する　NEW
+</blockquote>
+Safariはときどき、URL に ~ が付いてるとそこが文字化けるのですが、このソフトを使うことでこの問題が解消されるらしい。
+まだ試してませんが、すごいですね〜。
+なんかワクワクするね。これから楽しみだな〜。
+
+AppleのDarwinに対するこの姿勢ってすごくよい。
+こう、みんなが開発に参加することで、どんどん良いソフトウェアが出来上っていく。
+
+でも、普通のユーザにとっては、darwinというOSはどう写るんだろう…。
+unixを使っていたユーザを取り込めるという利点の反面既存のユーザは離れていくかもしれない…。
+どうなんですかね。
+ 

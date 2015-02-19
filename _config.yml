@@ -1,0 +1,25 @@
+# Site settings
+title: Clouder::Blogger
+baseurl: ""
+url: http://blog.clouder.jp
+twitter_username: clouder
+github_username:  yoshiki
+
+# Build settings
+markdown: kramdown
+highlighter: pygments
+safe: true
+lsi: false
+permalink: /:year/:month/:day/:title/
+gems:
+  - jekyll-sitemap
+exclude: 
+  - vendor
+  - Gemfile
+  - Gemfile.lock
+  - .ruby-version
+  - .gitignore
+  - .bundle
+  - .git
+  - LICENSE
+  - CNAME

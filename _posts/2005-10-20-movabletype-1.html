@@ -1,0 +1,19 @@
+---
+layout: post
+title: MovableTypeで格納データの文字コードを変更する
+mt_id: 553
+date: 2005-10-20 02:02:02.000000000 +09:00
+author: clouder
+category: MovableType
+---
+<blockquote><a title="Beta Weblog: Movable Type の文字コード変換スクリプト" href="http://www.movabletype.jp/beta/archives/2004/05/movable_type.html">Beta Weblog: Movable Type の文字コード変換スクリプト</a>
+
+Movable Type 3.0 のデータベースに格納されているデータの、文字コードの変換スクリプトのテスト版を公開します。必ずデータのバックアップを作成してから変換してください。</blockquote>思うところがあり、今までMovableTypeで格納データと公開ページのエンコーディングがEUC-JPだったのですが、それをUTF-8に変えてみた。
+
+どうやってやったらいいか調べたら、本家のブログに変換スクリプトがあったのでそれを使った。
+
+やり方は簡単で、変換スクリプトダウンロードしてきて、解凍して出きたmt-convert-code.cgiをMTのホームディレクトリに置いて、それをブラウザから叩けばよい。
+※やる前には必ずDBのバックアップを取っておきましょう。
+
+あとはmt.cfgのPublishCharsetをEUC-JPからUTF-8に変えたら、すべてのページを再構築するだけ。(mod_perlで動いている場合にはapacheを再起動したあとに再構築方がいい)
+テンプレートのcharsetとかも普通はcharset=&lt;$MTPublishCharset$&gt;となってると思うのでそのままイケるはずです。 

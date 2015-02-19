@@ -1,0 +1,79 @@
+---
+layout: post
+title: Imagerを使おう - 第2回「画像を加工する」
+mt_id: 719
+date: 2006-10-24 00:28:25.000000000 +09:00
+author: clouder
+category: Perl
+---
+さて、<a href="http://clouder.jp/yoshiki/mt/archives/000718.html">前回</a>の予告したように、今回はImagerを使って読み込んだ画像をいろいろな方法で加工する方法をご紹介しようと思います。画像の加工といっても色々な方法があると思いますが、まずは拡大縮小、回転、切り抜き、反転、他の画像を貼り付けあたりから説明していきます。<br />
+なお、今回でてくる$imgというのは前回紹介した画像を読み込んだImagerのインスタンスだと思ってください。<br /><br />
+
+今回サンプルとして加工に使う画像は下記になります。<br /><br />
+<img alt="sample-image.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/sample-image.jpg" width="90" height="120" /><br />
+
+<ul>
+<li>拡大縮小</li>
+まずはオーソドックスな拡大縮小です。コードは以下。
+<pre class="code">$new_img = $img->scale(scalefactor => 0.5); # 縦横を元画像の半分にする(scale01.jpg)
+$new_img = $img->scale(scalefactor => 1.5); # 縦横を元画像の2倍にする(scale02.jpg)
+$new_img = $ima->scale(xpixels => 400, ypixels => 200); # 横を400px、縦を200pxに縮小する</pre>
+こんな感じです。scale()でいろいろな引数を取ることができます。この他にもscaleX()、scaleY()メソッドなどもあります。<br /><br />
+
+scale01.jpg<br />
+<img alt="scale01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/scale01.jpg" width="45" height="60" /><br />
+
+scale02.jpg<br />
+<img alt="scale02.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/scale02.jpg" width="135" height="180" /><br />
+<br />
+
+<li>回転</li>
+次に回転です。コードは以下。
+<pre class="code">$new_img = $img->rotate(degrees => 30); # 30度時計回りに回転(rotate01.jpg)
+$new_img = $image->rotate(radians => 3.141592/4); # 同じ回転ですが、ラジアンで指定することもできます
+$new_img = $image->rotate(degrees => 30, back => '#ffff00'); # 背景を黄色にして30度回転(rotate02.jpg)</pre>
+回転はrotate()メソッドを使うことでできます。また、backという引数を指定することで、回転したあとの新しく描画しなければならない背景の色も渡せます。<br /><br />
+
+rotate01.jpg<br />
+<img alt="rotate01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/rotate01.jpg" width="137" height="148" /><br />
+
+rotate02.jpg<br />
+<img alt="rotate02.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/rotate02.jpg" width="137" height="148" /><br />
+<br />
+
+<li>切り抜き</li>
+画像のある部分を切り抜けます。コードは以下。
+<pre class="code">$new_img = $img->crop(left => 50, right => 100, top => 50, bottom => 100);
+$new_img = $img->crop(left => 50, top => 50, width => 100, height => 100);(crop01.jpg)</pre>
+画像の左上からの相対的な(x,y)座標をleftとtopという値で指定し、右下の(x,y)座標を指定したい場合にはrightとbottomを、縦横の長さで指定したい場合にはheightとwidthを指定します。<br /><br />
+
+crop01.jpg<br />
+<img alt="crop01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/crop01.jpg" width="30" height="30" /><br />
+<br />
+
+<li>反転</li>
+鏡で反転させた感じの効果です。コードは以下。
+<pre class="code">$new_img = $img->flip(dir => 'h'); # 左右逆転(flip01.jpg)
+$new_img = $img->flip(dir => 'vh'); #上下 & 左右逆転</pre>
+'h'はhorizontal(左右)、'v'はvertical(上下)ですね。その組み合わせをdirという値で引数として渡します。<br /><br />
+
+flip01.jpg<br />
+<img alt="flip01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/flip01.jpg" width="90" height="120" /><br />
+<br />
+
+<li>他の画像を貼り付け</li>
+ある画像の上にある画像を貼り付ける方法です。コードは以下。
+<pre class="code">$img1->paste(left => 20, top => 20, src => $img2); # (paste01.jpg)</pre>
+今までとちょっと違いますね。今までは$img->method()のリターンで新しい画像を受けとっていましたが、今回は $img1->paste() を呼ぶとそのまま $img1 が新しい画像になります。leftとtopは元画像($img1)の左上からの(x,y)座標になります。そしてsrcが貼り付ける画像のImagerのインスタンスになります。<br /><br />
+
+paste01.jpg<br />
+<img alt="paste01.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/paste01.jpg" width="90" height="120" /><br />
+</ul>
+<br /><br />
+
+さて、いろいろな加工を紹介してみましたがどうだったでしょうか。Imagerにはこれ以外にもいろいろな加工のためのメソッドが用意してあります。色の変更や画像をぐにゃぐにゃしたり、もうちょっと細かい加工もできます。また自分で加工する処理を追加(作成)することもできるようです。<br /><br />
+
+もう少し高度な加工については次回以降、徐々に紹介していくことにします。<br />
+次回は、なににしようかな。<br />
+<br />
+…えーと「文字を書く」を紹介しようと思います。<br /> 

@@ -1,0 +1,26 @@
+---
+layout: post
+title: emacs22でkill-summaryが動かない
+mt_id: 706
+date: 2006-09-01 15:06:22.000000000 +09:00
+author: clouder
+category: Emacs
+---
+kill-summary.el という emacs のモジュールがあるんですが、それをひさびさに入れてみた。<br /><br />
+
+そしたら、動かなかったので調べたら emacs22 では truncate-string ってファンクションがなくなっている。もっと調べたら、emacs22 では truncate-string-to-width という関数になっているっぽい(？)<br /><br />
+
+そこで kill-summary.el の truncate-string の部分を truncate-string-to-width に変えたら動くようになった。ただ、まだあまり使い込んでないので他の部分でエラることはあるかも。patch は以下。<br />
+
+<pre class="code">--- kill-summary.el.old       2006-09-01 15:09:50.482637000 +0900
++++ kill-summary.el   2006-09-01 15:06:10.152637000 +0900
+@@ -231,7 +231,7 @@
+           ()
+         (setq kill-summary-list (append kill-summary-list (list n)))
+         (insert (format "&#37;2d:&#37;s &#37;s\n" n lines
+-                        (truncate-string
++                        (truncate-string-to-width
+                          (mapconcat (lambda (y) y) strtmp
+                                     kill-summary-newline-notation) w)))
+         (setq prev str)</pre>
+ 

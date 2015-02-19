@@ -1,0 +1,167 @@
+---
+layout: post
+title: coLinuxを入れてみる
+mt_id: 388
+date: 2005-05-11 02:21:33.000000000 +09:00
+author: clouder
+category: Software
+---
+coLinuxを使っているというのを<a href="http://blog.bulknews.net/mt/archives/001683.html" target="_blank">miyagawaさんのブログ</a>で見て喚起されたのでインストールしてみることにした。たしか1年ぐらい前に試そうと思って、挑んだときにはなんかめんどくさそうだったのでほっておいたんだけど…。<br />
+<br />
+ということで自分なりにインストールで躓いたところなどを説明しつつインストールログを書いてみます。<br />
+<br /> 
+ちなみにインストール環境はWindows XP SP2です。
+<ol>
+<li><strong>coLinuxのダウンロード</strong></li>
+<a href="http://colinux.sourceforge.net/" target="_blank">http://colinux.sourceforge.net/</a>で最新版(2005年5月時点で0.6.2)をダウンロードしてくる。ダウンロードするファイルはcoLinux-0.6.2.exeです。colinux-0.6.2.tar.gzの方はソースなのでいりませんが、自分でコンパイルしたいという方(あんまりいないと思いますが…)はこちらをどうぞ。<br />
+<br />
+<li><strong>とりあえず、インストール</strong></li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/installer1.jpg"><img alt="installer1.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/installer1-thumb.jpg" width="120" height="92" /></a><br />
+
+まず起動するとこの画面です。普通にNextを押しましょう。<br /><br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/installer2.jpg"><img alt="installer2.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/installer2-thumb.jpg" width="120" height="92" /></a><br />
+
+次はライセンスの承認画面です。GPLになっています。承認する場合にはI Agreeを押しましょう。<br /><br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/installer3.jpg"><img alt="installer3.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/installer3-thumb.jpg" width="120" height="92" /></a><br />
+
+次はインストールするコンポーネントを選択する画面です。とりあえず一番上のcoLinuxは入れるとして、それ以外の3つについてですが、coLinux Virtual Ethernet Driver(TAP-Win32)はネットワークをするために必要なので選択しておきましょう。WinPcapの方は今回自分はインストールしませんでした。また、Root Filesystem image Downloadは、coLinuxから付かうLinuxディストリビューションのイメージファイルをダウンロードするかどうかです。よくわからない場合はとりあえずチェックしておきましょう。自分でイメージファイルを用意できるのであればチェックする必要はないようです。<br /><br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/installer4.jpg"><img alt="installer4.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/installer4-thumb.jpg" width="120" height="92" /></a><br />
+
+次はインストールするディレクトリですが、これは特に必要がなければデフォルトでよいでしょう。<br /><br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/installer5.jpg"><img alt="installer5.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/installer5-thumb.jpg" width="120" height="92" /></a><br />
+
+次は、WinPcapをインストールするのはここねーと教えてくれてますが、今回は必要ないので次にいきます。<br /><br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/installer6.jpg"><img alt="installer6.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/installer6-thumb.jpg" width="120" height="92" /></a><br />
+
+最後に先程Linuxディストリビューションのイメージをダウンロードすると選択したので、Choose a distributionでどのLinuxディストリビューションをダウンロードするかを選択しましょう。自分はDebianにしました。ちなみにこれでダウンロードしたDebianはwoodyでした。Location preferenceで、どの場所からダウンロードするかを選択します。別にどれでもいいですがAsiaが近いのでAsiaにしましょう。
+<br /><br />
+あとはインストールボタンを押すだけでcoLinuxがインストールできます。
+<br /><br />
+
+<li><strong>起動前の設定</strong></li>
+<a href="http://clouder.jp/yoshiki/mt/archives/images/dir.jpg"><img alt="dir.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/dir-thumb.jpg" width="120" height="90" /></a><br />
+
+さて、インストールが完了すると、C:\Program Files\coLinuxのディレクトリを見てみましょう。いろいろインストールされていますが、まずはディストリビューションのイメージDebian-3.0r2.ext3-mit-backports.1gb.bz2を適当な解凍ソフトで解凍しておきましょう。
+<br /><br />
+次にdefault.colinux.xml を編集します。編集はメモ帳ではなく秀丸やサクラエディタ等LFの改行が理解できるエディタで編集しなければなりません。
+<pre class="code">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;colinux&gt;
+    &lt;block_device index=&quot;0&quot; path=&quot;\DosDevices\c:\Program Files\coLinux\Debi
+an-3.0r2.ext3-mit-backports.1gb&quot;
+    enabled=&quot;true&quot; /&gt;
+
+    &lt;bootparams&gt;root=/dev/cobd0&lt;/bootparams&gt;
+
+    &lt;initrd path=&quot;initrd.gz&quot; /&gt;
+
+    &lt;image path=&quot;vmlinux&quot; /&gt;
+
+    &lt;memory size=&quot;128&quot; /&gt;
+
+    &lt;network index=&quot;0&quot; name=&quot;TAP&quot; type=&quot;tap&quot; /&gt;
+&lt;/colinux&gt;
+</pre>
+(※コメントをなくした形で掲載しています。)<br />
+block_deviceは、ディストリビューションのイメージのパスなどを指定します。このパスに先程解凍したディストリビューションのイメージのパスを指定してください。書き方は\DosDevices\の後にWindows上のパスを指定します。それ以外で変更する必要のあるものというと、memoryぐらいですかね。memoryは、coLinuxに割当てるメモリの量です。メモリに余裕があれば多く割当てましょう。
+<br /><br />
+編集が終ったら保存しておきましょう。<br /><br />
+
+<li><strong>とりあえず起動</strong></li>
+とりあえず起動だけしてみましょう。<br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/startup.jpg"><img alt="startup.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/startup-thumb.jpg" width="120" height="84" /></a><br />
+
+起動方法は、上図のようにDOS窓でcoLinuxをインストールしたディレクトリ(デフォルトではC:\Program Files\coLinux)に移動してから、
+
+<pre class="code">C:\Program Files\coLinux>colinux-daemon.exe -c default.colinux.xml</pre>
+と打って、colinux-daemon.exeコマンドに-cオプションで先程編集をした設定ファイルを指定して起動します。実行すると下図のようにもう1つウィンドウが開きます。<br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/runcolinux.jpg"><img alt="runcolinux.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/runcolinux-thumb.jpg" width="120" height="90" /></a><br />
+
+これで、colinuxの起動ができました。
+<br /><br />
+
+<li><strong>ちょっといじってみる</strong></li>
+先程開いたコンソールにログインプロンプトが表示されたらrootでログインをしてみましょう。パスワードはなしです。ログインができたら、いろいろいじってみましょう。でもまだネットワークに繋がりません。ネットワークに繋がらないとなにもする気がおきない…。<br /><br />
+
+<li><strong>ネットワーク設定</strong></li>
+ということでネットワークの設定をしましょう。とりあえず一番簡単だと思われる設定だと思ったTAPを使った設定について説明します。
+<br /><br />
+「コントロールパネル」→「ネットワーク接続」を開きます。インストールされたTAP(仮想的なネットワーク接続なのかな？)の名前が「TAP」以外であれば「TAP」としておきます。その後、「TAP」のプロパティを開いて、「全般」→「この接続は次の項目を使用します」→「インターネットプロトコル(TCP/IP)」を開き、下図のように固定IPを設定しましょう。今回は、IPアドレスは仮に192.168.0.1のプライベートアドレスにします。サブネットマスクは、255.255.255.0に、デフォルトゲートウェイは空で。<br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/tapproperties.jpg"><img alt="tapproperties.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/tapproperties-thumb.jpg" width="120" height="76" /></a><br />
+
+次に現在使用しているネットワーク接続のプロパティを開き、「詳細タブ」→「インターネット接続の共有」で下図のようにチェックを入れてホームネットワーク接続に、「TAP」を選択してOKを押します。<br />
+
+<a href="http://clouder.jp/yoshiki/mt/archives/images/networkproperties.jpg"><img alt="networkproperties.jpg" src="http://clouder.jp/yoshiki/mt/archives/images/networkproperties-thumb.jpg" width="120" height="116" /></a><br />
+
+次にcoLinux側の設定です。先程ログインしたウィンドウにて、/etc/network/intefacesを下記のように編集します。<br />
+<font color="#F00">追記：最初はviが普通のパスのところに入ってないのでどう編集したらいいのか考えたのですが、探したら/etc/alternatives/viここにありましたので、これを使って編集しましょう。</font>
+<pre class="code">auto lo eth0
+iface lo inet loopback
+iface eth0 inet static
+   address 192.168.0.100
+   gateway 192.168.0.1
+   netmask 255.255.255.0</pre>
+
+addressは先程の「TAP」に設定したプライベートIPの最後のところを適当に、gatewayは先程の「TAP」に設定したIPを、netmaskは255.255.255.0に設定します。
+<br /><br />
+次に /etc/resolv.conf を下記のように編集します。
+
+<pre class="code">nameserver 192.168.0.1</pre>
+
+編集が終ったら、下記コマンドでネットワークを再起動します。
+
+<pre class="code">&#37; /etc/init.d/networking restart</pre>(※「&#37;」はプロンプトです。)<br /><br />
+
+これで、ネットワークに接続できるようになると思います。
+<br /><br />
+もし、すでに家などで192.168.0.*のネットワークを使用している場合はちょっとやっかいで、それとぶつからないように「TAP」のIPアドレスを192.168.1.1に設定して、インターネット接続の共有を有効にしたとたん、どうもWindowsがわるさをして、「TAP」のIPアドレスを自動で192.168.0.1に戻すので、その場合には共有をしてからもう一度192.168.1.1に直すという手順を踏まなければなりません。めんどくさ…。
+<br /><br />
+この他にもいくつかネットワークの設定方法があるのですが、それはすでに他の方が書かれたすばらしい説明ページをがありますので、そちらをご参照ください。<br /><br />
+
+<li><strong>追加で便利だった設定</strong></li>
+<ul>
+<li><strong>coLinuxの起動をサービスに登録</strong></li>
+これは、毎回マシンを起動する毎にcoLinuxを起動するのが面倒な人にはもってこい。やりかたは簡単で、前述のcoLinuxの起動方法にオプションを付けてやるだけでWindowsのサービスに登録されます。
+<br /><br />
+登録
+<pre class="code">C:\Program Files\coLinux>colinux-daemon.exe -c default.colinux.xml --install-service</pre>
+削除
+<pre class="code">C:\Program Files\coLinux>colinux-daemon.exe -c default.colinux.xml --remove-service</pre>
+
+<li><strong>ネットワーク設定をもうちょっとやる</strong></li>
+自分のマシンは、会社では有線、家では無線を使っているノートなので場所が移動する毎に「ワイヤレスネットワーク接続」か「ローカルエリア接続」で「インターネット接続の共有」を設定するのがめんどくさいかったのです。こういう人他にもいると思うのですが、いろいろ調べたところNAT接続でcoLinuxをネットに繋ぐ方法というのがあり、それを設定しておけば毎回「インターネット接続の共有」を設定しなくてもよいという素晴しい設定です。自分は下記の方法でやりました。(Windows XP SP2前提)
+<br /><br />
+netshというコマンドを使って設定をします。下記のバッチファイルを実行して「ワイヤレスネットワーク接続」と「ローカルエリア接続」の両方どちらで接続しても、WindowsマシンがNATすることによってcoLinuxがネットに繋げるようになります。
+
+<pre class="code">@echo off
+
+echo NAT設定をインストール中
+netsh routing ip nat uninstall
+netsh routing ip nat install
+
+echo ルーティングを設定中
+netsh routing ip nat add interface "ワイヤレス ネットワーク接続" full
+netsh routing ip nat add interface "ローカル エリア接続" full
+netsh routing ip nat add interface "TAP" private
+
+echo dnsproxyをインストール中
+netsh routing ip dnsproxy install</pre>
+
+多分マシンによっては、「ワイヤレスネットワーク接続」と「ローカルエリア接続」の部分が違うかもしれませんし、数がもっと多いかもしれませんが、Windowsマシンが外へ繋げる接続のものをここに列挙しておけばよいようです。あとは、「コントロールパネル」→「管理ツール」→「サービス」で「Windows Firewall/Internet Connection Sharing (ICS)」を無効にしておきましょう。
+<br /><br />
+そして、上記のバッチをDOSで実行するだけで次回からは有線とワイヤレスどちらで接続してもすぐにネットワークに接続することができるようです。
+<br /><br />
+この方法は、colinuxのwikiページに載っていたものです。<br />
+<a href="http://wiki.colinux.org/cgi-bin/StepByStepInXP?highlight=&#37;28StepByStepInXP&#37;29">http://wiki.colinux.org/cgi-bin/StepByStepInXP?highlight=&#37;28StepByStepInXP&#37;29</a>
+</ul><br /><br />
+<li><strong>所感</strong></li>
+とりあえず、apacheとかmysqlとかいろいろ普通にインストールして使えるし、Windowsからターミナルで接続したら普通にlinuxとして使えるしで、ほぼ1台のマシンで2つのOSを使えるすんばらしいものだと思います。ただネットワークの設定にはかなりてこずりますので、覚悟が必要かも…。ちょっとlinuxを知ってる人だったら、ちょっとした移動のときとかでも開発はできるし便利なんじゃないかと思います。<br />
+<ol>

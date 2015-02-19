@@ -1,0 +1,24 @@
+---
+layout: post
+title: MTBanASCII修正
+mt_id: 266
+date: 2005-01-27 01:23:23.000000000 +09:00
+author: clouder
+category: MovableType
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/000264.html" target="_blank">前のエントリで書いた</a>MTBanASCIIの文字コードの判定ですが、
+<a href="http://blog.bulknews.net/mt/archives/001508.html" target="_blank">本家の方がバージョンアップした</a>ので、そちらを使った方がよいと思われます。
+
+いたずらをしていたのは例の如くutf8フラグだったみたい。
+
+自分の認識では、もともとの判定は[\x00-\xff]で判定していたのだが、
+内部の文字コードがutf8フラグがONにならない文字コードを使っていたりすると、
+2バイト文字であってもそれを1バイトずつ判定してしまうためにASCIIと
+判定してしまっていた。
+
+なのでutf8フラグをONにすることで、perlでの判定する際に2バイト文字を判定単位の1つ
+として\xffff(←例えばの話ね)という風に判定することで、ASCIIでないと判定するように
+したのだと思います。
+
+たぶんこういうことだと思います。
+ 

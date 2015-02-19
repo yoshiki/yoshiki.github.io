@@ -1,0 +1,51 @@
+---
+layout: post
+title: cvsサーバのハマリ
+mt_id: 177
+date: 2004-05-10 17:56:11.000000000 +09:00
+author: clouder
+category: Unix
+---
+サーバを立ち上げて、checkoutするぞ！とやってみたら、
+
+<blockquote>
+cvs server: cannot open /root/.cvsignore: Permission denied<br>
+cvs [server aborted]: can't chdir(/root): Permission denied
+</blockquote>
+
+こんなエラーが出るときがある。
+これを回避するには、cvsを立ち上げているソフト(inetd とか daemontools)の設定の cvs のデーモンの起動オプションで -f を付ける。
+
+cvs -f --allow-root=/usr/cvsroot pserver
+
+こんな感じ。 
+ちなみに daemontools で、cvsのpserverを立ち上げるには、/service/cvsd って掘って、
+run と tcprules のファイル tcp.cvsd.cdb を作ればよい。
+<blockquote>
+&#37; cat /service/cvsd/run
+#!/bin/sh
+
+PATH=/usr/local/bin:/usr/bin:/bin
+export PATH
+
+sleep 10
+
+_rule=/service/cvsd/tcp.cvsd.cdb
+
+exec env - PATH=$PATH ?
+tcpserver -HRDl0 -v -x $_rule 0 2401 ?
+cvs --allow-root=/usr/local/share/CVS pserver
+
+&#37; cat tcp.cvsd
+:allow,RELAYCLIENT=""
+
+</blockquote>
+
+アクセス制御したけりゃ、tcp.cvsd に適当に書いて、cdb を再度生成。
+
+あとは、CVSのリポジトリを作って、そこを初期化したあとデーモンを立ち上げればオッケイ。
+
+<blockquote>
+# mkdir /usr/local/share/CVS<br>
+# cvs init -d /usr/local/share/CVS
+</blockquote>

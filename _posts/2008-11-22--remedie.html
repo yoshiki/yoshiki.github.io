@@ -1,0 +1,69 @@
+---
+layout: post
+title: メディアセンターアプリ remedie をインストールしてみた
+mt_id: 1081
+date: 2008-11-22 01:05:04.000000000 +09:00
+author: clouder
+category: Perl
+---
+<blockquote class="quote"><a href="http://code.google.com/p/remedie/">http://code.google.com/p/remedie/</a><br /><br />Remedie is a perl based media center application with pluggable architecture. You can subscribe to videocast feeds, watch local folder with media files and keep track of your favorite video sites like YouTube, Nico Nico Douga or Hulu. </blockquote><br />
+
+miyagawaさんを中心に<a href="http://code.google.com/p/remedie/">remedie</a>というアプリの開発が進められているらしい。<br /><br />
+
+Google Codeのremedieのページを見ると<br />
+「Perlベースのプラガブルなアーキテクチャを持ったメディアセンターアプリ」<br />
+と書いてあって動作している画像もあり、すでに動作させることもできるみたい。<br /><br /><br />
+
+ということでさっそく使ってみた。<br /><br />
+
+といっても、今のところパッケージが用意されてないのでチェックアウトして動かすだけです。<br /><br />
+
+<pre class="command">&#37; svn checkout http://remedie.googlecode.com/svn/trunk/ remedie
+&#37; cd remedie</pre>
+
+で、Makefile.PLの中のrequiresに指定されてるモジュールをcpanシェルで手動インストール。<br /><br />
+
+次にデータベースを作るのですがSQLiteなのでMySQLなどは必要なし、<br />
+下のようにするだけで
+$HOME/.remedie/remedie.dbにSQLiteのファイルが作成されます。<br /><br />
+
+<pre class="command">&#37; perl -Ilib -MRemedie::DB::Schema -e 'Remedie::DB::Schema->install'</pre>
+
+ちなみにこの辺はすべてremedie/HACKINGに書いてあります。<br /><br /><br />
+
+
+で、あとは下のように起動するだけ。<br /><br />
+
+<pre class="command">&#37; perl -Ilib ./bin/remedie-server.pl
+HTTP::Server::Simple: You can connect to your server at http://localhost:10010/</pre>
+
+<br /><br />
+http://localhost:10010/にアクセスしろって書いてあるのでブラウザでアクセスしてみると<br /><br />
+
+<form mt:asset-id="3" class="mt-enclosure mt-enclosure-image" style="display: inline;"><img alt="remedieの起動画面" src="http://blog.clouder.jp/archives/images/remedie01.jpg" width="320" height="162" class="mt-image-none, photo" style="" /></form><br />
+
+こんな感じで、まだなにも表示されていません。<br /><br /><br />
+
+
+とりあえず画面右上の「New Channel」をクリックすると、<br />
+RSSを入れるフォームがポップアップ。<br /><br />
+
+てきとうに http://jp.youtube.com/rssls とかにあるRSSを入れると<br /><br />
+
+<form mt:asset-id="4" class="mt-enclosure mt-enclosure-image" style="display: inline;"><img alt="remedieの動画リスト画面" src="http://blog.clouder.jp/archives/images/remedie02.jpg" width="320" height="170" class="mt-image-none, photo" style="" /></form><br />
+
+おぉ、なんだか動画のリストが！<br /><br /><br />
+
+そんで、てきとうに動画をクリックすると<br /><br />
+
+<form mt:asset-id="5" class="mt-enclosure mt-enclosure-image" style="display: inline;"><img alt="remedieの動画再生画面。" src="http://blog.clouder.jp/archives/images/remedie03.jpg" width="320" height="170" class="mt-image-none, photo" style="" /></form><br />
+
+その場で再生が始まった。<br /><br /><br />
+
+なんだか今後期待できるプロジェクトですね。<br />
+自宅のサーバに入れてテレビで見れると最高かも。<br /><br />
+
+ちょっと気になったのはMacBook Airで起動して小一時間起動しっぱなしにしたら<br />
+けっこうCPUを使ってしまって、ファンがものすごい音をたててました。<br />
+MacBook Airのファンはバグがあると言われているのでそのせいかもしれないけど。<br /><br />
+ 

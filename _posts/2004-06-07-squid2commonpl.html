@@ -1,0 +1,17 @@
+---
+layout: post
+title: squid2common.pl
+mt_id: 187
+date: 2004-06-07 19:48:20.000000000 +09:00
+author: clouder
+category: Unix
+---
+<blockquote class="quote"><a title="pwebstats- A Perl Web Statistics Generator
+ " href="http://martin.gleeson.com/pwebstats/" target="_blank">pwebstats- A Perl Web Statistics Generator
+ </a>
+
+pwebstats will analyse a web server log in Common  Log Format, or proxy server log, producing a variety of statistics.  The output is a series of HTML pages and graphs.</blockquote>
+squid のログを common log format にしてないでログを取ってしまったときに、common log format に変換してくれるツールが、このpwebstatsのパッケージの中にあるsquid2common.plというスクリプト。perl scriptで、単体で使えるので、もしよかったらどうぞ。
+
+でもこのスクリプトはおまけなのかわからないけど、オプション設定が一つもないから使い勝手は微妙なところです。
+逆に言うと改造のしがいはあるけどね。とりあえず使ってみて欲しいなと思った機能は、hostname の lookup 機能を on/off のオプションだな。 

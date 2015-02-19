@@ -1,0 +1,59 @@
+---
+layout: post
+title: autoinsertで対話形式でテンプレートを作る
+mt_id: 586
+date: 2005-11-07 14:24:43.000000000 +09:00
+author: clouder
+category: Emacs
+---
+<a href="http://d.hatena.ne.jp/ha-tan/">趣味的にっきさん</a>の<a href="http://d.hatena.ne.jp/ha-tan/20051102/1130993895">「Emacsでファイルを新規作成するときにテンプレートを挿入したい」</a>というエントリでファイル作成時に任意のファイルを挿入する方法が書かれていますが、自分は下記のように対話形式でその時々で入れたいものを入れられるようにしています。<br />
+これの利点はプライベートと仕事でメールアドレスやコピーライトが違ったりするときにその場でテンプレートの各部分を変更して挿入できる点だと思います。<br /><br />
+
+例としてPerlの.pm、.pl、.cgiという拡張子のファイルを作成する際のコードを下記に書いておきます。このコードの各部分を適当に編集すればそのまま使えるはずです。<br /><br />
+
+これを.emacsに設定しておけば、ファイルを作成する際に「Your e-mail: 」「Copyright: 」というのプロンプトがミニバッファーに出て入力待ちになるので、そこで入力したものがテンプレートに挿入されます。なにも入力をしないでリターンをすればデフォルトで設定されているものが挿入されるので、デフォルトのものはよく使うメールアドレスとコピーライトを設定しておけばよいでしょう。<br /><br />
+
+elispは得意ではないので、もっと効率よい方法もあると思いますので、その辺は適宜変更して下さい。<br /><br />
+
+<pre class="code">;; auto-insert
+(require 'autoinsert)
+(add-hook 'find-file-not-found-hooks 'auto-insert)
+(add-hook 'find-file-hooks 'auto-insert)
+(setq auto-insert-alist
+      (append
+       '(
+         (("\\.pm$" . "Perl Module Header")
+          "Your e-mail: "
+          "package " _ ";
+# $Id$
+#
+# Your Name <" str | (setq insert "foo@example.com") ">
+# " (read-string "Copyright: ") | (setq insert "Example Co.,Ltd.") "
+#
+
+use strict;
+
+1;")
+         (("\\.pl$" . "Perl Script Header")
+          "Your e-mail: "
+          "#!/usr/local/bin/perl
+# $Id$
+#
+# Your Name <" str | (setq insert "foo@example.com") ">
+# " (read-string "Copyright: ") | (setq insert "Example Co.,Ltd.") "
+#
+
+use strict;
+" _ )
+         (("\\.cgi$" . "CGI Script Header")
+          "Your e-mail: "
+          "#!/usr/local/bin/perl
+# $Id$
+#
+# Your Name <" str | (setq insert "foo@example.com") ">
+# " (read-string "Copyright: ") | (setq insert "Example Co.,Ltd.") "
+#
+
+use strict;
+" _ ))
+       auto-insert-alist))</pre> 

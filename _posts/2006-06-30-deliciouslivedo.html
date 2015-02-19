@@ -1,0 +1,183 @@
+---
+layout: post
+title: del.icio.usからlivedoor Clipにデータを移行するためのモジュール
+mt_id: 688
+date: 2006-06-30 14:19:35.000000000 +09:00
+author: clouder
+category: Webservice
+---
+表題のモジュールを書きました。<br />
+うそ、パクりました。<a href="http://blog.livedoor.jp/nipotan/archives/50533803.html">にぽたん研究所</a>から。<br /><br />
+
+先に使い方から説明すると、まず「http://api.del.icio.us/v1/posts/all?」ここにアクセスすると、自分が今までにdel.icio.usへポストしたブックマークをすべて取得できるので、それを取得しておきます。ベーシック認証がありますが、それは自分のdel.icio.usのアカウントを入力してください。<br /><br />
+
+次に下記のスクリプトを用意して、先程del.icio.usから取得したブックマークのデータ(all.xmlというファイル名にしておいてください)と同じディレクトリに置いたら、あとはスクリプトを実行するだけです。もちろんあとで紹介するWWW::SyncSBS::D2Lも用意する必要があります。
+
+<pre class="code">#!/usr/local/bin/perl
+
+use strict;
+use WWW::SyncSBS::D2L;
+
+my $d2l = WWW::SyncSBS::D2L->new;
+$d2l->livedoor_id('your_ld_id');
+$d2l->livedoor_pw('your_ld_pw');
+$d2l->sync;</pre>
+
+ 
+WWW::SyncSBS::D2Lの本体は↓です。
+
+<pre class="code">package WWW::SyncSBS::D2L;
+
+use strict;
+use Carp;
+use HTML::Entities ();
+use WWW::Mechanize;
+use URI;
+use XML::Simple;
+use base qw(Class::Accessor::Fast);
+use Encode;
+
+__PACKAGE__->mk_accessors(qw(mech livedoor_id livedoor_pw debug));
+
+sub new {
+    my($class, $args) = @_;
+    my $self = bless {
+        debug => 0,
+    }, $class;
+    if ($args && ref($args) eq 'HASH') {
+        for my $method (keys &#37;$args) {
+            if ($class->can($method)) {
+                $class->$method($args->{$method});
+            }
+        }
+    }
+    return $self->_init;
+}
+
+sub sync {
+    my $self = shift;
+    $self->login_livedoor_clip unless $self->{_logged_in};
+    my $posted = $self->parse_delicious_bookmark;
+    $self->clip_to_livedoor($posted);
+}
+
+sub login_livedoor_clip {
+    my $self = shift;
+    unless ($self->livedoor_id && $self->livedoor_pw) {
+        croak('set your livedoor_id and livedoor_pw before login.');
+    }
+    unless ($self->_has_clip_account) {
+        croak('register to livedoor clip before using this module.');
+    }
+    my $res = $self->mech->get('http://clip.livedoor.com/register/');
+    $self->mech->submit_form(
+        form_name => 'loginForm',
+        fields => {
+            livedoor_id => $self->livedoor_id,
+            password    => $self->livedoor_pw,
+        },
+    );
+    # XXX login checking (WWW::Mechanize->uri() doesn't work correct).
+    $self->mech->get('http://clip.livedoor.com/register/');
+    $self->{_logged_in} =
+        $self->mech->uri =~ m{^http://clip\.livedoor\.com/} ? 1 : 0;
+    unless ($self->{_logged_in}) {
+        croak("failed to login to livedoor clip.");
+    }
+}
+
+sub _has_clip_account {
+    my $self = shift;
+    my $myclip_url =
+        sprintf('http://clip.livedoor.com/clips/&#37;s', $self->livedoor_id);
+    my $res = $self->mech->get($myclip_url);
+    return $res->is_success ? 1 : 0;
+}
+
+sub _init {
+    my $self = shift;
+    unless ($self->mech) {
+        my $mech = WWW::Mechanize->new;
+        $mech->agent_alias('Windows IE 6');
+        $self->mech($mech);
+    }
+    if ($self->livedoor_id && $self->livedoor_pw) {
+        $self->mech->login_livedoor_clip;
+    }
+    return $self;
+}
+
+sub parse_delicious_bookmark {
+    my $self = shift;
+    my $feed = $self->_get_content();
+    my @posted = $self->_parse_feed($feed);
+    return \@posted;
+}
+
+# XXX parse using regexp
+sub _parse_feed {
+    my($self, $feed) = @_;
+    my @posted_data = ();
+    my $xml = XMLin($feed);
+    for my $post (@{$xml->{post}}) {
+        my $title    = $post->{description};
+        my $url      = $post->{href};
+        my $summary  = $post->{extended};
+        my @tags = $post->{tag} eq 'system:unfiled' ? () : split(/ /, encode('utf8', $post->{tag}));
+        my $data = {
+            title   => encode('utf8', $title)   || '',
+            url     => encode('utf8', $url)     || '',
+            summary => encode('utf8', $summary) || '',
+            tags    => \@tags,
+        };
+        push @posted_data, $data;
+    }
+    return @posted_data;
+}
+
+sub get_bookmark_count {
+    my($self, $feed) = @_;
+    my $count;
+    if ($feed =~ m{<feed version=}) {
+        ($count) = $feed =~
+            m{<openSearch:totalResults>(\d+)</openSearch:totalResults>};
+        unless ($count) {
+            $count = scalar($feed =~ m{<entry>(.+?)</entry>}sg);
+        }
+    }
+    return ($count || 0);
+}
+
+sub _get_content {
+    open(FH, "all.xml");
+    my $f = join('', <FH>);
+    close(FH);
+    return $f;
+}
+
+sub clip_to_livedoor {
+    my($self, $data) = @_;
+    for my $posted (@$data) {
+        my $uri = URI->new('http://clip.livedoor.com/clip/add');
+        $uri->query_form(
+            link  => $posted->{url},
+            jump  => 'page',
+            tags  => join(' ', @{$posted->{tags}}),
+            title => $posted->{title},
+            notes => $posted->{summary},
+        );
+        my $add_url = $uri->as_string;
+        my $res = eval { $self->mech->get($add_url) };
+        if ($res && $res->is_success) {
+            eval { $self->mech->submit_form(form_name => 'clip') };
+            if ($@) {
+                carp("can't submit: " . $posted->{url});
+            }
+        }
+        else {
+            carp("fail to clip $add_url HTTP Status: " . $res->code);
+        }
+    }
+}
+
+1;</pre>

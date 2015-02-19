@@ -1,0 +1,14 @@
+---
+layout: post
+title: Plagger::Plugin::Filter::FindEnclosures
+mt_id: 1001
+date: 2007-10-03 20:23:19.000000000 +09:00
+author: clouder
+category: Perl
+---
+前の記事でPlaggerを使ったustreamのflvを取得するときにPlagger::Plugin::Filter::FindEnclosuresというのを使っていました。今回のことでこのプラグインを知ったのは内緒ですが、なにをすることができるプラグインなのか調べてみました。
+
+どうやら、このプラグインはassets/plugins/Filter-FindEnclosuresにあるプログラム(*.pl)をロードして、そのプログラム内の対象のURLがマッチするかどうかをhandle()関数で判定して、マッチしたプログラムがそのフィードの中の個別のエントリに対してfind()という関数を実行してenclosureを作るという処理をするもののようです。
+
+ちなみに、assets/plugins/Filter-FindEnclosuresにはプログラム(*.pl)以外にもyamlを定義できるみたい。
+ 

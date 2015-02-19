@@ -1,0 +1,12 @@
+---
+layout: post
+title: Zero Sized Reply
+mt_id: 347
+date: 2005-03-08 15:22:24.000000000 +09:00
+author: clouder
+category: Software
+---
+<blockquote><a title="Squid FAQ" href="http://squid.robata.org/faq_11.html" target="_blank">Squid FAQ</a>
+
+Squidがソースサーバに接続するときに、これが発生することがあります。　推理すると、Squidがデータを読もうとしたときに接続を絶たれてしまうのだと思います。　様々な要因によって、Squidはリトライを継続することができません。　　もし、”Zero Sized Reply'' となったなら、Squidが再接続することができなかったか、リトライの試みを失敗したことを意味します。</blockquote>
+squidを使っていて、"Zero Sized Reply"なんてエラーをはいたらまず、cookie関係を疑ってみましょう。今回自分が設定でまずってたのはcookie domainでした。あやうくハマるところだった…。 

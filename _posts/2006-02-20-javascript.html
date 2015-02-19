@@ -1,0 +1,72 @@
+---
+layout: post
+title: JavaScriptで遅延ロードをする方法についてのおさらい
+mt_id: 631
+date: 2006-02-20 15:20:06.000000000 +09:00
+author: clouder
+category: Language
+---
+先日リリースした <a href="http://extractor.47objects.com/">Extractor</a> の Bookmarklet(コメントをチェック(浮き出る版))のデザインや仕様を変えました。主な変更点としては、「マウスでドラッグできる機能」が付いたのとデザインをがらっと変えました。<br /><br />
+
+その際にma.laさんの<a href="http://la.ma.la/blog/">最速インターフェース研究会</a>で紹介されていたJavaScriptでの遅延ロードのテクニックを拝借させて頂きましたので、覚え書きのつもりで今回どのようにしてそれを使ったのかについて書いておきます。<br /><br /><br />
+
+
+まず、先に紹介した Extractor の Bookmarklet がなにをやっているかというと、現在見ているページに script タグのエレメントを生成して、他のドメインのJavaScriptのソースを読み込んでいます。Bookmarklet を分解すると下記になっています。具体的には createElement で script タグを生成して、各プロパティ(language、type、charset、src、id)を設定しています。
+(ちなみに Extractor で使っている JavaScript の文字コードは UTF-8 なのですが、読み込む際に表示していたページがShift_JIS や euc-jp であっても、これを行なう際に charset を指定してやれば、どうやらブラウザがうまいこと表示してくれるようです！これは知らなかった。)<br /><br />
+
+※説明しやすいようにURLなどは適宜変更しています。
+<pre class="code">
+javascript:
+prefFile='';
+// 現在表示中のページのURLを取得
+u=encodeURIComponent(location.href); 
+// scriptタグのエレメントを生成
+void(z=document.body.appendChild(document.createElement('script')));
+// language、type、charsetなどを設定
+void(z.language='javascript');
+void(z.type='text/javascript');
+void(z.charset='utf-8');
+// srcで外部のJavaScriptを指定する
+void(z.src='http://extractor.47objects.com/hover.js?url='+u);
+// scriptタグのidを設定
+void(z.id='extractor');
+</pre>
+
+ここまではなんとか思い付いたのですが、この読み込んだ hover.js という JavaScript 内で prototype.js を読み込もうとして、また script タグのエレメントを createElement で生成してやったのですが、うまく読み込んでくれませんでした。<br /><br />
+
+なんでだろうと調べてみたら、どうやら prototype.js は hover.js のスクリプトを読み込んでから読み込みが開始されるために、prototype.js 内のクラスや関数を使用するためには、prototype.js の読み込みを待ってから hover.js を実行させる必要がありました。<br /><br />
+
+そこで最速インターフェース研究会の登場です。最速インターフェース研究会の<a href="http://la.ma.la/blog/diary_200504140039.htm">「[Ajax] JSAN構想とリモートデータの取得とUserJavaScript」</a>の記事にある<strong>wait</strong>という関数を使うことにより、prototype.js で定義されている関数を読み込み済かどうかを確認後に hover.js を実行するようにしました。<br /><br />
+
+具体的なやりかたとしては、下記のように行いました。<br /><br />
+
+<pre class="code">
+// 最速にある wait 関数
+function wait(a,func){
+	var check = 0;
+	try{
+		eval("check = " + a);
+	}catch(e){
+	}
+	if(check){
+		func()
+	}else{
+		var f = function(){wait(a,func)};
+		setTimeout(f,100);
+	}
+}
+
+// まずは、prototype.jsの読み込みの準備
+var s document.appendChild(d.createElement("script"));
+s.type = "text/javascript";
+s.src = "http://example.com/js/prototype.js";
+
+// prototype.jsで使いたい関数が読み込まれてから、その関数を使っての処理
+wait('Class.create', function() {
+	// 実行したい処理
+	alert("Class.create loaded!");
+	var newclass = new Class.create();
+});
+</pre>
+
+このようにすることにより、遅延ロードを行なうことが可能になるようです。このテクニックを使えば、色々な JavaScript のライブラリをリモートに置いたりして使うことが可能になるので便利ですよね。これを作っていてはじめて実感しました…。 

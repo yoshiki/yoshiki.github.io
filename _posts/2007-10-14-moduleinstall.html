@@ -1,0 +1,28 @@
+---
+layout: post
+title: Module::Installの話の続き
+mt_id: 1007
+date: 2007-10-14 00:50:25.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://clouder.jp/yoshiki/mt/archives/001006.html">「Module::Installを使ったプロジェクトのincディレクトリについて」</a>の続きです。
+
+<a href="http://extractor.47objects.com/url?url=http&#37;3A&#37;2F&#37;2Fclouder.jp&#37;2Fyoshiki&#37;2Fmt&#37;2Farchives&#37;2F001006.html">ブクマコメント</a>を見ると、「入れてない」or「入れないで欲しい」って意見がほとんどでした。<a href="http://blog.bulknews.net/mt/">miyagawaさん</a>は入れてないということですし、charsbarさんがコメントしてる<a href="http://plagger.org/trac/browser/trunk/plagger">Plagger</a>と<a href="http://dev.catalystframework.org/svnweb/Catalyst/browse/Catalyst-Runtime/5.80/trunk/">Catalyst</a>のリポジトリを見ると、たしかにincディレクトリがありませんでした。
+
+あとCatalystのリポジトリでは、incがないだけでなくMANIFESTもリポジトリに入れてないようです。たぶんリリースするときに make manifest && make dist してパッケージングしてるんだと思います。
+
+
+ということで、今後subversionでプロジェクトを管理するときには、
+
+<ul>
+<li>リポジトリにincは入れない。</li>
+<li>リリースするときには make manifest && make dist でパッケージング</li>
+</ul>
+
+ってやることにします。これからは「inc含めない派」だぜ。
+
+
+ちなみに、この一件でMANIFEST.SKIPがないのにmake manifestしたら、ちゃんと.svnやその他のいらないファイルがMANIFESTから除外されるのは、<a href="http://search.cpan.org/dist/ExtUtils-Manifest/">ExtUtils::Manifest</a>にMANIFEST.SKIPが含まれていてExtUtils::Manifestと一緒にインストールされているからだということを初めて知りました。(see perldoc -ml ExtUtils::MANIFEST.SKIP)
+
+ 

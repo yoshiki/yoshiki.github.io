@@ -1,0 +1,21 @@
+---
+layout: post
+title: Seleniumを試してみる
+mt_id: 422
+date: 2005-05-30 16:15:27.000000000 +09:00
+author: clouder
+category: Software
+---
+<blockquote><a title="Selenium" href="http://selenium.thoughtworks.com/index.html">Selenium</a>
+
+Selenium is a test tool for web applications. Selenium tests run directly in a browsers, just as real users do. And they run in Internet Explorer, Mozilla and Firefox on Windows, Linux and Macintosh. No other test tool covers such a wide array of platforms. </blockquote>巷でちょっと話題になっている(？)Seleniumを試してみました。率直な感想を書くとすれば、テストを書くのがめんどくさい…。テストはある形式にのっとってテーブルをずんずん書いていくとそれがテストになります。1行1アクション/テストな感じです。でもこのごにょごにょテーブルを書いたりする作業がめんどうだなと感じました。
+
+ただ、テストを1度書いてしまえば、その後はある程度テストに関して楽ができるし、慣れれば早く書けるようになりそう。あとは言語毎にドライバ(？)みたいなものがあって、それでさくっとテストケースが書けたりするみたい。たしかに元はテーブルなので、他の言語でそれを自動生成したりするには楽かもしれません。ちなみにまだPerlのものはないみたい。Catalystとかでサポートしてくれたりしないかな？作ってもいいけど、今は時間ない…。
+
+あとは使っていてちょっと気になったのは、当たり前ですがJavaScriptで動かすものですので、JavaScriptの知識が若干必要なのと、セキュリティ的な理由からテストをするアプリサーバと同じサーバ以外で走らせることができないということですね。
+
+これいじってて一番に思ったのは、プログラマ以外の人でもずんずん結合テストとかを書いていけるので、プログラマが楽できるかもということ(笑)
+
+ためしにこのブログのテストを書いてみました。基本的な動作テストしか行なってませんが、参考にどうぞ。
+<a href="http://clouder.jp/yoshiki/mt/selenium/TestRunner.html?test=tests/TestSuite-Clouder.html">Clouder Test using Selenium</a>
+ 

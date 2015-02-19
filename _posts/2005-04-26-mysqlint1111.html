@@ -1,0 +1,47 @@
+---
+layout: post
+title: mysqlのint(11)の11
+mt_id: 228
+date: 2005-04-26 18:56:01.000000000 +09:00
+author: clouder
+category: Unix
+---
+<blockquote>
+<a title="MySQL Manual | 6.2.1 数値型" href="http://dev.mysql.com/doc/mysql/ja/Numeric_types.html">MySQL Manual | 6.2.1 数値型</a><br />
+<br />
+MySQL には、INT(4) のように、型の基本キーワードに続いて整数値の表示幅をかっこ内に指定できるオプションがあります。このオプションの表示幅の指定は、カラムに指定された幅より小さい幅を持つ値で表示の左側を埋める目的で使用されますが、そのカラムに格納できる値の範囲が制限されたり、そのカラムに指定された幅を超える幅を持つ値の桁数が制限されたりすることはありません。オプションの拡張属性 ZEROFILL と組み合せて使用した場合、デフォルトのスペースに代わってゼロが埋め込まれます。</blockquote>けっこう勘違いしている人がいそうなのですが、mysqlの型でint(<strong>?</strong>)とか、<strong>?</strong>に数字を入れますが、この数字は上記の通りZEROFILLをした際にスペースに代わってゼロが埋め込まれる際の幅なのです。自分は勘違いというかあまりよくわかっていませんでした…。<br />
+ 
+つまり<br />
+<pre class="code">
+CREATE TABLE `test` (
+  `id` int(11) NOT NULL auto_increment,
+  `n1` int(10) unsigned zerofill default NULL,
+  `n2` int(5) unsigned zerofill default NULL,
+  `n3` int(10) unsigned default NULL,
+  `n4` int(5) unsigned default NULL,
+  PRIMARY KEY  (`id`)
+);
+</pre>
+こんなテーブルだとして、<br />
+<pre class="code">mysql&gt; INSERT INTO test (n1, n2, n3, n4) VALUES (1, 1, 1, 1);</pre>
+こんなクエリを発行すると<br />
+<pre class="code">
+mysql&gt; select * from test;
++----+------------+-------+------+------+
+| id | n1         | n2    | n3   | n4   |
++----+------------+-------+------+------+
+|  1 | 0000000001 | 00001 |    1 |    1 |
++----+------------+-------+------+------+
+</pre>
+こんな感じになります。なのでいくらint(4)とかint(11)とか数字を書いても、格納できる数の上下限は下記の表の通りとなり、4とか11はまったく関係ないです。<br />
+<br />
+<table>
+<tr><td>型</td><td>バイト</td><td>最小値</td><td>最大値</td></tr>
+<tr><td>TINYINT</td><td>1</td><td>-128</td><td>127</td></tr>
+<tr><td>SMALLINT</td><td>2</td><td>-32768</td><td>32767</td></tr>
+<tr><td>MEDIUMINT</td><td>3</td><td>-8388608</td><td>8388607</td></tr>
+<tr><td>INT</td><td>4</td><td>-2147483648</td><td>2147483647</td></tr>
+<tr><td>BIGINT</td><td>8</td><td>-9223372036854775808</td><td>9223372036854775807</td></tr>
+</table>
+
+え？こんな勘違いしている人いないって？

@@ -1,0 +1,63 @@
+---
+layout: post
+title: ! '[再]colinuxのイメージを拡張する方法'
+mt_id: 973
+date: 2007-07-06 17:18:59.000000000 +09:00
+author: clouder
+category: Unix
+---
+colinuxのパーティションが99&#37;になってしまいました。<br /><br />
+
+以前<a href="http://clouder.jp/yoshiki/mt/archives/000406.html">「colinuxのイメージを拡張とswapを使う方法」</a>というエントリを書いたのを思い出し見てみたのですが、自分で書いておきながらすごくめんどくさそうだったので、他に方法ないのか調べてみました。<br /><br />
+
+そしたら<a href="http://colinux.wikia.com/wiki/ExpandingRoot">公式のwikiにイメージ拡張の方法がまとめてあった</a>ので、ここに書いてある方法でイメージ拡張したログを残しておきます。<br /><br />
+
+ちなみに、このwikiのページには数種類の方法が書いてあるのですが、この中でも今回は「The most reliable way to enlarge the root partition」という方法をやってみました。
+
+<ol>
+<li>まずはcolinuxが起動してたらshutdown</li>
+<pre class="command"># shutdown now -h</pre>
+<li>次に新しいイメージをWindowsのコマンドプロンプトで作成する</li>
+<pre class="command"># fsutil file createnew colinux_new.img 8589934592</pre>
+8589934592=8Gのことです。4Gだったらこの半分ね。
+<li>colinuxの設定ファイルで手順2で作成したイメージファイルを新しいパーティションとして登録する</li>
+昔のXMLの設定ファイルだったら下記のような感じ。
+<pre class="code">&lt;block_device index="0" path="\DosDevices\c:\path\to\colinux_old.img" enabled="true" /&gt;
+&lt;block_device index="1" path="\DosDevices\c:\path\to\swap_device.256mb.img" enabled="true" /&gt;
+&lt;block_device index="2" path="\DosDevices\c:\path\to\colinux_new.img" enabled="true" /&gt;</pre>
+「index="2"」のところは、今自分が使ってないパーティション番号にしなければなりません。<br /><br />
+最近のcolinuxの設定だったらば下記のような感じ。
+<pre class="code">cobd2="c:\path\to\colinux_new.img"</pre>
+cobd2の「2」は、XMLの場合と同様に今自分が使ってないパーティション番号にしてください。<br /><br />
+ちなみに、今回僕は上記のように 0 が既存のパーティション、1 がswapになっていたので、新しいイメージは 2 にしました。
+<li>colinux起動して、データのコピー等を行なう</li>
+ここで元のパーティションでcolinuxを起動して、colinux上で以下のコマンドを順に実行していきます。<br /><br />
+まずは今まで使ってたパーティションをe2fsckする。ちなみに自分はこれはやりませんでした。というか、当たり前だけどマウントしてるパーティションなのでwarningがでますので注意してください。
+<pre class="command"># e2fsck /dev/cobd0</pre>
+次に新しいパーティションにddコマンドを使ってデータをコピーします。ifで指定したパーティションのデータをofで指定したパーティションにそのままコピーします。このコピーは元のパーティションのデータ量により若干時間がかかります。(3GBのパーティションで30分ぐらいかかりました)
+<pre class="command"># dd if=/dev/cobd0 of=/dev/cobd2</pre>
+次に新しい方のパーティションをe2fsckとresize2fs、そしてもう一度e2fsckします。
+<pre class="command"># e2fsck -f /dev/cobd2
+# resize2fs -p /dev/cobd2
+# e2fsck /dev/cobd2</pre>
+最後にshutdownです。
+<pre class="command"># shutdown now -h</pre>
+
+<li>新しいイメージファイルをメインパーティションに変えて起動</li>
+ここまできたらもう少しです。<br /><br />
+
+新しく作ったイメージファイルをメインパーティションとして使うようにcolinuxの設定を変更します。<br /><br />
+設定方法は、下記のように今まで index="0"(最近のcolinuxの場合は cobd0="") と設定していたところに colinux_new.img を指定して、先程指定していた 1 の部分を削除してやるだけです。
+
+<pre class="code">
+&lt;block_device index="0" path="\DosDevices\c:\path\to\colinux_new.img" enabled="true" /&gt;
+
+&lt;block_device index="1" path="\DosDevices\c:\path\to\swap_device.256mb.img" enabled="true" /&gt;</pre>
+
+そして、最後にcolinuxを起動させます。問題なくログインできれば成功です。
+</ul>
+
+自分は1時間ぐらいでこれらの作業は完了し、今のところ問題なく動いています。<br /><br />
+でもまだ数時間した使ってませんので、なにか不具合があったらまた報告したいと思います。<br /><br />
+
+と、ここまで書いたけど、めんどくささでは前のとそんなに変わらないような気もする…。 

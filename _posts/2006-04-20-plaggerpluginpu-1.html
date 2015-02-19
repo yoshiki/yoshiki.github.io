@@ -1,0 +1,44 @@
+---
+layout: post
+title: 昨日のPlagger::Plugin::Publish::OneFeedですが…
+mt_id: 671
+date: 2006-04-20 03:12:30.000000000 +09:00
+author: clouder
+category: Perl
+---
+あのモジュールでしたいことは、まさに「それPlaggerでやればいいんじゃね？」で実現できることでした。。。<br />
+＃みやがわさんにヒントもらいますた。thanx!<br /><br />
+
+やりたいこと(1つのファイルにフィードを吐き出す)は、Plagger の SmartFeed という機能を使って実現できます。<br />
+やり方は、まぁいろいろあるのですが、一番シンプルなのは下記。<br /><br />
+
+<pre class="code">  - module: SmartFeed::All
+
+  - module: Publish::Feed
+    rule:
+      expression: $args->{feed}->id eq 'smartfeed:all'
+    config:
+      format: Atom
+        dir: /home/yoshiki/public_html/feed
+        title: foo</pre>
+
+このように rule で id が smartfeed:all の記事をまとめて Publish すればいいわけです。なんでこれでできるかというと、SmartFeed::All プラグインをロードしておけば smartfeed 処理のプロセスの中で、すべてのエントリを1つの Plagger::Feed にまとめてくれて、そのフィードの id に smartfeed:all という名前を付けてくれます。で、最後の Publish するときに id が smartfeed:all のフィード(つまりすべてのエントリをまとめたフィード)のみを吐き出してくれるという仕組みです。<br /><br />
+
+その他にも下記のように Rule::FeedAttr とかで id が smartfeed:all のやつを Publish とかもできます。また、SmartFeed::All を使ってるのが前提ですが Rule::FeedType で type が smartfeed のやつって指定でもできなくはないです。<br /><br />
+
+<pre class="code">  - module: SmartFeed::All
+
+  - module: Publish::Feed
+    rule:
+      - module: FeedAttr
+         attrs:
+           name: id
+           value:
+              - smartfeed:all
+    config:
+      format: Atom
+        dir: /home/yoshiki/public_html/feed
+        title: foo</pre>
+
+今まであんま近寄らなかった SmartFeed という機能を改めて知ったある日の夜でした。。。<br />
+ 

@@ -1,0 +1,24 @@
+---
+layout: post
+title: ! 'Benchmark tests: style vs. className'
+mt_id: 480
+date: 2005-07-19 00:24:22.000000000 +09:00
+author: clouder
+category: Technique
+---
+<blockquote><a title="QuirksBlog: Benchmark tests: style vs. className" href="http://www.quirksmode.org/blog/archives/2005/07/benchmark_tests.html">QuirksBlog: Benchmark tests: style vs. className</a>
+
+I wanted to make sure that changing the className doesn't lead to performance problems. My new style vs. className benchmark test clearly shows that it doesn't. In fact, changing the className is faster than changing the style in all browsers but Safari.</blockquote>styleを使うのとclassNameを使うのではどっちが早いの？って実験をしているサイトを発見。
+どうやら、classNameで指定する方が早いらしいです(Safariを除く…)
+
+styleというのは、style="background-color:#00cc00; font-size: 120&#37;;"と指定するやつで、classNameってのは
+<pre class="code">.teststyle {
+	background-color: #00cc00;
+	font-size: 120&#37;;
+}</pre>
+ってやってアトリビュートでclass="teststyle"と指定するやつです。
+
+微妙な違いかもしれませんが、知っていて損はなさそうです。
+
+しかしSafariだけ結果が逆というのもまたアレですね…。SafariはKDE が開発した HTML 描画エンジン「KHTML」をベースにしているから、そのエンジンが他のエンジンと違う仕様なんだろうな。
+ 

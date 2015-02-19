@@ -1,0 +1,51 @@
+---
+layout: post
+title: YAPC::Asia 2007のぐっときたトコロ
+mt_id: 882
+date: 2007-04-10 02:34:15.000000000 +09:00
+author: clouder
+category: Perl
+---
+ちょっと時間が経ってしまいましたが、先日２日に渡ってYAPC::Asia 2007が催されました。
+自分も会場に２日間とも参加させて頂いたので感想を書こうと思います。
+
+全部のトークについて書くのは大変なので、自分がぐっときたワードについて書きます。
+ 
+<ul>
+<li>CLI = Command Line Interface</li>
+
+Yappoさんが話していた内容です。確かにSledgeにはそういったインターフェイスがない。実際仕事などではそれ用のクラスを作って、それをスクリプトから叩いてるんです。しかもそれがコピペだったりしてDRYじゃない！これを見たとき(||  ﾟДﾟ)ｶﾞｰﾝ!!となりました。そうだ、これはDRYじゃなくしなければと。
+ということで、他のフレームワークの実装をいろいろ見てみてちょっと考えてみようと思います。でも、実はSledge2.0ってCLIと親和性が高くなっているんじゃないかと思うので、ちょっとした修正で使えるようになりそう。
+
+<li>Gearman, TheSchwartz, djabberd, DRBD</li>
+
+今回のトークの中で一番気になっていたのが、これらのソフトウェアを紹介していた Sixapart & livejournal.comのトークです。とりあえず、今回のトークの中で気になったワードはGearman, TheSchwartz, djabberd, DRBDの4つです。以前見た資料にはなかったこの4つを今のlivejournalでは使われているらしいです。とりあえずそれぞれ公開されているのであとで使ってみようと思います。Gearmanl, djabberdは<a href="http://www.danga.com/">http://www.danga.com/</a>で、TheSchwartzは<a href="http://code.sixapart.com/trac/TheSchwartz">http://code.sixapart.com/trac/TheSchwartz</a>で、DRBDは<a href="http://www.wbc.co.jp/~drbd/">http://www.wbc.co.jp/~drbd/</a>で公開されています。
+
+<li>小さなデーモンで負荷分散</li>
+
+livejournalのトークを見て思ったのは、GearmanやTheSchwartzに代表される小さなデーモンを活用してmod_perlの負荷を分散させる方向に世の中進んでるのかなというところです。実際自分の仕事の中でもそんな方向の実装をしている案件がいくつかあります。あとでGearmanやTheSchwartzがどこまで使えるのかを試してみられたらいいなと思います。
+
+<li>名前をつけよう</li>
+
+今回トークをいくつか聞いていて、なんか小さなソフトウェアでも汎用的な名前で呼ばずに名前をつけよう！と思いました。なんかその方がかっこいいしモチベーション上るし、説明するときにもなんかスゲー感が出るという…ｗ
+GearmanとかTheSchwartzなどの説明を見ていてそう思いました。
+
+<li>memcachedのget_multiは便利で早い？</li>
+
+今まで get_multi って使ってなかったんだけど、なんか早いし便利そう！と思いました。使う場面を選びそうですが、使えるときは使っていこうと思います。ちなみに、Cache::Memcachedでのget_multi()は配列で返ってくるんですね。便利そう。
+
+<li>Moxy</li>
+
+kanさんが紹介していたPCで携帯のサイトをデバッグするためのプロキシです。携帯同業種として、気になる一品。一応うちでも形はちょっと違いますが、こんな感じのプロキシはあるのですがこの発想はなかったです。あとで使ってみてよさげなら導入しようかと思います。
+リポジトリはこちら→<a href="http://code.mobilefactory.jp/trac/browser/Moxy/">http://code.mobilefactory.jp/trac/browser/Moxy/</a>
+
+<li>Dan the suspender、Device::USB::MissileLaunchers</li>
+
+今回のYAPC::Asia 2007はこの2つのLTを抜きには語れません。これらのLTをやってくれた<a href="http://blog.livedoor.jp/nipotan/">nipotanさん</a>と<a href="http://blog.yappo.jp/">Yappoさん</a>の二人に敬意を表して、最前列で撮影したこの2つの動画を贈ります。
+</ul>
+
+Dan the suspender
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/L022IsDrTX8"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/L022IsDrTX8" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>
+
+Device::USB::MissileLaunchers
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/REI0v782r7E"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/REI0v782r7E" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>

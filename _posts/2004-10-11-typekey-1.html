@@ -1,0 +1,23 @@
+---
+layout: post
+title: TypeKeyでコメントスパム遮断
+mt_id: 213
+date: 2004-10-11 14:19:22.000000000 +09:00
+author: clouder
+category: MovableType
+---
+コメントスパムがあまりにも多いのでTypeKeyを使って完全に遮断してみた。
+これで、TypeKeyを持っていない人は完全にコメントできなくなってしまった…。
+苦肉の策とは言え、あまりいけてないような気もする。
+しばらくこれでやってコメントがまったく来なくなるようであれば、また復活させよう。
+
+ちなみに、最近MTのバージョンをいくつか変えているのだが、コメント通知のメールが来ないなーと思ったら、mt.cfgの設定がイケてなかみたい。
+
+Mail::Sendmailをインストールして、mt.cfgの
+<blockquote class="quote">MailTransfer smtp
+SMTPServer localhost
+</blockquote>
+こんな感じに設定したら生けた。/usr/sbin/sendmailはうまくいかなかったでつ。
+
+http://nlogn.ath.cx/archives/000053.html
+nlognさんの設定を参考にしました。 

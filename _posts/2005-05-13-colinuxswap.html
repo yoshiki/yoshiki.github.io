@@ -1,0 +1,118 @@
+---
+layout: post
+title: colinuxのイメージを拡張とswapを使う方法
+mt_id: 406
+date: 2005-05-13 19:02:04.000000000 +09:00
+author: clouder
+category: Unix
+---
+以前書いたエントリでcolinuxをインストールして使っていたのですが、デフォルトで使用するdebianのイメージは1GBしかなく、つまりcolinuxで使用するディスク容量が1GBということになります。<br />
+これだといろんな開発に必要なツールを入れたり、apacheとかmysqlを入れたらあっというまに90&#37;に達っしてしまったのでこりゃいかんとイメージを拡張することにした。でもwindows側のマシンの容量を圧迫するので、あまり大きくはできなかった…。とりあえず2GBにしてみました。<br />
+<br /> 
+まずはイメージの拡張から。大きな流れとしては<br />
+<ol>
+<li>DOSで新しい2GBのイメージの空イメージを作成</li>
+<li>colinuxでそれをフォーマットしてマウント</li>
+<li>元のデータを新しいイメージの方にコピー</li>
+<li>新しい方で起動</li>
+</ol>
+これだけです。
+<br /><br />
+では始めましょう。新しく使用するイメージファイルを作成します。これはwindows側でDOS窓でやります。下記は2GBの例です。
+
+<pre class="command">C:\＞ fsutil file createnew root_fs_new 2147483648</pre>
+
+これは一瞬で終ります。作成したイメージは以前Debianのイメージを置いたディレクトリに置いておきましょう。<br />
+次にそれをcolinuxで起動時に読み込めるようにdefault.colinux.xmlを下記のように編集しましょう。先程作成したroot_fs_newのためのblock_deviceをもう1つ追加しました。
+<br /><br />
+<pre class="code">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;colinux&gt;
+    &lt;block_device index=&quot;0&quot; path=&quot;\DosDevices\c:\Program　Files\coLinux\Debi
+an-3.0r2.ext3-mit-backports.1gb&quot;
+    enabled=&quot;true&quot; /&gt;
+
+    &lt;block_device index=&quot;1&quot; path=&quot;\DosDevices\c:\Program　Files\coLinux\root_fs_new&quot;
+    enabled=&quot;true&quot; /&gt;
+
+    &lt;bootparams&gt;root=/dev/cobd0&lt;/bootparams&gt;
+
+    &lt;initrd path=&quot;initrd.gz&quot; /&gt;
+
+    &lt;image path=&quot;vmlinux&quot; /&gt;
+
+    &lt;memory size=&quot;128&quot; /&gt;
+
+    &lt;network index=&quot;0&quot; name=&quot;TAP&quot; type=&quot;tap&quot; /&gt;
+&lt;/colinux&gt;
+</pre>
+<br />
+こちらで、colinuxを再起動します。起動できたらばrootになって下記のコマンドを実行してください。やっていることは、先程のイメージをext2でフォーマットしてからそれを/mnt2にマウントしています。index="1"と設定をしたのでroot_fs_newは/dev/cobd1になります。
+
+<pre class="command"># mkfs.ext2 /dev/cobd1
+# mkdir /mnt2
+# mount -t ext2 /dev/cobd1 /mnt2</pre>
+
+次にルートディレクトリに移動してから、今使っているイメージの内容全部を新しく作成してマウントしたディレクトリにコピーします。
+
+<pre class="command"># cd /
+# tar cpf - `ls -1 | grep -v proc | grep -v mnt2` | (cd /mnt2; tar xpf -)
+# mkdir /mnt2/proc
+</pre>
+
+これがちょっと時間かかります。完了したらdefault.colinux.xmlを元に戻して、以前Debianのイメージを指定していたところ(つまりindex="0"のところ)を新しく作成したroot_fs_newに変更して起動しなおしてください。これで起動すると容量が2GBになっているはず。
+<br /><br />
+さて、次はswapを使う方法です。流れとしては、イメージの拡張より簡単です。
+<br />
+<ol>
+<li>DOSで新しい128Mのイメージの空イメージを作成</li>
+<li>colinuxでswapとしてフォーマット</li>
+<li>/etc/fstabにswapを設定</li>
+<li>再起動</li>
+</ol>
+これだけです。
+<br /><br />
+まずは、先程のイメージの拡張と同じように、DOSでイメージの空イメージを作成。今回は128Mのswapを使うことにします。
+
+<pre class="command">C:\＞ fsutil file createnew swap_device 134217728</pre>
+
+次にdefault.colinux.xmlに上記で作成したswap_deviceを追加してcolinuxを起動します。
+<br />
+<pre class="code">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;colinux&gt;
+    &lt;block_device index=&quot;0&quot; path=&quot;\DosDevices\c:\Program　Files\coLinux\root_fs_new&quot;
+    enabled=&quot;true&quot; /&gt;
+
+    &lt;block_device index=&quot;1&quot; path=&quot;\DosDevices\c:\Program　Files\coLinux\swap_device&quot;
+    enabled=&quot;true&quot; /&gt;
+
+    &lt;bootparams&gt;root=/dev/cobd0&lt;/bootparams&gt;
+
+    &lt;initrd path=&quot;initrd.gz&quot; /&gt;
+
+    &lt;image path=&quot;vmlinux&quot; /&gt;
+
+    &lt;memory size=&quot;128&quot; /&gt;
+
+    &lt;network index=&quot;0&quot; name=&quot;TAP&quot; type=&quot;tap&quot; /&gt;
+&lt;/colinux&gt;
+</pre>
+<br /><br />
+これで起動したら、swapを使えるようにフォーマットしましょう。index="1"とdefault.config.xmlに書いたので、/dev/cobd1がswap_deviceになりますので、下記のコマンドをrootで実行します。
+
+<pre class="command"># mkswap  /dev/cobd1</pre>
+
+swapを使えるようにしたら、あとは下記のように/etc/fstabにswapを追加します。
+root権限でviとかで編集しましょう。追加したのは、/dev/cobd1のある行です。
+<br />
+<pre class="code"># /etc/fstab: static file system information.
+#
+# &lt;file system&gt; &lt;mount point&gt;   &lt;type&gt;  &lt;options&gt;               &lt;dump&gt;  &lt;pass&gt;
+/dev/cobd0      /               ext3    errors=remount-ro       0       1
+/dev/cobd1      swap            swap    defaults                0       0
+proc            /proc           proc    defaults                0       0
+tmpfs           /dev/shm        tmpfs   defaults                0       0</pre>
+<br /><br />
+ここまでできたら、あとは再起動するだけです。
+<br />

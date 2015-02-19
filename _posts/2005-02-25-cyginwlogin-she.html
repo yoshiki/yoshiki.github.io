@@ -1,0 +1,22 @@
+---
+layout: post
+title: cygwinでlogin shellを変える方法
+mt_id: 330
+date: 2005-02-25 19:00:12.000000000 +09:00
+author: clouder
+category: Windows
+---
+忘れないうちに…。
+cygwinでlogin shellを変える方法は、
+1 tcshをsetup.exeでインストールする
+2　cygwinをインストールしたディレクトリにあるcygwin.batの中身の
+
+<pre class="code">bash --login -i</pre>
+
+となっているところを
+
+<pre class="code">tcsh -l</pre>
+
+に変えればtcshでログインできるようになる。
+
+以上 

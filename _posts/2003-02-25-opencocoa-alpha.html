@@ -1,0 +1,34 @@
+---
+layout: post
+title: OpenCocoa alpha release?
+mt_id: 62
+date: 2003-02-25 03:41:36.000000000 +09:00
+author: clouder
+category: Cocoa
+---
+【奇跡の復活】米 Apple 社 OpenCocoa を発表【OPENSTEP】
+
+APPLE社、Sun社、UNIX 系 OS 用 Cocoa アプリ実行環境 OpenCocoa を発表
+
+　米APPLE社は、OpenDarwin.org、 米 Sun 社と共同で UNIX 上で Mac OS X 用の Cocoa アプリケーションを実行する環境 OpenCocoa を開発し alpha 版をリリースした。
+発表によると、この実行環境は NeXT の遺産である OPENSTEP をもとに Mac OS X と並行して開発を継続していたもので、Intel チップを搭載した PC/AT互換機上の Darwin, FreeBSD, GNU/Linux、および Sun の SPARC チップ搭載機上の Solaris、GNU/Linux などの UNIX 系 OS 上で動作する X Window System (XFree86/X11R6) で AQUA 風の GUI を実現し Mac OS X 用に書かれた Cocoa アプリケーションを実行できるようにするというもの。 
+　NeXT 時代の資産である EOF (Enterprise Object Frame) を利用して本格的な基幹業務データベースシステムをマルチプラットフォームで構築することができるようになる。多くの WebObjects 開発者たちが夢見ていた環境がようやく登場したことになる。
+
+　Apple 社は、OpenDarwin.org と共同で Darwin カーネルをオープンソースで開発してきたが、今回の OpenCocoa も同様の手法で開発を行いソースコードとともに無償配付する。Sun 社は、SPARC 版の開発を担当し、正式バージョン完成後は Solaris に同梱しハイエンド市場向けに出荷することになるという。
+
+　ただし、それらの Cocoa アプリケーションのソースコードは共通ではあるものの、CPU のハードウェア・エミュレーションを行うわけではないため、PowerPC, Intel x86, SPARC それぞれに対して異なるバイナリーとしてコンパイルすることが必要になるという。コンパイラーとしては、前述の三社が拡張した gcc が用いられる。
+
+　また、当面は Cocoa アプリケーション開発環境は Apple の Mac OS X 版のものしか用意されないが、開発環境もこの OpenCocoa 上で動作させる事は可能であるため、「OpenCocoa 正式版のリリース前後に配付できるだろう」とコメントしている。
+
+　今回の OpenCocoa はあくまで、X Window System 上での実行環境のみの提供であるが、Darwin for x86 をベースとした Mac OS X for PC の完全版の登場にいっそう期待が高まる。Cocoa アプリケーションの充実をはかり Classic/Carbon からの完全移行が済んだ段階で華々しくデビューさせるつもりなのだろう。
+
+　Windows XP 用のバージョンが無いことについて、Apple 社の OS 開発担当者は「WindowsXP は無意味に肥大化し過ぎた。しかも、NT というなかなか優れたカーネルの上に実装された API は一貫性がなく煩雑そのものだ。そのことが Microsoft 以外のベンダーが Java や Cocoa などの API を追加することを困難にしている。Microsoft が Windows 2000 から Windows XP への完全移行を目指している事を考慮すると、Windows 環境への参入は我々にとってまったく割りの合わないものであると判断した」と批判した。言葉を換えれば、巨大化し過ぎた Microsoft 社の体質そのものが OS のコードにあらわれているともいえよう。(訳注：NT カーネルも Mac OS X のカーネル Mach の初期バージョンの開発者によって作られている)
+
+　この発表を受けて、米 OMNI GROUP 社は、「これこそ我々が待ち望んでいたものだ」と賞賛し、PC 版の開発に協力する意向を非公式に表明している。NeXT 時代から大企業向け基幹業務システムを開発してきた同社だけに、今後 Apple がビジネス市場へ展開する戦略の一端を担うことになるだろう。
+
+ようやく Apple の巻き返しが始まったのといえるのかもしれない。
+
+http://developper.apple.com/opencocoa/
+http://www.opendarwin.org/opencocoa/
+
+だったらほんとにいいのに…。

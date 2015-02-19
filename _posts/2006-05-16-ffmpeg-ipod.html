@@ -1,0 +1,25 @@
+---
+layout: post
+title: ffmpeg で iPod 用動画を生成する方法
+mt_id: 681
+date: 2006-05-16 02:43:27.000000000 +09:00
+author: clouder
+category: Mac
+---
+ffmpegをインストールして、下記のブログに載っていたオプションで生成した動画を iPod へ転送したらあっけなく見られました。(いやうそ、その前に試行錯誤すること3時間でした…)
+
+<blockquote><a title="FFMPEG And The Video iPod | Huebel Family Online" href="http://www.huebelfamily.org/node/23">FFMPEG And The Video iPod | Huebel Family Online</a>
+
+ffmpeg -vcodec xvid -b 350 -qmax 10 -bufsize 4096 -g 300 -acodec aac -ab 96 -ac 2 -i input.avi -s 320x240 -aspect 16:9 output.mp4</blockquote>
+
+
+ちなみにffmpeg のインストール方法は「<a href="http://journal.mycom.co.jp/column/osx/152/">第152回
+早く来い! iPod with Videoの到着を待ちきれずにH.264エンコード(2)</a>」を参考にしました。ここに載っている、FAAC、FAAD2、x264、liba52、そして追加で <a href="http://www.xvid.org/">libxvid</a>をインストールしてから(<span style="color: #ff0000;">追記</span>ただ、これ全部は必要ないかも。結局ビデオコーデックは xvid しか使ってないから x264 とかはいらないかな？)、
+
+<pre class="code">./configure --enable-faac --enable-faad --enable-a52 --enable-x264 --enable-pthreads --enable-gpl --enable-xvid</pre>
+
+として、あとは make; sudo make install でインストールするだけです。そうそう、各ライブラリをインストールするために、nasmやautomake、libtoolが必要でした。
+
+文頭で紹介した変換オプションはそのまま使ったので、音質や画質が最良のものかどうかは別です。もっとよいオプションがあるかもしれません。ちなみに今回変換したのは、.mpg → .mp4 です。あとYouTube から取ってきた .flv を変換して iPod に読み込んでみたらちゃんと見られました。
+
+あと取ってくるところは <a href="http://plagger.org/">Plagger</a> でやろうと思います。 

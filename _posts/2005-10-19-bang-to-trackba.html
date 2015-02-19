@@ -1,0 +1,17 @@
+---
+layout: post
+title: Bang to Trackback Spams
+mt_id: 548
+date: 2005-10-19 13:18:29.000000000 +09:00
+author: clouder
+category: MovableType
+---
+<blockquote><a title="Solution to Trackback Spams" href="http://james.seng.cc/archives/2005/02/04/solution_to_trackback_spams.html">Solution to Trackback Spams</a>
+
+The way it works is fairly simple - if the incoming trackback does not come from the host as stated in the URL, we reject the trackback. For example, if a trackback from url http://online-poker.psxtreme.com/ comes from 194.63.235.156 (an open proxy), then it is likely to be spam. (online-poker.psxtreme.com does not resolved to 194.63.235.156).</blockquote>Trackback Spamがいいかげん多くて、手動で消すのがバカらしくなったので、ネットでその手のプラグインを探したらこのプラグインがみつかったので導入してみた。まだ導入したばかりなので効果はわかりません。
+
+やってることは、Trackback pingのホストのIPと送ってきたサーバのIPが違うと拒否というものらしい。gethostbynameでIPを調べてますね。
+
+<div style="color:#ff0000;font-weight:bold;">追記：</div>
+これやっぱり外しました。軒並各ブログサービスからのTBを拒否するし…。まぁTBを送ってくるサーバのIPとドメインなんて個人じゃなけりゃ同じじゃないということかな。。。さて、MT3.2に上げようかなぁ、、ﾎﾞｿ。
+ 

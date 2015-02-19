@@ -1,0 +1,23 @@
+---
+layout: post
+title: Catalystの今日のハマリ - Catalyst::Engine::Apache was separated
+mt_id: 603
+date: 2005-12-06 19:34:35.000000000 +09:00
+author: clouder
+category: Perl
+---
+ひさびさにCatalystをバージョンアップ(5.61)したら、なんか動かない。下記のようなエラーがでる
+
+<pre class="code">[Tue Dec  6 19:13:50 2005] [catalyst] [error] Caught exception in engine "Can't locate object method "request" via package "Catalyst::Engine::Apache::MP13" at /usr/local/share/perl/5.8.7/Catalyst/Engine/Apache/Base.pm line 77."</pre>
+
+なんじゃこりゃと調べていたら、<a href="http://search.cpan.org/src/AGRUNDMA/Catalyst-5.49_01/Changes">5.49_01のChanges</a>に下記のような記述が。
+
+<blockquote><a title="" href="http://search.cpan.org/src/AGRUNDMA/Catalyst-5.49_01/Changes"></a>
+
+5.49_01 2005-10-10 10:15:00 
+- *IMPORTANT* The Apache engines have been moved to a separate package for this release. Please install <a href="http://search.cpan.org/perldoc?Catalyst::Engine::Apache ">Catalyst::Engine::Apache</a> if you need Apache support.</blockquote>
+
+Catalyst::Engine::Apache系のモジュールを分離したことが「*IMPORTANT*」付きで書いてありました…。どうやらCatalyst::Engine::ApacheはCatalystの幹とは別々にバージョンアップをさせていくようだ。
+
+それにしてもTask::CatalystにもCatalystのMakefile.PLにもなんも<a href="http://search.cpan.org/perldoc?Catalyst::Engine::Apache ">Catalyst::Engine::Apache</a>が必須と書いてない(必須じゃないからまぁいいんだけど)ので、前からapache上で使ってるユーザには結構罠だ。。。
+ 

@@ -1,0 +1,16 @@
+---
+layout: post
+title: html-tt - emacsのTemplate Toolkit用のmode
+mt_id: 377
+date: 2005-04-07 11:36:26.000000000 +09:00
+author: clouder
+category: Emacs
+---
+自作のemacsでPerlモジュールのTemplate Toolkitの文法を使うためのモードです。これはマイナーモードになっていて、html-helper-modeと一緒に使うようになっています。<a href="http://clouder.jp/src/elisp/html-tt-1.13.tar.gz">こちら</a>からダウンロードできます。
+
+自分はこれを1年以上使っているのですが、今はこれがないとTTの文法を書くのは辛いです。
+一番使うのはC-c iで[&#37;&#37;]を挿入ですね。色は一応付くのですが、複数行に渡ったりすると色が付かなかったりします。
+
+html-ttはhtml-helper-modeのバージョンに依存しそうな気もするので、もしまだhtml-helper-modeがインストールされていないならいいのですが、されている環境だと今使ってるhtml-helper-modeと互換がない場合も考えられ、上書きでインストールをする必要がでてくるかも…。互換のあるhtml-helper-modeのインストールはMakefileにそれをインストールする記述があるので、make install-html-helper-modeって打てば勝手にインストールしてくれます。設定等はREADMEをご参照ください。
+
+なにぶんelispの初心者が作ったものですので、使い心地やここが変など、感想を頂けたらと思います。 

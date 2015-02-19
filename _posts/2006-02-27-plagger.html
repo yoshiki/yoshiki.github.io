@@ -1,0 +1,164 @@
+---
+layout: post
+title: Plaggerを使ってみた
+mt_id: 633
+date: 2006-02-27 23:40:50.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://plagger.org/">Plagger</a>が流行っていたのですが、仕事でなかなか触る時間がなかったのですが、先週末やっと時間ができたので触ってみた。とりあえず、b<a href="http://svn.bulknews.net/repos/public/bloglines2email/trunk/">loglines2gmail</a>を使っていた身としては、bloglines → gmail以外の選択肢がいろいろ増えたのは素直に嬉しいところです。<br /><br />
+
+んで、自分は<a href="http://frepa.jp/">livedoor フレパ</a>と<a href="http://mixi.jp/">mixi</a>の友達の日記を自前でRSSにしてそれをリーダーで読んでいたのですが、Plaggerでは<a href="http://frepa.jp/">livedoor フレパ</a>や<a href="http://mixi.jp/">mixi</a>から取ってくるのはあっても、RSSやAtomなどフィードに出力するPublish機能がなかったようだったので、ないのかな？とIRCで尋ねてみたところ作る？というのでさっそく作っているところです。<br /><br />
+
+とりあえず作ってみたものを見せてみたところいきなりの駄目出し(笑)<br /><br />
+
+今後いろいろと修正を加えて次のリリースにはリリースしたいっす。<br /><br />
+
+とりあえず、現状のコードはこちら。キタナイ…。<br /> 
+<pre class="code">
+package Plagger::Plugin::Publish::Feed;
+
+use strict;
+use base qw( Plagger::Plugin );
+
+our $VERSION = 0.01;
+
+use XML::Feed;
+use XML::Feed::Entry;
+use XML::Feed::Content;
+use File::Spec;
+
+# Now XML::RSS::LibXML has a bug when it process for RSS 2.0.
+# So this module uses XML::RSS temporarily.
+$XML::Feed::RSS::PREFERRED_PARSER = "XML::RSS";
+
+sub register {
+    my($self, $context) = @_;
+    $context->register_hook(
+        $self,
+        'publish.feed' => \&publish_feed,
+    );
+    $self->init_feed($context);
+}
+
+sub init_feed {
+    my($self, $context) = @_;
+
+    # check dir
+    my $dir = $self->conf->{dir};
+    unless (-e $dir && -d _) {
+        $context->log(info => "make directory: $dir");
+        mkdir $dir, 0755 or $context->error("mkdir $dir: $!");
+    }
+}
+
+sub type { shift->{type} }
+
+sub publish_feed {
+    my($self, $context, $args) = @_;
+
+    $self->{type} = $args->{feed}->type;
+    $self->mk_feed($context, $args);
+}
+
+sub mk_feed {
+    my($self, $context, $args) = @_;
+
+    $context->log(info => "generate feed: " . $self->type);
+
+    my $now = Plagger::Date->now(timezone => $context->conf->{timezone});
+    my $feed = XML::Feed->new($self->conf->{type} || 'Atom');
+    $feed->title($args->{feed}->title);
+    $feed->link($args->{feed}->link);
+    $feed->description($self->conf->{description} || undef);
+    $feed->author($self->conf->{author} || undef);
+    $feed->language($self->conf->{language} || 'ja');
+    $feed->modified($now);
+    $feed->generator("Plagger-$Plagger::VERSION");
+
+    for my $e ($args->{feed}->entries) {
+        my $entry = XML::Feed::Entry->new($self->conf->{type} || 'Atom');
+        $entry->title($e->title);
+        $entry->link($e->link);
+        $entry->summary($e->body || undef);
+        $entry->content($e->body || undef);
+        $entry->category(join(', ', @{$e->tags}));
+        $entry->issued($e->date);
+        $entry->author($e->author || undef);
+        $feed->add_entry($entry);
+    }
+
+    $self->output($context, $feed);
+}
+
+sub output {
+    my($self, $context, $feed) = @_;
+
+    my $filepath = File::Spec->catfile($self->conf->{dir}, $self->filename);
+
+    $context->log(info => "output feed to" . $filepath);
+    open my $output, ">:utf8", $filepath or $context->error("$filepath: $!");
+    print $output $feed->as_xml;
+    close $output;
+}
+
+sub filename {
+    my $self = shift;
+    return $self->conf->{filename}->{$self->type} || sprintf("&#37;s.xml", $self->type);
+}
+
+1;
+
+__END__
+
+=head1
+
+Plagger::Plugin::Publish::Feed
+
+=head1 SYNOPSYS
+
+    - module: Publish::Feed
+      config:
+        type: RSS
+        dir: /home/yoshiki/tmp/plagger/feed
+        filename:
+          frepa: my_frepa.rdf
+          mixi: my_mixi.rdf
+          bloglines: my_bloglines.rdf
+
+=head1 CONFIG
+
+=head2 type
+
+Specify the format of feed. C<Plagger::Plugin::Publish::Feed> supports the following syndication feed formats:
+
+=over 4
+
+=item * Atom (default)
+
+=item * RSS
+
+=back
+
+=head2 dir
+
+Directory for saving feed files.
+
+=head2 filename
+
+File name for feed files. A default file name is used, if you do not specify it.
+
+=head2 description
+
+Feed's description.
+
+=head2 author
+
+Feed's author.
+
+=head2 language
+
+Feed's language.
+
+=cut
+</pre>

@@ -1,0 +1,27 @@
+---
+layout: post
+title: Proc::InvokeEditorでスクリプトからエディタ起動
+mt_id: 1109
+date: 2009-05-29 12:39:09.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://www.iinteractive.com/kiokudb/">KiokuDB<a/>がちょっと前から気になってて、そしたらたまたま<a href="http://d.hatena.ne.jp/tokuhirom/20090528/1243497769">id:tokuhiromがブログで使い方などを書いてた</a>ので、それを見ながら試してみようと思いインストールしていたら、requiredに入ってるProc::InvokeEditorというモジュールが目につきました。なにをするモジュールだろと思って調べてみたら便利そうだったので紹介。<br /><br />
+
+これ、なにをするモジュールかと言うとよくcvsとかsvnとかgitとかでコミットする際に「-m」でコメント指定しないとエディタが開いて編集させたりすると思うんですが、その挙動を簡単に記述できるようになるモジュールです。<br /><br />
+
+<pre class="code">use Proc::InvokeEditor;
+
+my $unedited_text = '元々のテキスト';
+my $edited_text = Proc::InvokeEditor->edit($unedited_text);
+warn $edited_text; # 編集後のテキスト</pre><br />
+
+こんな感じで、ものすごく簡単にあれと同じ挙動をさせられます。<br /><br />
+
+あと使うエディタは自分で指定することもできるし、環境変数から拾ったりもできるようです。<br /><br />
+
+デフォルトは下のような順番になってますね。<br />
+
+<pre class="code">$ENV{'VISUAL'}, $ENV{'EDITOR'}, '/usr/bin/vi', '/bin/vi', '/bin/ed'</pre><br />
+
+コマンドラインで動かすアプリがあったら今度使ってみようと思った。<br /> 

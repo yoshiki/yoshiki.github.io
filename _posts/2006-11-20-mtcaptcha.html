@@ -1,0 +1,47 @@
+---
+layout: post
+title: MTのCaptchaプラグインね
+mt_id: 725
+date: 2006-11-20 00:09:55.000000000 +09:00
+author: clouder
+category: Perl
+---
+MTのCaptchaプラグインってあるんですね。
+
+http://code.as-is.net/wiki/Captcha_Plugin.ja_JP
+http://www.nnistar.com/archives/200611111245.php
+
+↑ここら辺にいろいろ書いてある。試すためにAuthen::CaptchaとGDをインストールしようと思ったのですが、GDをインストールしようとおもったけど手間かかりそうでやめてしまったｗ。libgdをちゃんとインストールしてないからだけど…。
+
+ImagerでAuthen::Captchaみたいのできればいいのにな。Imagerの方がインストール楽だからインストールの手間省けるしー。そういうニーズってあるんですかね。
+
+ちなみに、このCaptchaプラグインってアクセス毎にCaptcha用のイメージを生成してるようですので、DoS攻撃を受けたらCaptcha用イメージが大量に生成されてディスク容量を圧迫するんじゃないかと思ったり思わなかったり。気になったので計算してみた。
+
+Captcha画像1枚が5KBとして、1秒で1000アクセスあると
+
+5KB * 1000アクセス = 5000KB
+
+5000KBの画像が生成されます。そしてそれが1時間続くと、1時間は3600秒だから
+
+5000KB * 3600秒 = 18000000KB ≒ 18000MB ≒ 18GB
+
+18GBになるのかー、大変だ大変だー！
+<br /><br /><br /><br /><br /><br />
+
+
+
+
+
+…ふぅ。ま、ちょっと気になっただけです。実際はそれだけのアタックがあったら、弱いサーバだと固まったりするんじゃないかと。それに画像ファイルは、cronで定期的に削除しろって話ですね。
+
+ちなみに<a href="http://search.cpan.org/dist/Authen::Capthca">Authen::Captcha</a>のpodのcheck_code()のところには、下記のように書いてあります。
+
+<blockquote>If the $code and $md5sum are correct, the image file and database entry will be removed.
+
+If the $md5sum matches one in the database, and "keep_failures" is false (the default), the image file and database entry will be removed to avoid repeated attempts on the same captcha.</blockquote>
+
+check_code()したときには画像は削除されるようです。
+
+
+そんなことより、Imagerの連載の続きを書かなければ…orz
+ 

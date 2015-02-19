@@ -1,0 +1,49 @@
+---
+layout: post
+title: CPAN AuthorならShipIt！
+mt_id: 1044
+date: 2008-04-11 15:15:23.000000000 +09:00
+author: clouder
+category: Perl
+---
+さきほどHTTP::MobileAgentの0.27をCPANにアップしました。<br /><br />
+
+HTTP::MobileAttributeがものすごい勢いで開発がすすんでいる今、<br />
+なんとなく寂しい今日この頃なのですが、とりあえずDoCoMoのguidに対応した次第です。<br /><br />
+
+で、話の本題はこっちじゃなくて、今回のCPANアップでShipItを初体験しました。<br /><br />
+
+ShipItはなにかってーと、svnやsvkやgit(?)などで管理しているCPANモジュールをさくっとCPANへアップするためのモジュールです。<br /><br />
+
+どうやるかっていうと、ShipItがインストールされててかつ設定ファイルなどがちゃんと設定されていれば、コマンドラインでshipitと打つだけ！あとはShipItが勝手にリポジトリに適切なリリースタグをつけてくれて、CPANへのアップまでやってくれちゃうというすばらしいものです。<br /><br />
+
+Brad++<br /><br />
+
+とりあえずインストールしなきゃいけないのは、ShipItとcpan-upload-httpです。両方ともCPANにあります。<br />
+そして設定ファイルとしてはアップしたいCPANモジュールのリポジトリのtrunkとかに .shipit ってファイルを作ってやり、以下のように書きます。<br /><br />
+
+<pre class="code">
+steps = CommitMessageWrap, FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist, UploadCPAN
+svn.tagpattern = http://svn.coderepos.org/share/lang/perl/HTTP-MobileAgent/tags/release-&#37;v
+commit_message.format = lang/perl/HTTP-MobileAgent: &#37;msg
+CheckChangeLog.files = Changes
+</pre>
+<br />
+
+このstepsってのがCPANにアップするまでにする仕事で、svn.tagpatternが打つタグの場所を指定するもの(release-&#37;vだけでもいいかも)、あとは適当に。ちなみにHTTP::MobileAgentはchange logが「Changes」というファイル名だったので、CheckChangeLog.filesを指定しましたが、CHANGESという名前だったらこの設定はいりません。たぶん。(追記：はてブでYappoさんが言ってますが、「Changes」ならこれを設定しなくてもいけるとのことです)<br /><br />
+
+あともう1つcpan-upload-httpのために、自分のホームディレクトリに .pause っていうファイルを 600 というパーミッションで作っておいて、内容を以下のようにしておきます。<br /><br />
+
+<pre class="code">
+user kurihara
+password yourpassword
+</pre>
+<br />
+
+これができれば、あとは該当のモジュールのtrunkとかでshipitと打つだけです。<br /><br />
+
+関連リンク：<br />
+<a href="http://d.hatena.ne.jp/tokuhirom/20071220/1198106803">超クールな CPAN リリースツール 1 選。ShipIt がスバラシイ件</a><br />
+<a href="http://blog.yappo.jp/yappo/archives/000548.html">ShipItつかわなくて良いのは小学生まで</a><br />
+<a href="http://d.hatena.ne.jp/mikihoshi/20080102/1199213476">ShipItを使うときに注意したい7つのポイント</a><br />
+ 

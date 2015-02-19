@@ -1,0 +1,22 @@
+---
+layout: post
+title: HTTP::MobileAgentのDisplayMap
+mt_id: 695
+date: 2006-07-21 11:44:27.000000000 +09:00
+author: clouder
+category: Perl
+---
+Yappoさんが「<a href="http://blog.yappo.jp/yappo/archives/000445.html">HTTP::MobileAgentのプラグイン機構</a>」を書いてました。(フィクションらしいですがｗｗｗ）
+
+ここの最後に書いてあるDisplayMapなのですが、 EZweb と Vodafone では以下のようなヘッダーに入ってて、そこからdisplay系の値を取得してるんだけど、それ以上のデータが欲しいということかしらん。
+
+<ul>
+<li>EZweb</li>x-up-devcap-screenpixels、x-up-devcap-screendepth、x-up-devcap-iscolor
+<li>Vodafone</li>x-jphone-display、x-jphone-color
+</ul>
+
+
+前Yappoさんがポストしてた「<a href="http://blog.yappo.jp/yappo/archives/000147.html">HTTP::MobileAgentの大幅なパッチ</a>」を見ると、現状のDisplayMapの値にプラスでEZwebだと「width_bytes、height_bytes、mheight、mwidth、png、bmp4、bmp2、jpeg、gif、flash」、Vodafoneだと「width_bytes、height_bytes、mwidth、mheight、geo」などが加わってる。
+これらヘッダーから取れない値も欲しいっていうのと、デバッグ時とかに実機じゃなくてUA偽装したときにヘッダー設定するのめんどいからDisplayMapあったらいいんじゃね？みたいな理由っぽい。(勝手に解釈ですが…)
+
+そういう意味ではあってもいいのかも。 

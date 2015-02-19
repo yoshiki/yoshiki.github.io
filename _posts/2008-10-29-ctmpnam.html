@@ -1,0 +1,79 @@
+---
+layout: post
+title: C言語のtmpnam()って関数を知った
+mt_id: 1065
+date: 2008-10-29 18:12:09.000000000 +09:00
+author: clouder
+category: Programming
+---
+なんかのソース(たしか<a href="http://sourceforge.net/projects/moddosdetector/">mod_dosdetector</a>)を読んでてCにtmpnam()ってのがあるのを知りました。<br /><br />
+
+なんの関数なんだろうとman tmpnamで調べたらテンポラリーファイル用の関数でした。<br />
+プログラムでテンポラリーのファイルを使う場合の名前をよしなに<br />
+決定してくれるものらしく、stdio.hで定義されています。<br />
+
+使い方は↓こんな感じにするとs[]にファイル名が入るみたい。<br />
+
+<pre class="code">#include &lt;stdio.h&gt;
+
+int main()
+{
+    char s[L_tmpnam+1];
+    tmpnam(s);
+    printf("&#37;s\n", s);
+    return 0;
+}</pre>
+
+<br />
+ためしに実行してみると、<br />
+
+<pre class="command">&#37; gcc ./tmpnam_test.c
+&#37; ./a.out
+/var/tmp/tmp.0.GYj9KF</pre>
+
+<br />
+こんな感じ。あーなんかこのファイル名どこかで見たことあるような…。<br /><br />
+
+上のコードのL_tmpnamってのを配列の大きさにつかってるんだけど、<br />
+これもstdio.hに定義されています(Mac OS XやFreeBSDの場合はstdio.h、<br />
+CentOSだとbits/stdio_lim.hに定義されていました)。<br />
+Mac OS Xだとパスの最大長と同じバイトになってました。<br /><br /><br />
+
+
+ちなみにCentOSでtmpnam()を使おうとしたら、<br />
+
+<pre class="command">&#37; gcc tmpnam_test.c
+/tmp/ccwelnuR.o(.text+0x24): In function `main':
+: warning: the use of `tmpnam' is dangerous, better use `mkstemp'</pre>
+
+<br />
+って怒られた。デンジャラスだってぇえぇえぇ!<br /><br />
+
+mkstemp()を使えと言ってるので調べてみたら、これも同じような用途に使う関数らしい。
+manによると以下のような感じで使うらしい。<br />
+
+<pre class="code">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main()
+{
+    char template[] = "/tmp/fileXXXXXX";
+    int fd;
+    FILE *fp;
+
+    fd = mkstemp(template);
+
+    if ((fp = fdopen(fd, "w")) == NULL)
+        exit(1);
+
+    fprintf(fp, "temp test\n");
+    fclose(fp);
+    return 0;
+}</pre>
+
+<br />
+こうすると「temp test」って内容の/tmp/fileXXXXXX(XXXXXXは毎回違う)という<br />
+ファイルが作成されるようだ。<br /><br />
+
+なるほど。<br />
+なんかのときに使えそうなので覚えておこう。<br /><br />

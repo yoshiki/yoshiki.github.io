@@ -1,0 +1,100 @@
+---
+layout: post
+title: ThinkPad X40の傾きを感知してなにかをする
+mt_id: 686
+date: 2006-06-14 02:04:04.000000000 +09:00
+author: clouder
+category: Hardware
+---
+<a href="http://subtech.g.hatena.ne.jp/miyagawa/20060613/1150210188">宮川さんがすでにPlaggerを使ってやっています</a>が、ちょっと前に話題になった MacBook などの<a href="http://www.youtube.com/watch?v=kXnSXlNlIsU">衝撃を感知してなにかをする SmackBook のようなこと</a>が ThinkPad でもできるということで、自分もためしてみました。<br /><br />
+
+やったのは ThinkPad を傾けると Firefox のウィンドウをがそちらに動くというもの。(Firefoxのウィンドウ限定です…)<br /><br />
+<div style="text-align: center;">
+<a href="http://www.youtube.com/watch?v=sbh_JGbPoJU">
+http://www.youtube.com/watch?v=sbh_JGbPoJU</a><br />
+<object width="340" height="280"><param name="movie" value="http://www.youtube.com/v/sbh_JGbPoJU"></param><embed src="http://www.youtube.com/v/sbh_JGbPoJU" type="application/x-shockwave-flash" width="340" height="280"></embed></object>
+</div><br /><br />
+
+そして、これを動作させているのは Perl で、、はなくて Ruby です。なんとなくRubyで書いてみました。<br />
+Rubyのレベルがしょぼいのは気にしないでください…。<br /><br />
+
+作成にあたり、<a href="http://blog.netswitch.jp/articles/2006/03/13/thinkpad-&#37;E3&#37;81&#37;AE&#37;E5&#37;8A&#37;A0&#37;E9&#37;80&#37;9F&#37;E5&#37;BA&#37;A6&#37;E3&#37;82&#37;BB&#37;E3&#37;83&#37;B3&#37;E3&#37;82&#37;B5&#37;E3&#37;82&#37;92ruby&#37;E3&#37;81&#37;8B&#37;E3&#37;82&#37;89&#37;E4&#37;BD&#37;BF&#37;E3&#37;81&#37;86">こちら</a>にあるプログラムを参考にさせて頂きました。<br />
+ 
+プログラムは3つのファイルに分れてて、1つは前述のページのプログラムに添付されているdevice.rb。あとは以下の2つです。<br /><br />
+
+本体(これを実行する)
+<pre class="code">require 'device'
+require 'Win32API'
+require 'firefox'
+
+command = 0x733fc
+result_size = 0x24
+
+device = Device.new '\\\\.\\ShockMgr'
+
+firefox = FirefoxWindow.new
+
+begin
+	device.open
+	values = device.io(command, result_size).unpack("x4s*")
+	cx = values[3]
+	cy = values[2]
+
+	loop do
+		values = device.io(command, result_size).unpack("x4s*")
+		ax = (values[1] - cx) / 30
+		ay = (values[0] - cy) / 30
+		firefox.move(ax, ay)
+	end
+ensure
+	device.close
+end</pre>
+
+firefox.rb(FirefoxWindowクラス)
+<pre class="code">require 'Win32API'
+
+class FirefoxWindow
+	def initialize
+		@win_handle = self.get_win_handle
+		@left, @top, @right, @bottom = self.get_pos
+		@width, @height = self.get_screen
+	end
+
+	def get_screen
+		sm = Win32API.new('user32', 'GetSystemMetrics', 'i', 'i')
+		cx_screen = 0
+		cy_screen = 1
+		return sm.call(cx_screen), sm.call(cy_screen)
+	end
+	
+	def get_win_handle
+		fw = Win32API.new('user32', 'FindWindow', 'pp', 'i')
+		return fw.call('MozillaUIWindowClass', 0)
+	end
+	
+	def get_pos
+		gwr = Win32API.new('user32', 'GetWindowRect', 'pp', 'l')
+		rect = " " * 16
+		pos = gwr.call(@win_handle, rect)
+		return rect.unpack('LLLL')
+	end
+	
+	def set_pos(x, y, w, h)
+		moveWindow = Win32API.new('user32', 'MoveWindow', 'piiiii', 'i')
+		moveWindow.Call(@win_handle, x, y, w, h, 1);
+	end
+	
+	def move(x, y)
+		left   = @left   + x
+		top    = @top    + y
+		right  = @right  + x
+		bottom = @bottom + y
+		if left >= 0 && top >= 0 && right <= @width && bottom < @height
+			@left   = left
+			@top    = top
+			@right  = right
+			@bottom = bottom
+			self.set_pos(left, top, right - left, bottom - top)
+		end
+	end
+end</pre>

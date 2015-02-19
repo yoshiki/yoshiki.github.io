@@ -1,0 +1,180 @@
+---
+layout: post
+title: Sledgeのインストールと設定方法
+mt_id: 440
+date: 2005-06-10 19:19:35.000000000 +09:00
+author: clouder
+category: Perl
+---
+<a href="http://www.thinkit.co.jp/" target="_blank">ThinkIT</a>に<a href="http://www.thinkit.co.jp/free/tech/9/1/1.html" target="_blank">「SledgeによるWebアプリケーションフレームワーク入門」</a>を書かせて頂きました。今回から数回にわたってWebアプリケーションについて紹介しながら、Sledgeではどう実現するのかについて、<a href="http://blog.livedoor.jp/nipotan/" target="_blank">にぽたん研究所</a>な人、<a href="http://blog.shebang.jp/" target="_blank">#!shebang.jp</a>な人
+、自分の三人で書かせて頂く予定です。
+
+この連載では、主題が「Webアプリケーションフレームワーク」なのでSledgeの詳しい説明を盛り込んでいません。そこで、この際なのであちらでは書ききれなかったSledgeの設定方法についての説明をこのページで書こうかと思います。
+
+とりあえずSledgeを使ってページが表示できるまでを書いていきます。
+途中で挫折したらすみません…。 
+今回の目標としてhttp://sledge.example.com/index.cgiにアクセスをしたら Hello World と表示するだけのアプリケーションを作成することとします。
+
+とりあえず、ThinkITにも書かせてもらったSledgeのインストールに関しての説明は省かせて頂きます。基本的には下記のコマンドでインストールできると思います。流れとしては「Sledgeで使用するCPANモジュールのインストール」「Makefileの生成」「make」「テスト」「インストール」です。
+
+<pre class="command">
+Sledgeのソースをダウンロード後
+&#37; tar zxvf Sledge-1.11.tar.gz
+&#37; cd Sledge-1.11
+# eg/cpan_install.pl
+&#37; perl Makefile.PL
+&#37; make
+&#37; make test
+# make install
+</pre>
+
+プロジェクトの作成手順を説明する前に、基本情報として下記を想定しています。
+
+<ul>
+<li>プロジェクト名</li>
+helloプロジェクト(うーむ…w、ライブラリのネームスペースはHelloとさせていただきます)
+<li>プロジェクトディレクトリ</li>
+/home/clouder/hello
+<li>プロジェクトディレクトリ以下の構造</li>
+<pre>
+hello
+ +- view   テンプレートを置くディレクトリ
+ +- htdocs ドキュメントルート
+ +- lib    ライブラリを置くディレクトリ
+</pre>
+<li>データベース</li>
+mysql-4.0.2
+<li>サーバ</li>
+apache-1.3.33 mod_perl-1.29
+</ul>
+
+ではプロジェクトを作成していきたいと思います。
+まずはSledgeのプロジェクトを生成します。sledge-setupというコマンドがインストールされているはずですので、それを使ってプロジェクトの雛形を作成します。この作業は/home/clouder/hello/libに移動してから下記のコマンドを実行します。
+
+<pre class="command">&#37; sledge-setup Hello</pre>
+
+これを実行するとlibの中に下記のようなファイルとディレクトリが自動生成されます。
+
+<pre>hello
+ +- view
+ +- htdocs
+ +- lib
+     +- Hello
+         +- Pages.pm
+         +- Config.pm
+         +- Config
+             +- _common.pm</pre>
+
+次にmysqlにプロジェクト用のデータベースを作成し、そのデータベースにセッション保持用のテーブルを作成します。Sledgeのソースのegディレクトリの中にあるsessions.sqlにmysql用のセッションテーブルのCREATE文が書かれていますので、それを使用します。
+
+<pre class="command">&#37; mysqladmin -u root create hello
+&#37; mysql -u root hello &lt; sessions.sql</pre>
+
+次にライブラリを書いていきます。まずは設定ファイルに「テンプレートのディレクトリ($C{TMPL_PATH})」「DBのデータソース($C{DATASOURCE})」「クッキーの情報($C{COOKIE_NAME}, $C{COOKIE_PATH}, $C{COOKIE_DOMAIN})」を設定します。
+
+lib/Hello/Config/_common.pm
+
+<pre class="code">package Hello::Config::_common;
+ 
+use strict;
+use vars qw(&#37;C);
+*Config = \&#37;C;
+ 
+$C{TMPL_PATH}     = '/home/clouder/hello/view';
+$C{DATASOURCE}    = [ 'dbi:mysql:hello','root', '' ];
+$C{COOKIE_NAME}   = 'hello_sid';
+$C{COOKIE_PATH}   = '/';
+$C{COOKIE_DOMAIN} = '.example.com';
+ 
+1;</pre>
+
+Configディレクトリは、アプリケーションの設定をするファイルを入れておくディレクトリになります。sledge-setupを実行した際に作成される_common.pmは全般的な(ステージング、プロダクション環境に依存しない)設定を書いておくファイルになります。その上でステージングとプロダクションなど、環境毎に設定を読み分けるためには、Configディレクトリに_production.pmや_staging.pm等のファイルを作成し、それぞれに設定を書いておくとよいでしょう。
+
+この設定ファイルの読み分けは、Config.pmを見るとわかると思いますが「SLEDGE_CONFIG_NAME」という環境変数によって行ないます。SLEDGE_CONFIG_NAMEに_productionと設定すれば「_common.pmと_production.pm」を、_stagingと設定すれば「_common.pmと_staging.pm」を読み込みます。ですので特に_production.pmや_staging.pmという名前である必要はありません。
+
+
+
+SLEDGE_CONFIG_NAMEを設定する場所ですが、主に/etc/Hello-conf.plかapacheの設定ファイル等になります。Config.pmがロードされる際に設定されているSLEDGE_CONFIG_NAMEの設定ファイルが読み込まれるようになっています。ちなみに_common.pmと_production.pmに同じ設定値がある場合には、_production.pmの値の方が設定されます(_common.pmで設定した値は上書きされます)。
+
+今回は特にステージング、プロダクションの違いがないアプリケーションを作成しますので、_common.pm以外のConfigファイルは作成しませんでした。
+
+次にトリガーとなるCGIファイルとそれに対応するPagesクラス、テンプレートを作成します。
+
+Pagesクラスとは、ページの基本となる関数(ビジネスロジック)を定義するクラスのことです。簡単に説明をすると、http://sledge.example.com/index.cgiというページを作成したい場合には、htdocs/index.cgiというファイルに下記のような内容を書き、それがトリガーとなり、Hello::Pages::Root(ファイルではlib/Hello/Pages/Root.pm)というクラスに定義されたdispatch_indexという関数が呼びだされるいった具合です。htdocs/index.cgi、lib/Hello/Pages/Root.pm、view/index.htmlは下記のような内容になります。
+
+htdocs/index.cgi
+
+<pre class="code">#!/usr/local/bin/perl
+ 
+use strict;
+use Hello::Pages::Root;
+Hello::Pages::Root->new->dispatch('index');</pre>
+
+lib/Hello/Pages/Root.pm
+
+<pre class="code">package Hello::Pages::Root;
+ 
+use strict;
+use base qw(Hello::Pages);
+ 
+__PACKAGE__->tmpl_dirname('.');
+ 
+sub dispatch_index {
+    my $self = shift;
+    $self->tmpl->param(string => 'Hello World!');
+}
+ 
+1;</pre>
+
+view/index.html
+
+<pre class="code">&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Hello World!&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;[&#37; string &#37;]&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+テンプレートとPagesクラスの結び付きに関しては、Pagesクラス毎に設定されるパッケージ変数「tmpl_dirname」に設定されたディレクトリとConfigファイルで定義したテンプレートのディレクトリ名($C{TMPL_PATH})を連結したディレクトリの中のファイルを読み込むようになっていて、ファイル名はdispatch_<strong>index</strong>のindexに.htmlを付けたもの、つまりindex.htmlというファイルを読み込み、表示させるようになっています。
+
+上記のHello::Pages::Rootの場合には、tmpl_dirnameには「.」が定義されていますので、/home/clouder/hello/view/./index.htmlというテンプレートファイルが読み込まれます。今回は「.」を設定していますが、これは特別な例です。「/」以下のページ用のクラスのみtmpl_dirnameを設定しなくても動作しますし、「.」と設定しても動作します。それ以外のURIの場合、例えばhttp://sledge.example.com/foo/index.cgiの場合には、Hello::Pages::Fooのtmpl_dirnameにfooを設定し、そうすることで/home/clouder/hello/view/foo/以下のテンプレートを読み込むようになります。
+ちなみに、http://sledge.example.com/foo/index.cgiだからといって、必ずしもそれに対応するクラスをHello::Pages::Fooとする必要はなく、どんなクラス名でも問題ありません。index.cgiの中で、それをuseしてキック(dispatch)してやればいいだけです。ただ、クラスを階層構造にした方がメンテナンス性は向上すると思います
+
+ここでPagesクラスの書き方について、もうちょっと詳しく説明すると、dispatch_indexの中ではテンプレートに表示するための変数をDBから取得したり、DBにレコードを生成したり、いろいろな計算をしたり、セッションの値をgetしたりsetしたり、テンプレートへ渡す値をセットしたり、といったビジネスロジックを記述するのですが、上記の例では、テンプレートに「string」という変数で「Hello World!」という値をセットしています。SledgeではデフォルトでTemplate-Toolkitがテンプレートエンジンとなっているため、view/index.htmlのテンプレートで、[&#37; string &#37;]という記述を書いておくことにより、Hello::Pages::Root::dispatch_indexでセットした値を表示することができます。
+
+ここまで作成ができたら、あとはapacheの設定でこのWebアプリケーションを表示できるように設定をするだけです。今回はFQDNをsledge.example.comとし、Webアプリケーションのベースディレクトリを/home/clouder/helloにしていますので、下記のように設定します。
+
+httpd.conf
+
+<pre class="code">ServerName sledge.example.com
+DocumentRoot /home/clouder/hello/htdocs
+ 
+&lt;Directory /home/clouder/hello/htdocs&gt;
+DirectoryIndex index.cgi index.html
+PerlSetEnv PERL5LIB /home/clouder/hello/lib
+ 
+&lt;Files ~ \.cgi$&gt;
+Options +ExecCGI
+SetHandler perl-script
+PerlHandler Apache::Registry
+&lt;/Files&gt;
+&lt;/Directory&gt;</pre>
+
+ちなみに先程話したConfigで使用されるSLEDGE_CONFIG_NAMEをここで設定することもできます。設定をする場合には、
+<pre class="code">PerlSetEnv SLEDGE_CONFIG_NAME _production</pre>
+とします。
+
+さて、httpd.confの設定が終ったらapacheを起動させます。起動が完了したらhttp://sledge.example.com/index.cgiにアクセスしてみましょう。「Hello World!」と表示されたらば成功です。表示されない場合には、apacheのerror_log等を見て問題がなにか調べてみましょう。
+
+このWebアプリケーションの処理の流れをまとめると、
+
+<ol><li>index.cgiがトリガーとなり</li><li>Hello::Pages::Rootのdispatch_indexが呼ばれ、string変数に'Hello World!'がセットされ</li><li>/home/clouder/hello/view/index.htmlがテンプレートエンジンによって処理され、stringがセットされ</li><li>最後に表示される</li></ol>
+
+といった感じです。
+
+その他にも今回は使用していないAuthorizerのフェーズや各種トリガーポイントでの処理をはさんだりといろいろな処理をすることができますが、とりあえずはこれでSledgeが動くことが体感できると思います。
+
+疲れた…。
+続く…(たぶん…)
