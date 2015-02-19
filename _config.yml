@@ -6,7 +6,7 @@ twitter_username: clouder
 github_username:  yoshiki
 
 # Build settings
-markdown: kramdown
+markdown: redcarpet
 highlighter: pygments
 safe: true
 lsi: false
