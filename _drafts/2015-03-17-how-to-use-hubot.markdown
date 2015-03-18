@@ -3,7 +3,7 @@ layout: post
 title: "How to use hubot"
 date: 2015-03-17 20:00
 comments: true
-categories: node
+categories: node hubot github coffeescript
 ---
 Hubotっていうのを触ってみました。
 
