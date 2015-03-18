@@ -27,6 +27,12 @@ OSXでのインストール方法です。
 % brew install node redis
 ```
 
+  インストールしたら`redis`を起動しておきましょう。
+
+  ```
+% redis &
+```
+
 2. npmでhubotとcoffee-scriptをインストール
 
   ```
