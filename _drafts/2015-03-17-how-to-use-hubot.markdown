@@ -5,7 +5,7 @@ date: 2015-03-17 20:00
 comments: true
 categories: node hubot github coffeescript
 ---
-Hubotっていうのを触ってみました。
+Hubotというのを触ってみました。
 
 #Hubotとは
 
@@ -21,18 +21,14 @@ Hubotの最大の特徴は、アダプタを使うことによって様々なサ
 
 OSXでのインストール方法です。
 
-1. nodeとredisをHomeBrewでインストール
+1. homebrewでnodeとredisをインストール
 
   まずは、nodeとredisをインストールします。
 
+  redisは必須ではありませんが、あとでデータの永続化の際に必要なのでインストールしておきましょう。
+
   ```
 % brew install node redis
-```
-
-  インストールしたら`redis`を起動しておきましょう。
-
-  ```
-% redis &
 ```
 
 2. npmでhubotとcoffee-scriptをインストール
@@ -53,7 +49,7 @@ OSXでのインストール方法です。
 % npm install -g yo generator-hubot
 ```
 
-4. yoを使って、作りたいbotの雛形をジェネレートします。
+4. yoを使って作りたいbotの雛形をジェネレートします。
 
   今回作るbotの名前を`hogebot`とします。
   ```
@@ -80,10 +76,10 @@ Options:
         --defaults     # Accept defaults and don't prompt for user input
 ```
 
-  全部の質問に答えるとごちゃごちゃいろいろ出力されますが気にしなくて大丈夫です。  
+  全部の質問に答えるとごちゃごちゃ出力されますが気にしなくて大丈夫です。  
   関連するライブラリとかをインストールしているようです。
 
-  で、処理が完了すると以下のようなhubotのためのファイル/ディレクトリ群がカレントディレクトリにできます。
+  で、処理が完了すると以下のようなhubotのためのファイル群がカレントディレクトリにできます。
 
   ```
 % tree -L 1 -F
@@ -137,9 +133,11 @@ hogebot> exit
 ```
 
   次にサービスにつなげてみましょう。
+
   今回はhipchatを例にしてみます。
-  hipchatの場合は、接続情報を環境変数で設定する必要がありますが、さきほど実行した`bin/hubot`に以下のように書いておけばよさげです。
-  `BOT_JID`, `BOT_PASSWORD`, `SERVICE_HOST`, `XMPP_DOMAIN`, `ROOM_NAME`は適宜変更してください。
+  hipchatの場合は、接続情報を環境変数で設定する必要がありますがさきほど実行した`bin/hubot`をエディタで開いて以下のように書いておけばよさげです。
+
+  各設定値は自分の使用する環境に合わせて適宜変更してください。
 
   ```
 #!/bin/sh
@@ -148,29 +146,32 @@ set -e
 
 npm install
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
-export HUBOT_HIPCHAT_JID="BOT_JID"
-export HUBOT_HIPCHAT_PASSWORD="BOT_PASSWORD"
-export HUBOT_HIPCHAT_HOST="SERVICE_HOST"
-export HUBOT_HIPCHAT_XMPP_DOMAIN="XMPP_DOMAIN"
-export HUBOT_HIPCHAT_ROOMS="ROOM_NAME"
+export HUBOT_HIPCHAT_JID="YOUR_BOT_JID"
+export HUBOT_HIPCHAT_PASSWORD="YOUR_BOT_PASSWORD"
+export HUBOT_HIPCHAT_HOST="YOUR_SERVICE_HOST"
+export HUBOT_HIPCHAT_XMPP_DOMAIN="YOUR_XMPP_DOMAIN"
+export HUBOT_HIPCHAT_ROOMS="YOUR_ROOM_NAMES"
 #export HUBOT_LOG_LEVEL="debug"
 
 exec node_modules/.bin/hubot --name "hogebot" "$@"
 ```
 
-  次に実行してみます。今回はさきほどと違いオプションを指定します。
+  設定ができたら実行してみます。
+
+  今回はさきほどとは違い、`-a`オプションで接続するアダプターを指定します。下記の例ではhipchatに接続するようにアダプターを設定しています。
 
   ```
 % bin/hubot -a hipchat
 ```
 
-  これはアダプターを指定しています。hipchatのアダプターを使ってくださいってことですね。
+  環境変数が正しければ、指定されたサービスの`HUBOT_HIPCHAT_ROOMS`で指定したルームにhogebotがジョインしているはずです。
 
-  環境変数が正しければ、指定されたサービスに接続できるはずです。
+  もし接続できていない場合は、環境変数が違うかルームの権限の問題で入れない等の理由が考えられるのでチェックしてみてください。
 
-  さきほどはプロンプトに対して入力をしましたが、今回は接続した先のルームで同じように`hogebot: ping`などを発言すると、`PONG`と返事がくるはずです。
+  さきほどはプロンプトに対して入力して対話をしましたが、今回は接続した先のルームで同じように`hogebot: ping`と発言してみましょう。ちゃんと接続できていればhogebotから`PONG`という返事がくるはずです。
 
 ---
 
 以上駆け足になりましたが、hubotを起動する方法を紹介しました。
-次回書けたら、いろいろな返答をできるようにする方法をご紹介しようと思います。
+
+次回は、いろいろな返答をできるようにする方法をご紹介しようと思います。
