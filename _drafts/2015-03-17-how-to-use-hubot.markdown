@@ -21,7 +21,9 @@ Hubotの最大の特徴は、アダプタを使うことによって様々なサ
 
 OSXでのインストール方法です。
 
-1. まずnodeとredisをHomeBrewでインストール
+1. nodeとredisをHomeBrewでインストール
+
+  まずは、nodeとredisをインストールします。
 
   ```
 % brew install node redis
@@ -35,14 +37,17 @@ OSXでのインストール方法です。
 
 2. npmでhubotとcoffee-scriptをインストール
 
+  次にhubotとcoffeescriptをインストールします。
+
   ```
 % npm install -g hubot coffee-script
 ```
 
 3. npmでyoとgenerator-hubotをインストール
 
-  yoというのは[yeoman](http://yeoman.io/)というのは、モダンなWebアプリでよくあるジェネレータのためのフレームワークです。  
-  generator-hubotは、そのyeomanのhubotのためのジェネレータです。
+  次にyoとhubot用のジェネレータをインストールします。
+
+  yoというのは[yeoman](http://yeoman.io/)というのは、モダンなWebアプリでよくあるジェネレータのためのフレームワークで、generator-hubotはそのyeomanのhubot用のジェネレータです。
 
   ```
 % npm install -g yo generator-hubot
@@ -57,7 +62,8 @@ OSXでのインストール方法です。
 % yo hubot
 ```
 
-  `yo hubot`を実行するといくつかの質問を聞かれますが、Ownerはてきとう、Bot nameは`hogebot`、Descriptionはてきとう、Bot adapterは作りたいbotを使うサービスにします(たとえば`hipchat`とか`slack`とか)。
+  `yo hubot`を実行するといくつかの質問を聞かれますので答えてください。
+  Ownerはてきとう、Bot nameは今回は`hogebot`、Descriptionはてきとう、Bot adapterはbotを接続させたいサービスの名前にします(たとえば`hipchat`とか`slack`とか)。
 
   ちなみに対話形式がめんどくさい場合は、オプションで渡すこともできるようです。
 
@@ -74,8 +80,9 @@ Options:
         --defaults     # Accept defaults and don't prompt for user input
 ```
 
-  全部の質問に答えると、ごちゃごちゃいろいろと出力されますが関連するライブラリとかをインストールしているようです。
-で、処理が完了するとhubotのためのファイル/ディレクトリ群がカレントディレクトリにできます。
+  全部の質問に答えると、ごちゃごちゃいろいろと出力されますが気にしなくていいです。
+  関連するライブラリとかをインストールしているようです。
+  で、処理が完了すると以下のようなhubotのためのファイル/ディレクトリ群がカレントディレクトリにできます。
 
   ```
 % tree -L 1 -F
@@ -92,21 +99,27 @@ Options:
 
 5. hubotを起動してみる。
 
+  この状態になるともうhubotを動かすことができます。
   bin/にhubotというのがあるのでそれを実行するとhubotが起動します。
 
   ```
 % bin/hubot
 ```
 
-  これでhubotは起動しますが、これだけだとローカルで起動しただけです。`hipchat`とか`slack`につなげているわけではありません。
-  ですが、この状態でもプロンプトが出てくるので、hubotの挙動の確認ができます。
-  ちなみに`bin/hubot`を実行しただけだとプロンプトが見えないので、一度リターンを押した方がよいかも。
+  これでhubotが起動します。
+
+  ただ、これは単純にローカル(そのターミナル上)で起動しただけの状態で、`hipchat`とか`slack`につなげているわけではありません。
+  ですが、この状態でも対話の確認をすることができます。
+
+  以下のように`hogebot>`というプロンプトが出てくるので、そこに対してなにかをタイプするとそれが入力として扱われます。
+  (※ちなみに`bin/hubot`を実行しただけだとプロンプトが見えない場合があるので、`hogebot>`が出てない場合は一度リターンキーを押した方がよいかもしれません)
 
   ```
 hogebot>
 ```
 
-  となっているので、pingをしてみるとPONGと応答が返ってきます。
+  試しにhubotに対してpingをしてみましょう。
+  hubotに対して発言をする場合は、`hogebot: message`とか`@hogebot message`といった記法を使う必要があります。
 
   ```
 hogebot> hogebot: ping
@@ -114,7 +127,7 @@ PONG
 hogebot>
 ```
 
-  なんか応答してくれましたね！
+  PONGと応答してくれましたね！
 
 6. 終了させるには`exit`をタイプすればOK。
 
