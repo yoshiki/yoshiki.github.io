@@ -30,7 +30,7 @@ OSXでのインストール方法です。
   ```
 % brew install node redis
 ```
-
+<br>
 2. npmでhubotとcoffee-scriptをインストール
 
   次にhubotとcoffeescriptをインストールします。
@@ -38,7 +38,7 @@ OSXでのインストール方法です。
   ```
 % npm install -g hubot coffee-script
 ```
-
+<br>
 3. npmでyoとgenerator-hubotをインストール
 
   次にyoとhubot用のジェネレータをインストールします。
@@ -48,7 +48,7 @@ OSXでのインストール方法です。
   ```
 % npm install -g yo generator-hubot
 ```
-
+<br>
 4. yoを使って作りたいbotの雛形をジェネレートします。
 
   今回作るbotの名前を`hogebot`とします。
@@ -93,7 +93,7 @@ Options:
 ├── package.json
 └── scripts/
 ```
-
+<br>
 5. hubotを起動してみる。
 
   この状態になるともうhubotを動かすことができます。
@@ -125,7 +125,8 @@ hogebot>
 ```
 
   PONGと応答してくれましたね！
-
+<br>
+<br>
 6. 終了させるには`exit`をタイプすればOK。
 
   ```
