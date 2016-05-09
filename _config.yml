@@ -6,8 +6,8 @@ twitter_username: clouder
 github_username:  yoshiki
 
 # Build settings
+markdown: kramdown
 lsi: false
-#safe: true
 incremental: true
 highlighter: rouge
 permalink: /:year/:month/:day/:title/
