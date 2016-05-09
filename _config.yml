@@ -7,6 +7,9 @@ github_username:  yoshiki
 
 # Build settings
 markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
 lsi: false
 incremental: true
 highlighter: rouge
