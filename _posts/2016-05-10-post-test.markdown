@@ -1,9 +1,0 @@
----
-layout: post
-title: Post test
-date: 2016-05-10 00:35
----
-
-This is post test.
-
-Thanks.
