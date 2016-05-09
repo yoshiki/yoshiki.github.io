@@ -31,7 +31,7 @@ Swiftにもswiftenvなるツールがあります。
 
 インストールは簡単で、cloneしたものを、`$HOME/.swiftenv`に入れるだけです。
 
-```shell
+```
 $ git clone https://github.com/kylef/swiftenv.git ~/.swiftenv
 ```
 
@@ -50,7 +50,7 @@ Swift 3.0はSNAPSHOTがswift.orgに公開されているのでそれをインス
 最新のSNAPSHOTは 2016-05-03 に公開されたものがあるので、それを指定してみます。
 インストールの途中でパスワードを聞かれますので入力をしてください。
 
-```shell
+```
 $ swiftenv install DEVELOPMENT-SNAPSHOT-2016-05-03-a
 Downloading https://swift.org/builds/development/xcode/swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a/swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a-osx.pkg
 Password:
@@ -68,7 +68,7 @@ DEVELOPMENT-SNAPSHOT-2016-05-03-a has been installed.
 
 この状態でSwiftのバージョンを確認すると以下のようになってるはずです。
 
-```shell
+```
 $ swift --version
 Apple Swift version 2.2 (swiftlang-703.0.18.8 clang-703.0.31)
 Target: x86_64-apple-macosx10.9
@@ -78,7 +78,7 @@ Target: x86_64-apple-macosx10.9
 
 次に先程インストールしたバージョンがあるかどうかは、以下のようにすると確認できます。
 
-```shell
+```
 $ swiftenv versions
   DEVELOPMENT-SNAPSHOT-2016-05-03-a
   latest
@@ -87,13 +87,13 @@ $ swiftenv versions
 
 もしシステム全体でSwiftのバージョンを変えたい場合は、以下のようにします。
 
-```shell
+```
 $ swiftenv global DEVELOPMENT-SNAPSHOT-2016-05-03-a
 ```
 
 その後、再度 `swiftenv versions` を確認すると
 
-```shell
+```
 $ swiftenv versions
 * DEVELOPMENT-SNAPSHOT-2016-05-03-a (set by /Users/JP10975/.swiftenv/version)
   latest
@@ -102,7 +102,7 @@ $ swiftenv versions
 
 こうなっているはずです。実際にSwiftのバージョンを確認してみましょう。
 
-```shell
+```
 $ swift --version
 Apple Swift version 3.0-dev (LLVM dffa09ffd8, Clang 1e6cba3ce3, Swift d2aee43220)
 Target: x86_64-apple-macosx10.9
@@ -114,7 +114,7 @@ Target: x86_64-apple-macosx10.9
 
 その場合は以下のように`swiftenv local`というコマンドで変更することができます。
 
-```shell
+```
 $ swiftenv local DEVELOPMENT-SNAPSHOT-2016-05-03-a
 ```
 
@@ -123,7 +123,7 @@ $ swiftenv local DEVELOPMENT-SNAPSHOT-2016-05-03-a
 ちなみに元のXcodeに付属するSwiftのバージョンに戻すには以下のようにすればOK。
 ※localのところは、場合によってはglobalを指定してください。
 
-```shell
+```
 $ swiftenv local 2.2
 ```
 

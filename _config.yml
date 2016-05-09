@@ -6,10 +6,10 @@ twitter_username: clouder
 github_username:  yoshiki
 
 # Build settings
-# markdown: kramdown
-# kramdown:
-#   input: GFM
-#   hard_wrap: false
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
 lsi: false
 incremental: false
 highlighter: rouge
