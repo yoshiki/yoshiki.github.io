@@ -9,7 +9,7 @@ github_username:  yoshiki
 markdown: kramdown
 kramdown:
   input: GFM
-  hard_wrap: false
+  hard_wrap: true
 lsi: false
 incremental: false
 highlighter: rouge

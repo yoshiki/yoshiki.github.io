@@ -27,17 +27,13 @@ OSXでのインストール方法です。
 
     redisは必須ではありませんが、あとでデータの永続化の際に必要なのでインストールしておきましょう。
 
-    ```
-    % brew install node redis
-    ```
+        $ brew install node redis
 
 2. npmでhubotとcoffee-scriptをインストール
 
     次にhubotとcoffeescriptをインストールします。
 
-    ```
-    % npm install -g hubot coffee-script
-    ```
+        $ npm install -g hubot coffee-script
 
 3. npmでyoとgenerator-hubotをインストール
 
@@ -45,64 +41,54 @@ OSXでのインストール方法です。
 
     yoというのは[yeoman](http://yeoman.io/)というのは、モダンなWebアプリでよくあるジェネレータのためのフレームワークで、generator-hubotはそのyeomanのhubot用のジェネレータです。
 
-    ```
-    % npm install -g yo generator-hubot
-    ```
+        $ npm install -g yo generator-hubot
 
 4. yoを使って作りたいbotの雛形をジェネレートします。
 
     今回作るbotの名前を`hogebot`とします。
 
-    ```
-    % mkdir hogebot
-    % cd hogebot
-    % yo hubot
-    ```
+        $ mkdir hogebot
+        $ cd hogebot
+        $ yo hubot
 
     `yo hubot`を実行するといくつかの質問を聞かれますので答えてください。
     Ownerはてきとう、Bot nameは今回は`hogebot`、Descriptionはてきとう、Bot adapterはbotを接続させたいサービスの名前にします(たとえば`hipchat`とか`slack`とか)。
 
     ちなみに対話形式がめんどくさい場合は、オプションで渡すこともできるようです。
 
-    ```
-    Usage:
-      yo hubot:app [options]
+        Usage:
+          yo hubot:app [options]
 
-    Options:
-      -h,   --help         # Print generator's options and usage
-            --owner        # Name and email of the owner of new bot (ie Example   user@example.com>)
-            --name         # Name of new bot
-            --description  # Description of the new bot
-            --adapter      # Hubot adapter to use for new bot
-            --defaults     # Accept defaults and don't prompt for user input
-    ```
+        Options:
+          -h,   --help         # Print generator's options and usage
+                --owner        # Name and email of the owner of new bot (ie Example   user@example.com>)
+                --name         # Name of new bot
+                --description  # Description of the new bot
+                --adapter      # Hubot adapter to use for new bot
+                --defaults     # Accept defaults and don't prompt for user input
 
     全部の質問に答えるとごちゃごちゃ出力されますが気にしなくて大丈夫です。  
     関連するライブラリとかをインストールしているようです。
 
     で、処理が完了すると以下のようなhubotのためのファイル群がカレントディレクトリにできます。
 
-    ```
-    % tree -L 1 -F
-    .
-    ├── Procfile
-    ├── README.md
-    ├── bin/
-    ├── external-scripts.json
-    ├── hubot-scripts.json
-    ├── node_modules/
-    ├── package.json
-    └── scripts/
-    ```
+        % tree -L 1 -F
+        .
+        ├── Procfile
+        ├── README.md
+        ├── bin/
+        ├── external-scripts.json
+        ├── hubot-scripts.json
+        ├── node_modules/
+        ├── package.json
+        └── scripts/
 
 5. hubotを起動してみる。
 
     この状態になるともうhubotを動かすことができます。
     bin/にhubotというのがあるのでそれを実行するとhubotが起動します。
 
-    ```
-    % bin/hubot
-    ```
+        % bin/hubot
 
     これでhubotが起動します。
 
@@ -112,26 +98,20 @@ OSXでのインストール方法です。
     以下のように`hogebot>`というプロンプトが出てくるので、そこに対してなにかをタイプするとそれが入力として扱われます。
     (※ちなみに`bin/hubot`を実行しただけだとプロンプトが見えない場合があるので、`hogebot>`が出てない場合は一度リターンキーを押した方がよいかもしれません)
 
-    ```
-    hogebot>
-    ```
+        hogebot>
 
     試しにhubotに対してpingをしてみましょう。
     hubotに対して発言をする場合は、`hogebot: message`とか`@hogebot message`といった記法を使う必要があります。
 
-    ```
-    hogebot> hogebot: ping
-    PONG
-    hogebot>
-    ```
+        hogebot> hogebot: ping
+        PONG
+        hogebot>
 
     PONGと応答してくれましたね！
 
 6. 終了させるには`exit`をタイプすればOK。
 
-    ```
-    hogebot> exit
-    ```
+        hogebot> exit
 
     次にサービスにつなげてみましょう。
 
@@ -140,30 +120,26 @@ OSXでのインストール方法です。
 
     各設定値は自分の使用する環境に合わせて適宜変更してください。
 
-    ```
-    #!/bin/sh
+        #!/bin/sh
 
-    set -e
+        set -e
 
-    npm install
-    export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
-    export HUBOT_HIPCHAT_JID="YOUR_BOT_JID"
-    export HUBOT_HIPCHAT_PASSWORD="YOUR_BOT_PASSWORD"
-    export HUBOT_HIPCHAT_HOST="YOUR_SERVICE_HOST"
-    export HUBOT_HIPCHAT_XMPP_DOMAIN="YOUR_XMPP_DOMAIN"
-    export HUBOT_HIPCHAT_ROOMS="YOUR_ROOM_NAMES"
-    #export HUBOT_LOG_LEVEL="debug"
+        npm install
+        export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
+        export HUBOT_HIPCHAT_JID="YOUR_BOT_JID"
+        export HUBOT_HIPCHAT_PASSWORD="YOUR_BOT_PASSWORD"
+        export HUBOT_HIPCHAT_HOST="YOUR_SERVICE_HOST"
+        export HUBOT_HIPCHAT_XMPP_DOMAIN="YOUR_XMPP_DOMAIN"
+        export HUBOT_HIPCHAT_ROOMS="YOUR_ROOM_NAMES"
+        #export HUBOT_LOG_LEVEL="debug"
 
-    exec node_modules/.bin/hubot --name "hogebot" "$@"
-    ```
+        exec node_modules/.bin/hubot --name "hogebot" "$@"
 
     設定ができたら実行してみます。
 
     今回はさきほどとは違い、`-a`オプションで接続するアダプターを指定します。下記の例ではhipchatに接続するようにアダプターを設定しています。
 
-    ```
-    % bin/hubot -a hipchat
-    ```
+        % bin/hubot -a hipchat
 
     環境変数が正しければ、指定されたサービスの`HUBOT_HIPCHAT_ROOMS`で指定したルームにhogebotがジョインしているはずです。
 
