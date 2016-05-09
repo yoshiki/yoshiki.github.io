@@ -13,7 +13,7 @@ iOS7 から foo->isa という記法が deprecated になっています。
 
 簡単に言うと、Podfile に以下のように書いておけばいいだけです。
 
-```
+```ruby
 post_install do |installer_representation|
     installer_representation.project.targets.each do |target|
         target.build_configurations.each do |config|

@@ -13,7 +13,7 @@ UIKit Dynamicsは簡単に言うと、UIKitのビューたちを簡単に物理�
 
 例えば、あるView Controllerの`self.view`上にある`targetView`というビューを、`point`で示すポイントに吸い付かせるように動かすコードは以下にように3行で書けます。
 
-```
+```objc
 CGPoint point = CGPointMake(100.0f, 100.0f);
 UIDynamicAnimator *animator = [[UIDynamicAnimator alloc] initWithReferenceView:self.view];
 UISnapBehavior *snapBehavior = [[UISnapBehavior alloc] initWithItem:targetView snapToPoint:point];

@@ -11,7 +11,7 @@ iOS7ではUISearchBarのデザインが変わって、ルーペとプレース�
 
 で、こないだキャンセルボタンを押したときに以下のような実装をしていたら、ちょっと変な挙動になりました。
 
-```
+```objc
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     [searchBar setShowsCancelButton:NO animated:YES];
     [searchBar resignFirstResponder];
@@ -32,7 +32,7 @@ iOS7ではUISearchBarのデザインが変わって、ルーペとプレース�
 
 他のアプリをみると、ルーペとプレースホルダーが一緒に動いてるのでなにか実装が違うんだろうなと思っていろいろ試してみたいら、なんのとこはない以下のように`resignFirstResponder`を先にすればよかっただけでした。
 
-```
+```objc
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
     [searchBar setShowsCancelButton:NO animated:YES];
@@ -40,4 +40,3 @@ iOS7ではUISearchBarのデザインが変わって、ルーペとプレース�
 ```
 
 こうするとキャンセルボタンを押した際にルーペとプレースホルダーが一緒にセンターへ移動してくれるようになります。
-

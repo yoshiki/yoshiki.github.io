@@ -1,13 +1,16 @@
 ---
-layout: "post"
-title: "Installing Swift 3.0"
-date: "2016-05-09 13:48"
+layout: post
+title: Installing Swift 3.0
+date: '2016-05-09 19:09'
 ---
-最近Swift 3.0をいじってます。
 
-AppleがリリースしているSwiftは今2系ですが、オープンソースになったSwiftも開発が進められていて、現在2系と3系の開発が進められています。
+![Swift](/assets/2016-05-09/swift.svg){:width="240ox"}
 
-3系はSNAPSHOTとしてダウンロードして試すことができて、SPM(Swift Package Manager)が使えたりいろいろな新仕様が加えられたりします。
+# 最近Swift 3.0をいじってます
+
+現在AppleがリリースしているSwift(Xcodeに付属しているもの)は今2系ですが、現在別途3系の開発も進められています。
+
+3系はSNAPSHOTとして公開されているので、ダウンロードして試すことができてSPM(Swift Package Manager)が使えたり、その他いろいろな新仕様が加えられたりします。
 
 現状だと実用性という面ではまだまだですが、今後Webアプリなどの開発言語として採用される可能性もあるのでちょっとその辺も含めて触ってみようと思いました。
 
@@ -16,7 +19,7 @@ AppleがリリースしているSwiftは今2系ですが、オープンソース
 ※Mac OS X(Xcodeインストール済)でのインストールを前提にしています(Ubuntuでもだいたい同じようにすればいけます)
 
 
-### swiftenvのインストール
+# swiftenvのインストール
 
 Swiftにもswiftenvなるツールがあります。
 
@@ -28,7 +31,7 @@ Swiftにもswiftenvなるツールがあります。
 
 インストールは簡単で、cloneしたものを、`$HOME/.swiftenv`に入れるだけです。
 
-```bash
+```shell
 $ git clone https://github.com/kylef/swiftenv.git ~/.swiftenv
 ```
 
@@ -36,7 +39,7 @@ $ git clone https://github.com/kylef/swiftenv.git ~/.swiftenv
 
 次に、Swift 3.0のスナップショットをインストール
 
-### Swiftのインストール
+# Swiftのインストール
 
 次にSwiftをインストールします。
 
@@ -47,7 +50,7 @@ Swift 3.0はSNAPSHOTがswift.orgに公開されているのでそれをインス
 最新のSNAPSHOTは 2016-05-03 に公開されたものがあるので、それを指定してみます。
 インストールの途中でパスワードを聞かれますので入力をしてください。
 
-```bash
+{% highlight shell %}
 $ swiftenv install DEVELOPMENT-SNAPSHOT-2016-05-03-a
 Downloading https://swift.org/builds/development/xcode/swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a/swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a-osx.pkg
 Password:
@@ -55,17 +58,17 @@ installer: Package name is Swift Open Source Xcode Toolchain
 installer: Installing at base path /
 installer: The install was successful.
 DEVELOPMENT-SNAPSHOT-2016-05-03-a has been installed.
-```
+{% endhighlight %}
 
 これだけでしばらく待てばインストールされます。
 
 ※ちなみにリンクのURLを渡してもインストールすることができますが、その場合はOS Xの場合はXcodeのやつを、Ubuntuの場合はUbuntuのやつを指定する必要があります。
 
-### Swiftのバージョンを切り替える
+# Swiftのバージョンを切り替える
 
 この状態でSwiftのバージョンを確認すると以下のようになってるはずです。
 
-```bash
+```shell
 $ swift --version
 Apple Swift version 2.2 (swiftlang-703.0.18.8 clang-703.0.31)
 Target: x86_64-apple-macosx10.9
@@ -75,7 +78,7 @@ Target: x86_64-apple-macosx10.9
 
 次に先程インストールしたバージョンがあるかどうかは、以下のようにすると確認できます。
 
-```bash
+```shell
 $ swiftenv versions
   DEVELOPMENT-SNAPSHOT-2016-05-03-a
   latest
@@ -84,13 +87,13 @@ $ swiftenv versions
 
 もしシステム全体でSwiftのバージョンを変えたい場合は、以下のようにします。
 
-```bash
+```shell
 $ swiftenv global DEVELOPMENT-SNAPSHOT-2016-05-03-a
 ```
 
 その後、再度 `swiftenv versions` を確認すると
 
-```bash
+```shell
 $ swiftenv versions
 * DEVELOPMENT-SNAPSHOT-2016-05-03-a (set by /Users/JP10975/.swiftenv/version)
   latest
@@ -99,10 +102,29 @@ $ swiftenv versions
 
 こうなっているはずです。実際にSwiftのバージョンを確認してみましょう。
 
-```bash
+```shell
 $ swift --version
 Apple Swift version 3.0-dev (LLVM dffa09ffd8, Clang 1e6cba3ce3, Swift d2aee43220)
 Target: x86_64-apple-macosx10.9
 ```
 
 切り替わっていますね。
+
+でもglobalで変更してしまうと、いろいろと面倒なので通常はあるディレクトリ以下のみSwiftのバージョンを変えたい場合が多いでしょう。
+
+その場合は以下のように`swiftenv local`というコマンドで変更することができます。
+
+```shell
+$ swiftenv local DEVELOPMENT-SNAPSHOT-2016-05-03-a
+```
+
+こうすると、そのディレクトリに`.swift-version`というファイルができ、そのディレクトリ以下のみ指定したバージョンのSwiftを使うことができるようになります。
+
+ちなみに元のXcodeに付属するSwiftのバージョンに戻すには以下のようにすればOK。
+※localのところは、場合によってはglobalを指定してください。
+
+```shell
+$ swiftenv local 2.2
+```
+
+ということで、今回はSwift 3.0のインストール方法とバージョンの切り替え方をご紹介しましたが、次回からはインストールしたものを使って簡単なアプリを作る方法をご紹介したいと思います(続くかな…)。

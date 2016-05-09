@@ -6,10 +6,7 @@ twitter_username: clouder
 github_username:  yoshiki
 
 # Build settings
-markdown: redcarpet
-highlighter: pygments
-safe: true
-lsi: false
+#markdown: redcarpet
 permalink: /:year/:month/:day/:title/
 gems:
   - jekyll-sitemap
