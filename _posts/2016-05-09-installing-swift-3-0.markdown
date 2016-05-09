@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Installing Swift 3.0
+title: "Installing Swift 3.0"
 date: 2016-05-09 19:09
 ---
 
