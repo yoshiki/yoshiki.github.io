@@ -17,13 +17,3 @@ permalink: /:year/:month/:day/:title/
 paginate: 10
 gems:
   - jekyll-paginate
-exclude:
-  - vendor
-  - Gemfile
-  - Gemfile.lock
-  - .ruby-version
-  - .gitignore
-  - .bundle
-  - .git
-  - LICENSE
-  - CNAME
