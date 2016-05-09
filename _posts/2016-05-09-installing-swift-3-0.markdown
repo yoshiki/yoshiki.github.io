@@ -4,7 +4,7 @@ title: Installing Swift 3.0
 date: '2016-05-09 19:09'
 ---
 
-![Swift](/assets/2016-05-09/swift.svg){:width="240"}
+![Swift](/assets/2016-05-09/swift.svg)
 
 # 最近Swift 3.0をいじってます
 
