@@ -12,7 +12,6 @@ kramdown:
   hard_wrap: false
 lsi: false
 incremental: true
-highlighter: rouge
 permalink: /:year/:month/:day/:title/
 paginate: 10
 gems:
