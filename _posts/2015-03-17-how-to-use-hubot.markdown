@@ -7,7 +7,7 @@ categories: node hubot github coffeescript
 ---
 Hubotというのを触ってみました。
 
-#Hubotとは
+# Hubotとは
 
 [https://hubot.github.com/](https://hubot.github.com/)
 
@@ -17,7 +17,7 @@ coffeeescriptを使って書かれていて、node.js上で動かします。
 
 Hubotの最大の特徴は、アダプタを使うことによって様々なサービス(hipchatとかslackとか)向けにbotを作ることができることです。
 
-#インストール
+# インストール
 
 OSXでのインストール方法です。
 
