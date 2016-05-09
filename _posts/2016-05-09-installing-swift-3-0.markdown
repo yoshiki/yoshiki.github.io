@@ -3,6 +3,9 @@ layout: post
 title: Installing Swift 3.0
 date: 2016-05-09 19:09
 ---
+
+![Swift](/assets/2016-05-09/swift.svg)
+
 # 最近Swift 3.0をいじってます
 
 現在AppleがリリースしているSwift(Xcodeに付属しているもの)は今2系ですが、現在別途3系の開発も進められています。

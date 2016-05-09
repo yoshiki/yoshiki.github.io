@@ -7,13 +7,14 @@ github_username:  yoshiki
 
 # Build settings
 lsi: false
-safe: true
-incremental: false
+#safe: true
+incremental: true
 highlighter: rouge
 permalink: /:year/:month/:day/:title/
+paginate: 10
 gems:
-  - jekyll-sitemap
-exclude: 
+  - jekyll-paginate
+exclude:
   - vendor
   - Gemfile
   - Gemfile.lock
