@@ -50,7 +50,7 @@ Swift 3.0はSNAPSHOTがswift.orgに公開されているのでそれをインス
 最新のSNAPSHOTは 2016-05-03 に公開されたものがあるので、それを指定してみます。
 インストールの途中でパスワードを聞かれますので入力をしてください。
 
-{% highlight shell %}
+```shell
 $ swiftenv install DEVELOPMENT-SNAPSHOT-2016-05-03-a
 Downloading https://swift.org/builds/development/xcode/swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a/swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a-osx.pkg
 Password:
@@ -58,7 +58,7 @@ installer: Package name is Swift Open Source Xcode Toolchain
 installer: Installing at base path /
 installer: The install was successful.
 DEVELOPMENT-SNAPSHOT-2016-05-03-a has been installed.
-{% endhighlight %}
+```
 
 これだけでしばらく待てばインストールされます。
 
