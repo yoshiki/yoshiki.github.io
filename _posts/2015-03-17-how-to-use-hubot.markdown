@@ -53,7 +53,7 @@ OSXでのインストール方法です。
 
   今回作るbotの名前を`hogebot`とします。
 
-  ```bash
+  ```shell
 % mkdir hogebot
 % cd hogebot
 % yo hubot
@@ -82,7 +82,7 @@ Options:
 
   で、処理が完了すると以下のようなhubotのためのファイル群がカレントディレクトリにできます。
 
-  ```bash
+  ```shell
 % tree -L 1 -F
 .
 ├── Procfile
@@ -100,7 +100,7 @@ Options:
   この状態になるともうhubotを動かすことができます。
   bin/にhubotというのがあるのでそれを実行するとhubotが起動します。
 
-  ```bash
+  ```shell
 % bin/hubot
 ```
 
@@ -141,7 +141,7 @@ hogebot> exit
 
   各設定値は自分の使用する環境に合わせて適宜変更してください。
 
-  ```
+  ```shell
 #!/bin/sh
 
 set -e
@@ -162,7 +162,7 @@ exec node_modules/.bin/hubot --name "hogebot" "$@"
 
   今回はさきほどとは違い、`-a`オプションで接続するアダプターを指定します。下記の例ではhipchatに接続するようにアダプターを設定しています。
 
-  ```bash
+  ```shell
 % bin/hubot -a hipchat
 ```
 
