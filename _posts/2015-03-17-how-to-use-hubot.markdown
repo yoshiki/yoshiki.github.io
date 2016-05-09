@@ -27,7 +27,7 @@ OSXでのインストール方法です。
 
   redisは必須ではありませんが、あとでデータの永続化の際に必要なのでインストールしておきましょう。
 
-  ```
+  ```shell
 % brew install node redis
 ```
 <br>
@@ -35,7 +35,7 @@ OSXでのインストール方法です。
 
   次にhubotとcoffeescriptをインストールします。
 
-  ```
+  ```shell
 % npm install -g hubot coffee-script
 ```
 <br>
@@ -45,7 +45,7 @@ OSXでのインストール方法です。
 
   yoというのは[yeoman](http://yeoman.io/)というのは、モダンなWebアプリでよくあるジェネレータのためのフレームワークで、generator-hubotはそのyeomanのhubot用のジェネレータです。
 
-  ```
+  ```shell
 % npm install -g yo generator-hubot
 ```
 <br>
