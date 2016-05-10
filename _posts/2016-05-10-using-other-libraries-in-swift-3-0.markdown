@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Using other libraries in Swift 3.0
-date: 2016-05-10 19:00
+date: 2016-05-10 19:00:00 +0900
 tags: Swift
 ---
 
