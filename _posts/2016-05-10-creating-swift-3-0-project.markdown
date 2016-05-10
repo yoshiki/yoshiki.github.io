@@ -2,11 +2,12 @@
 layout: post
 title: Creating Swift 3.0 Project
 date: 2016-05-10 13:51:00 +0900
+tags: Swift
 ---
 
 # Swift 3.0でプロジェクトを作る
 
-[前回の記事](/2016-05-09/installing-swift-3-0/)でSwift 3.0をインストールできたと思いますので、今回はそれを使ってプロジェクトを作成してみたいと思います。
+[前回の記事](/2016/05/09/installing-swift-3-0/)でSwift 3.0をインストールできたと思いますので、今回はそれを使ってプロジェクトを作成してみたいと思います。
 
 Swift 3.0にはSwift Package Manager(以下SPM)というのが組み込まれていて、それを使うことによりプロジェクトの雛形を生成することができます。
 

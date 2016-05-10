@@ -2,6 +2,7 @@
 layout: post
 title: Installing Swift 3.0
 date: 2016-05-09 23:20
+tags: Swift
 ---
 
 ![Swift](/assets/2016-05-09/swift.svg)
