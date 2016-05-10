@@ -12,6 +12,7 @@ kramdown:
   hard_wrap: true
 lsi: false
 incremental: false
+futute: true
 highlighter: rouge
 permalink: /:year/:month/:day/:title/
 paginate: 10
