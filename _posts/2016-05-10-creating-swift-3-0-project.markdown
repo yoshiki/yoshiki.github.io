@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Creating Swift 3.0 Project
-date: '2016-05-10 13:51'
+date: 2016-05-10 13:51
 tags: swift
 ---
 
