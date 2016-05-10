@@ -2,7 +2,6 @@
 layout: post
 title: Creating Swift 3.0 Project
 date: 2016-05-10 13:51
-tags: swift
 ---
 
 # Swift 3.0でプロジェクトを作る
