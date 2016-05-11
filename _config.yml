@@ -4,6 +4,7 @@ baseurl: ""
 url: http://blog.clouder.jp
 twitter_username: clouder
 github_username:  yoshiki
+timezone: Asia/Tokyo
 
 # Build settings
 markdown: kramdown
