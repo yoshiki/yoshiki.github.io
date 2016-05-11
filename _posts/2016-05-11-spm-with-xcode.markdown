@@ -1,7 +1,7 @@
 ---
-layout: "post"
-title: "SPM with Xcode"
-date: "2016-05-10 17:02"
+layout: post
+title: SPM with Xcode
+date: '2016-05-11 09:19:00 +0900'
 tags: Swift
 ---
 
