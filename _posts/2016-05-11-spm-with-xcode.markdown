@@ -19,7 +19,7 @@ $ swift build --generate-xcode
 
 このようにプロジェクトのルートディレクトで`--generate-xcode`オプション(`-X`でもOK)を付けて`swift build`をすることにより、プロジェクトのXcodeプロジェクトファイルを生成してくれるようになっています。
 
-[前回のサンプル](/2016/05/10/using-other-libraries-in-swift-3-0/)で言うと`json-parser.xcodeproj`というファイルが生成されます。Xcodeでこのファイルを開けば、Xcodeで開発をすることができるようになります。
+[前回のサンプル](/2016/05/10/using-libraries-in-swift-3-0/)で言うと`json-parser.xcodeproj`というファイルが生成されます。Xcodeでこのファイルを開けば、Xcodeで開発をすることができるようになります。
 
 よーし、これでXcodeでもビルドや実行ができるようになる！…と思ったら落とし穴があります。
 

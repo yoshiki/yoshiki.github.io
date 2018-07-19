@@ -14,8 +14,8 @@ kramdown:
 lsi: false
 incremental: false
 futute: true
-highlighter: rouge
+# highlighter: rouge
 permalink: /:year/:month/:day/:title/
 paginate: 10
-gems:
+plugins:
   - jekyll-paginate
