@@ -5,11 +5,11 @@ date: '2018-07-23 18:00:00 +0900'
 tags: Java Annotation
 ---
 
-# FunctionalInterface
+# @FunctionalInterface
 
 アノテーションを調べていたら`@FunctionalInterface`というアノテーションを知りましたので、これが何なのかちょっと調べてみました。
 
-# tl;dr;
+# tl;dr
 
 結論から言うと`@FunctionalInterface`は、**抽象メソッド(Abstract method)を1つだけもつ関数型インターフェイスに付与されるアノテーション** のことだそうです。
 
