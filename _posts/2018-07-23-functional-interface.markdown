@@ -3,6 +3,7 @@ layout: post
 title: Functional Interface
 date: '2018-07-23 18:00:00 +0900'
 tags: Java Annotation
+comments: true
 ---
 
 # @FunctionalInterface

@@ -3,6 +3,7 @@ layout: post
 title: Annotation basics in Java
 date: '2018-07-19 18:00:00 +0900'
 tags: Java Annotation
+comments: true
 ---
 
 # アノテーション
