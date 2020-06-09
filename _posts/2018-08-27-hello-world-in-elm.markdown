@@ -30,9 +30,9 @@ Elmは、Mac・Windows・Linuxなどで使えるのですが、今回はnpmで�
 とりあえず、プロジェクトのディレクトリを作ってそこにElmをインストールします。
 
 ```shell
-% mkdir hello_world
-% cd hello_world
-% npm init -y
+$ mkdir hello_world
+$ cd hello_world
+$ npm init -y
 Wrote to /PATH_TO/hello_world/package.json:
 {
   "name": "hello_world",
@@ -46,7 +46,7 @@ Wrote to /PATH_TO/hello_world/package.json:
   "author": "",
   "license": "ISC"
 }
-% npm install elm
+$ npm install elm
 ```
 
 これでElmの開発環境のベースが出来ました。
@@ -56,7 +56,7 @@ Wrote to /PATH_TO/hello_world/package.json:
 次に、Elmの基本的なモジュール(core, html, virtual-dom)をインストールします。
 
 ```shell
-% npx elm package install elm-lang/html
+$ npx elm package install elm-lang/html
 Some new packages are needed. Here is the upgrade plan.
 
   Install:
@@ -103,7 +103,7 @@ main =
 Elm Reactorをターミナルで起動します。
 
 ```shell
-% npx elm reactor
+$ npx elm reactor
 elm-reactor 0.18.0
 Listening on http://localhost:8000
 ```
